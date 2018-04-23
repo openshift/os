@@ -1,0 +1,5 @@
+[ostree-master]
+name=CentOS OSTree bleeding edge
+baseurl=https://ci.centos.org/artifacts/sig-atomic/centos-continuous/rdgo/build/
+enabled=1
+gpgcheck=0

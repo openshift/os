@@ -1,0 +1,138 @@
+{
+    "comment": "CentOS OpenShift Host",
+    "osname": "centos-openshift-host",
+    "ref": "openshift/7/x86_64/standard",
+    "repos": [
+        "CentOS-Base",
+        "CentOS-updates",
+        "CentOS-extras",
+        "rhel-atomic-rebuild",
+        "CentOS-CR",
+        "origin-repo"
+    ],
+    "selinux": true,
+    "install-langs-comment": "Keep this in sync with compose-post.sh",
+    "install-langs": [
+        "en_US"
+    ],
+    "documentation": false,
+    "initramfs-args": [
+        "--no-hostonly",
+        "--add",
+        "iscsi"
+    ],
+    "automatic_version_prefix": "7.1803",
+    "mutate-os-release": "7",
+    "postprocess-script": "compose-post.sh",
+    "etc-group-members": [
+        "wheel",
+        "docker"
+    ],
+    "ignore-removed-users": [
+        "root"
+    ],
+    "ignore-removed-groups": [
+        "root"
+    ],
+    "check-passwd": {
+        "type": "file",
+        "filename": "passwd"
+    },
+    "check-groups": {
+        "type": "file",
+        "filename": "group"
+    },
+    "packages": [
+        "filesystem",
+        "glibc",
+        "nss-altfiles",
+        "shadow-utils",
+        "centos-release-atomic",
+        "atomic",
+        "runc",
+        "systemd",
+        "kernel",
+        "microcode_ctl",
+        "rpm-ostree-client",
+        "dracut-network",
+        "biosdevname",
+        "coreutils",
+        "lvm2",
+        "grub2",
+        "grub2-efi",
+        "ostree-grub2",
+        "efibootmgr",
+        "shim",
+        "e2fsprogs",
+        "xfsprogs",
+        "mdadm",
+        "docker",
+        "selinux-policy-targeted",
+        "sssd",
+        "cloud-init",
+        "cloud-utils-growpart",
+        "tar",
+        "xz",
+        "gzip",
+        "bzip2",
+        "less",
+        "kexec-tools",
+        "iscsi-initiator-utils",
+        "bridge-utils",
+        "nfs-utils",
+        "subscription-manager",
+        "subscription-manager-plugin-ostree",
+        "subscription-manager-plugin-container",
+        "openssh-server",
+        "openssh-clients",
+        "chrony",
+        "logrotate",
+        "passwd",
+        "iptables-services",
+        "NetworkManager",
+        "vim-minimal",
+        "nano",
+        "sudo",
+        "tuned",
+        "tuned-profiles-atomic",
+        "cryptsetup",
+        "irqbalance",
+        "bash-completion",
+        "rsync",
+        "tmux",
+        "net-tools",
+        "nmap-ncat",
+        "bind-utils",
+        "authconfig",
+        "policycoreutils-python",
+        "setools-console",
+        "atomic-devmode",
+        "docker-lvm-plugin",
+        "docker-novolume-plugin",
+        "ceph-common",
+        "device-mapper-multipath",
+        "sg3_utils",
+        "glusterfs-fuse",
+        "gomtree",
+        "cronie",
+        "dnsmasq",
+        "oci-umount",
+        "origin-node"
+    ],
+    "remove-from-packages": [
+        [
+            "yum",
+            "/usr/bin/.*"
+        ],
+        [
+            "filesystem",
+            "/usr/share/backgrounds"
+        ]
+    ],
+    "units": [
+        "docker.service",
+        "tuned.service",
+        "docker-storage-setup.service"
+    ],
+    "default_target": "multi-user.target"
+}
