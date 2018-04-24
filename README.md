@@ -1,6 +1,10 @@
-# Example for bootstrapping
+# Demonstration of building a host OSTree as a container image
 
-Locally:
+This project does an [rpm-ostree](https://github.com/projectatomic/rpm-ostree)
+build inside a container; that container can then be pulled and run in a cluster,
+providing a HTTP server for clients to upgrade.
+
+Locally (but see [README-development.md] for more information on builds)
 
 ```
 $ docker build .
