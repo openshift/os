@@ -8,7 +8,7 @@ RUN yum install -y rpm-ostree
 RUN cd /srv/tree/ && mkdir build-repo && \
     ostree --repo=build-repo init --mode=bare-user && \
     mkdir repo && \
-    ostree --repo=repo init --mode=archive-z2
+    ostree --repo=repo init --mode=archive
 
 FROM base
 
