@@ -1,7 +1,7 @@
 {
     "comment": "CentOS OpenShift Host",
     "osname": "centos-openshift-host",
-    "ref": "openshift/7/x86_64/standard",
+    "ref": "openshift/3.10/x86_64/os",
     "repos": [
         "CentOS-Base",
         "CentOS-updates",
@@ -21,7 +21,7 @@
         "--add",
         "iscsi"
     ],
-    "automatic_version_prefix": "7.1803",
+    "automatic_version_prefix": "3.10-7.1803",
     "mutate-os-release": "7",
     "postprocess-script": "compose-post.sh",
     "etc-group-members": [
