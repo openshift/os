@@ -8,7 +8,8 @@
         "CentOS-extras",
         "rhel-atomic-rebuild",
         "CentOS-CR",
-        "origin-repo"
+        "origin-repo",
+        "dustymabe-ignition"
     ],
     "selinux": true,
     "install-langs-comment": "Keep this in sync with compose-post.sh",
@@ -44,6 +45,7 @@
     },
     "packages": [
         "filesystem",
+        "ignition",
         "glibc",
         "nss-altfiles",
         "shadow-utils",
