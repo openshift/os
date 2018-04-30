@@ -1,5 +1,6 @@
 FROM centos:7 AS base
 
+COPY RPM-GPG-KEY-redhat-release /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
 COPY ostree-master.repo ignition.repo /etc/yum.repos.d/
 COPY . /srv/tree/
 
