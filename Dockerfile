@@ -21,4 +21,6 @@ RUN cd /srv/tree && \
     ostree --repo=repo summary -u && \
     rm -rf build-repo
 
+COPY index.html /srv/tree/repo/
+
 CMD ["nginx", "-c", "/etc/nginx/nginx.conf"]
