@@ -1,1 +1,60 @@
-TODO
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>OSTree repo service</title>
+
+    <link href="subdomain.css" rel="stylesheet" type="text/css" media="screen, print" />
+</head>
+<body class="index online">
+    <div class="navbar navbar-default navbar-openshift" role="navigation">
+        <div class="navbar-header"><h1>OSTree Update Service</h1></div>
+    </div>
+    <div class="container">
+        <p class="lead primary-message">Welcome to the OSTree update service.</p>
+        <p>
+            This service provides the latest OSTree repo within an OpenShift cluster. You may also view the
+            <a href="/repo/">OSTree repo directly</a>.
+        </p>
+        <h2>Examples</h2>
+        <h3>In a cluster</h3>
+        <pre>
+        $ ssh root@NODE_HOST
+        $ ostree remote add --no-gpg-verify local http://os-content.namespace.svc:8080 openshift/3.10/x86_64/os
+        $ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
+
+        # wait, SSH back in
+        $ openshift version</pre>
+
+        <h3>Locally</h3>
+        <pre>
+        $ docker run --network host -d -w /srv/tree/repo $REGISTRY/os:latest
+        $ ostree remote add --no-gpg-verify local http://localhost:8080 openshift/3.10/x86_64/os
+        $ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
+
+        # wait, SSH back in
+        $ openshift version</pre>
+
+        <h2>Found a bug?</h2>
+        If so, please report it using <a href="https://github.com/openshift/os/issues/new?labels=bug">this link</a>.
+    </div>
+
+
+    <footer class="footer-openshift-new">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-3 col-md-3 logo">
+                <a href="https://www.redhat.com/"></a>
+            </div>
+            <div class="col-xs-9 col-md-9 text-right">
+                <a href="https://www.redhat.com/en/about/privacy-policy">Privacy Statement</a>
+                <a href="https://www.openshift.com/legal/terms.html">Terms and Conditions</a>
+                <a href="https://www.openshift.org/" class="hidden-xs">Open Source</a>
+                <a href="https://www.openshift.com/about/contact.html" class="hidden-xs">Contact Us</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
