@@ -25,8 +25,8 @@ $ xfs_growfs /
 
 ```
 $ docker run --network host -d -w /srv/tree/repo $REGISTRY/os:latest
-$ ostree remote add --no-gpg-verify local http://localhost:8080 openshift/3.10/x86_64/os
-$ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
+$ ostree remote add --no-gpg-verify local http://localhost:8080 origin/3.10/x86_64/os
+$ rpm-ostree rebase -r local:origin/3.10/x86_64/os
 
 # wait, SSH back in
 $ openshift version
@@ -39,8 +39,8 @@ $ kubectl run os-content --image=$REGISTRY/os:latest
 $ kubectl expose os-content --port 8080
 
 $ ssh root@NODE_HOST
-$ ostree remote add --no-gpg-verify local http://os-content.namespace.svc:8080 openshift/3.10/x86_64/os
-$ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
+$ ostree remote add --no-gpg-verify local http://os-content.namespace.svc:8080 origin/3.10/x86_64/os
+$ rpm-ostree rebase -r local:origin/3.10/x86_64/os
 
 # wait, SSH back in
 $ openshift version

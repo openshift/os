@@ -3,10 +3,6 @@
     "osname": "openshift-host",
     "ref": "openshift/3.10/x86_64/os",
     "repos": [
-        "rhel-7.5-server",
-        "rhel-7.5-server-optional",
-        "rhel-7.5-server-extras",
-        "rhel-7.5-atomic",
         "ostree-master",
         "origin-repo",
         "dustymabe-ignition"
@@ -114,8 +110,7 @@
         "sg3_utils",
         "glusterfs-fuse",
         "dnsmasq",
-        "oci-umount",
-        "origin-node"
+        "oci-umount"
     ],
     "remove-from-packages": [
         [
