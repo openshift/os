@@ -110,7 +110,8 @@
         "sg3_utils",
         "glusterfs-fuse",
         "dnsmasq",
-        "oci-umount"
+        "oci-umount",
+        "origin-node"
     ],
     "remove-from-packages": [
         [
