@@ -1,0 +1,13 @@
+{
+    "include": "host-base.json",
+    "ref": "origin/3.10/x86_64/os",
+    "repos": [
+        "CentOS-Base",
+        "CentOS-updates",
+        "CentOS-extras",
+        "rhel-atomic-rebuild",
+        "CentOS-CR"
+    ],
+    "packages": ["origin-node"],
+    "automatic_version_prefix": "3.10-7.1803"
+}

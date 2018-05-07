@@ -1,0 +1,11 @@
+{
+    "include": "host-base.json",
+    "repos": [
+        "rhel-7.5-server",
+        "rhel-7.5-server-optional",
+        "rhel-7.5-server-extras",
+        "rhel-7.5-atomic"
+    ],
+    "packages": ["atomic-openshift-node"],
+    "automatic_version_prefix": "3.10-7.5.0"
+}

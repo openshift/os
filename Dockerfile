@@ -17,8 +17,8 @@ RUN cd /srv/tree/ && mkdir build-repo && \
 FROM base
 
 RUN cd /srv/tree && \
-    rpm-ostree compose tree --repo=/srv/tree/build-repo host.json && \
-    ostree --repo=repo pull-local build-repo openshift/3.10/x86_64/os && \
+    rpm-ostree compose tree --repo=/srv/tree/build-repo host-origin.json && \
+    ostree --repo=repo pull-local build-repo && \
     ostree --repo=repo summary -u && \
     rm -rf build-repo
 
