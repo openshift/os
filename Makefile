@@ -1,3 +1,11 @@
-refresh:
-	curl -q "https://storage.googleapis.com/origin-ci-test/releases/openshift/origin/master/origin.repo" 2>/dev/null >openshift.repo
-.PHONY: refresh
+.PHONY: syntax-check
+syntax-check:
+	@set -e; for jsonfile in $$(find . -name '*.json'); do \
+		echo -n "Checking JSON syntax for $${jsonfile}... "; \
+		jq < $${jsonfile} . >/dev/null; \
+		echo "OK"; \
+	done
+
+.PHONY: container
+container:
+	imagebuild -privileged .
