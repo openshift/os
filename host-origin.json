@@ -8,6 +8,5 @@
         "rhel-atomic-rebuild",
         "CentOS-CR"
     ],
-    "packages": ["origin-node"],
     "automatic_version_prefix": "3.10-7.1803"
 }
