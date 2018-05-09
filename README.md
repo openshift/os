@@ -1,4 +1,4 @@
-# Demonstration of building a host OSTree as a container image
+# Demonstration of delivering OSTree host updates as a container image
 
 This project does an [rpm-ostree](https://github.com/projectatomic/rpm-ostree)
 build inside a container; that container can then be pulled and run in a cluster,
