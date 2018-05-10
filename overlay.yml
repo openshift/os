@@ -1,0 +1,25 @@
+aliases: 
+  - name: github
+    url: https://github.com/
+
+  - name: fedorapkgs
+    url: https://src.fedoraproject.org/git/rpms/
+    cacertpath: DigiCertHighAssuranceEVRootCA.crt
+
+  - name: dmi
+    url: http://copr-dist-git.fedorainfracloud.org/git/dustymabe/ignition/
+
+distgit:
+  prefix: fedorapkgs
+  branch: master
+  
+root:
+  mock: fedora-28-$arch
+
+components:
+  - src: github:projectatomic/docker
+    override-version: "1.13.1"
+    branch: docker-1.13.1-rhel
+
+#   - src: github:coreos/ignition
+#   TODO: use copr for distgit here OR get spec in the ignition repo
