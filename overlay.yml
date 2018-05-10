@@ -23,3 +23,8 @@ components:
 
 #   - src: github:coreos/ignition
 #   TODO: use copr for distgit here OR get spec in the ignition repo
+
+    # Use the internal spec specified in origin repo
+    # so we don't pull content from dist-git
+  - src: github:openshift/origin
+    spec: internal
