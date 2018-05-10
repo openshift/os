@@ -21,5 +21,10 @@ components:
     override-version: "1.13.1"
     branch: docker-1.13.1-rhel
 
+  # NOTE: master=1.11.0 which requires a different spec
+  - src: github:kubernetes-incubator/cri-o
+    override-version: "1.10.1"
+    branch: release-1.10
+
 #   - src: github:coreos/ignition
 #   TODO: use copr for distgit here OR get spec in the ignition repo
