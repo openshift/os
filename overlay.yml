@@ -6,9 +6,6 @@ aliases:
     url: https://src.fedoraproject.org/git/rpms/
     cacertpath: DigiCertHighAssuranceEVRootCA.crt
 
-  - name: dmi
-    url: http://copr-dist-git.fedorainfracloud.org/git/dustymabe/ignition/
-
 distgit:
   prefix: fedorapkgs
   branch: master
