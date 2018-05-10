@@ -11,7 +11,7 @@ distgit:
   branch: master
   
 root:
-  mock: fedora-28-$arch
+  mock: centos-7-and-extras-$arch.cfg
 
 components:
   - src: github:projectatomic/docker
