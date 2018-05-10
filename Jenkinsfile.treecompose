@@ -49,12 +49,6 @@ node(env.NODE) {
             sh "rpm-ostree compose tree --repo=${repo} ${manifest}"
         }
 
-        /*
-        stage("Build Cloud Images") {
-            sh "make cloud TYPE=qcow2"
-        }
-        */
-
         stage("Sync Out") {
             withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
                                                keyFileVariable: 'KEY_FILE')]) {
