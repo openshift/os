@@ -1,0 +1,13 @@
+<template>
+    <name>rhcos</name>
+    <os>
+        <name>RHEL-7</name>
+        <version>0</version>
+        <arch>x86_64</arch>
+        <install type='url'>
+            <url>https://dl.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os/</url>
+        </install>
+        <rootpw>none</rootpw>
+    </os>
+</template>
+

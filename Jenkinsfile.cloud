@@ -1,0 +1,73 @@
+// this var conveniently refers to a location on the server as well as the local dir we sync to/from
+def output = "${env.ARTIFACT_SERVER_DIR}/images"
+
+def ref
+if (env.BUILD_TYPE == 'origin') {
+    ref = "origin/3.10/x86_64/os"
+} else if (env.BUILD_TYPE == 'rhcos') {
+    ref = "openshift/3.10/x86_64/os"
+} else {
+    assert false
+}
+
+node(env.NODE) {
+    checkout scm
+
+    stage("Sync In") {
+        withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
+                                           keyFileVariable: 'KEY_FILE')]) {
+            sh """
+                mkdir -p ${output}/cloud
+                rsync -Hrlpt --stats \
+                    -e 'ssh -i ${env.KEY_FILE} \
+                            -o UserKnownHostsFile=/dev/null \
+                            -o StrictHostKeyChecking=no' \
+                    ${env.ARTIFACT_SERVER}:${output}/ ${output}
+            """
+        }
+    }
+
+    stage("Prepare Configs") {
+        sh "sed -i 's,\\(<url>\\).*\\(<\\/url\\),\\1${env.INSTALLER_TREE_URL}\\2,' rhcos.tdl"
+        sh "sed -i 's,@@OSTREE_INSTALL_URL@@,${env.OSTREE_INSTALL_URL},' cloud.ks"
+        sh "sed -i 's,@@OSTREE_INSTALL_REF@@,${ref},' cloud.ks"
+        sh "rm -rf /var/lib/imagefactory/storage/*"
+    }
+
+    stage("Running imagefactory") {
+        sh """
+            imagefactory --debug base_image \
+                --file-parameter install_script cloud.ks \
+                --parameter offline_icicle True \
+                rhcos.tdl
+        """
+    }
+
+    stage("Finalizing") {
+        def dirname = (new Date()).format('YYYY-MM-dd-HH-mm-ss')
+        def dirpath = "${output}/cloud/${dirname}"
+        sh "mkdir -p ${dirpath}"
+
+        def image = sh(returnStdout: true, script: "ls /var/lib/imagefactory/storage/*.body").trim()
+        def final_image_name = "${env.BUILD_TYPE}.qcow2"
+        sh "qemu-img convert -f raw -O qcow2 ${image} /${dirpath}/${final_image_name}"
+        sh "gzip /${dirpath}/${final_image_name}"
+
+        sh "ln -sfn ${dirname} ${output}/cloud/latest"
+        // just keep the last 2 (+ latest symlink)
+        sh "cd ${output}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
+    }
+
+    stage("Sync Out") {
+        withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
+                                           keyFileVariable: 'KEY_FILE')]) {
+            sh """
+                rsync -Hrlpt --stats --delete --delete-after \
+                    -e 'ssh -i ${env.KEY_FILE} \
+                            -o UserKnownHostsFile=/dev/null \
+                            -o StrictHostKeyChecking=no' \
+                    ${output}/ ${env.ARTIFACT_SERVER}:${output}
+            """
+        }
+    }
+}
