@@ -3,7 +3,7 @@
     "osname": "openshift-host",
     "ref": "openshift/3.10/x86_64/os",
     "repos": [
-        "ostree-master",
+        "atomic-centos-continuous",
         "origin-repo",
         "dustymabe-ignition"
     ],
