@@ -5,6 +5,7 @@
     "repos": [
         "atomic-centos-continuous",
         "origin-repo",
+        "openshift",
         "dustymabe-ignition"
     ],
     "selinux": true,

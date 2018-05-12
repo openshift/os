@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -xeuo pipefail
+
+LATEST_OPENSHIFT_REPO=`curl https://storage.googleapis.com/origin-ci-test/releases/openshift/origin/master/.latest-rpms`
+
+echo "[openshift]
+name=openshift
+baseurl=${LATEST_OPENSHIFT_REPO}
+type=rpm
+enabled=1
+gpgcheck=0" > latest_openshift.repo
