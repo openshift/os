@@ -4,8 +4,7 @@
     "ref": "openshift/3.10/x86_64/os",
     "repos": [
         "atomic-centos-continuous",
-        "openshift",
-        "dustymabe-ignition"
+        "openshift"
     ],
     "selinux": true,
     "install-langs-comment": "Keep this in sync with compose-post.sh",
