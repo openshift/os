@@ -9,3 +9,21 @@ as well as persistent OSTree repositories.
 You'll also want to use the `--cachedir` argument to avoid repeatedly
 downloading RPMs. More information in
 the [rpm-ostree docs](https://github.com/projectatomic/rpm-ostree/blob/master/docs/manual/compose-server.md).
+
+Example setup (in a container, though /srv should be a persistent mount)
+---
+
+```
+# mkdir -p /srv/origin-os
+# cd /srv/origin-os
+# mkdir cache
+# git clone https://github.com/openshift/os  (or symlink it from your user's directory)
+# (cd os && make repo-refresh)
+# ln -s os/Makefile .
+# make
+```
+
+Iterating more quickly with `--cache-only`:
+```
+# make COMPOSEFLAGS=--cache-only
+```

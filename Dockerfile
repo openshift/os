@@ -9,17 +9,11 @@ RUN yum install -y rpm-ostree epel-release && \
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN cd /srv/tree/ && mkdir build-repo && \
-    ostree --repo=build-repo init --mode=bare-user && \
-    mkdir repo && \
-    ostree --repo=repo init --mode=archive
+RUN cd /srv/tree && make init-ostree-repo
 
 FROM base
 
-RUN cd /srv/tree && \
-    rpm-ostree compose tree --repo=/srv/tree/build-repo host-origin.json && \
-    ostree --repo=repo pull-local build-repo && \
-    ostree --repo=repo summary -u && \
+RUN cd /srv/tree && make rpmostree-compose && \
     rm -rf build-repo
 
 COPY index.html subdomain.css /srv/tree/repo/
