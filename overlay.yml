@@ -21,5 +21,9 @@ components:
   - src: github:kubernetes-incubator/cri-o
     override-version: "1.11"
 
-#   - src: github:coreos/ignition
-#   TODO: use copr for distgit here OR get spec in the ignition repo
+  - src: github:coreos/ignition
+    distgit:
+        src: https://github.com/ashcrow/ignition-specs.git
+        name: ignition
+        patches: drop
+
