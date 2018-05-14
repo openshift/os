@@ -3,6 +3,7 @@ OS_FLAVOR ?= origin
 COMPOSEFLAGS ?=
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 CACHE_ARGS := $(shell if test -d cache; then echo $(shell pwd)/cache; fi)
+CONTAINER_NAME ?= $(OS_FLAVOR)-os
 
 all: rpmostree-compose
 
@@ -16,7 +17,7 @@ syntax-check:
 
 .PHONY: container
 container: repo-refresh
-	imagebuild -privileged ${ROOT_DIR}
+	imagebuilder -t $(CONTAINER_NAME) -privileged ${ROOT_DIR}
 
 .PHONY: repo-refresh
 repo-refresh:
