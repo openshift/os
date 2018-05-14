@@ -7,9 +7,9 @@ syntax-check:
 	done
 
 .PHONY: container
-container:
+container: repo-refresh
 	imagebuild -privileged .
 
-.PHONY: refresh
-refresh:
+.PHONY: repo-refresh
+repo-refresh:
 	./generate-openshift-repo
