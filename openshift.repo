@@ -1,5 +1,0 @@
-[origin-repo]
-name=Origin RPMs
-baseurl=https://storage.googleapis.com/origin-ci-test/logs/test_branch_origin_extended_conformance_azure/64/artifacts/rpms
-enabled=1
-gpgcheck=0

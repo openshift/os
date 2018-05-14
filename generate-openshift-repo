@@ -9,4 +9,4 @@ name=openshift
 baseurl=${LATEST_OPENSHIFT_REPO}
 type=rpm
 enabled=1
-gpgcheck=0" > latest_openshift.repo
+gpgcheck=0" > openshift.repo
