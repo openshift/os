@@ -14,8 +14,9 @@ node(env.NODE) {
 
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
         stage("Provision") {
-            sh "dnf install -y git rpm-ostree rsync openssh-clients"
+            sh "dnf install -y git make rpm-ostree rsync openssh-clients"
             sh "cp RPM-GPG-* /etc/pki/rpm-gpg/"
+            sh "make repo-refresh"
         }
 
         stage("Sync In") {
