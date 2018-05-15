@@ -23,8 +23,8 @@ node(env.NODE) {
                     mkdir -p ${rdgo}
                     rsync -Hplpt --stats \
                         -e 'ssh -i ${env.KEY_FILE} \
-                            -o UserKnownHostFiles=/dev/null \
-                           -o StrictHostKeyChecking=no' \
+                            -o UserKnownHostsFile=/dev/null \
+                            -o StrictHostKeyChecking=no' \
                         ${env.ARTIFACT_SERVER}:${rdgo}/ ${rdgo}
                 """
             }
@@ -53,13 +53,16 @@ node(env.NODE) {
         }
 
         stage("Sync Out") {
-            sh """
-                rsync -Hrlpt --stats --delete --delete-after \
-                    -e 'ssh -i ${env.KEY_FILE} \
-                            -o UserKnownHostsFile=/dev/null \
-                            -o StrictHostKeyChecking=no' \
-                    ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
-            """
+            withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
+                                               keyFileVariable: 'KEY_FILE')]) {
+                sh """
+                    rsync -Hrlpt --stats --delete --delete-after \
+                        -e 'ssh -i ${env.KEY_FILE} \
+                                -o UserKnownHostsFile=/dev/null \
+                                -o StrictHostKeyChecking=no' \
+                     ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
+                """
+            }
         }
     }
 }
