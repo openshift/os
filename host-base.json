@@ -4,6 +4,7 @@
     "ref": "openshift/3.10/x86_64/os",
     "repos": [
         "atomic-centos-continuous",
+        "rhcos-continuous",
         "openshift"
     ],
     "selinux": true,

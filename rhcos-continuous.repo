@@ -1,0 +1,5 @@
+[rhcos-continuous]
+name=Bleeding edge of packages relevant to RHCOS
+baseurl=https://s3.amazonaws.com/aos-ci/rhcos/rdgo
+enabled=1
+gpgcheck=0
