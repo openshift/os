@@ -8,10 +8,12 @@ node(env.NODE) {
 
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
         stage("Provision") {
-            sh "dnf install -y git rsync openssh-clients dnf-plugins-core fedpkg"
-            sh "cp RPM-GPG-* /etc/pki/rpm-gpg/"
-            sh "dnf copr -y enable walters/buildtools-fedora"
-            sh "dnf install -y rpmdistro-gitoverlay"
+            sh """
+                dnf install -y git rsync openssh-clients dnf-plugins-core fedpkg
+                cp RPM-GPG-* /etc/pki/rpm-gpg/
+                dnf copr -y enable walters/buildtools-fedora
+                dnf install -y rpmdistro-gitoverlay
+            """
         }
 
         stage("Sync In") {
@@ -29,24 +31,27 @@ node(env.NODE) {
         }
 
         stage("Build Overlay Packages") {
-            sh "ln -sf $WORKSPACE/overlay.yml ${rdgo}/"
-            if (!fileExists("${rdgo}/src")) {
-                sh "cd ${rdgo} && rpmdistro-gitoverlay init"
-            }
-            sh "cd ${rdgo} && rpmdistro-gitoverlay resolve --fetch-all"
-            sh "cd ${rdgo} && rpmdistro-gitoverlay build --touch-if-changed rdgo.stamp --logdir=log"
+            sh """
+                ln -sf $WORKSPACE/overlay.yml ${rdgo}/
+                rpmdistro-gitoverlay init
+                rpmdistro-gitoverlay resolve --fetch-all
+                rpmdistro-gitoverlay build --touch-if-changed rdgo.stamp --logdir=log
+            """
+        }
+
+        if (!fileExists("${rdgo}/rdgo.stamp})) {
+            currentBuild.result = 'SUCCESS'
+            return
         }
 
         stage("Sync Out") {
-            if (fileExists("${rdgo}/rdgo.stamp")) {
-                sh """
-                    rsync -Hrlpt --stats --delete --delete-after \
-                        -e 'ssh -i ${env.KEY_FILE} \
-                                -o UserKnownHostsFile=/dev/null \
-                                -o StrictHostKeyChecking=no' \
-                        ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
-                """
-            }
+            sh """
+                rsync -Hrlpt --stats --delete --delete-after \
+                    -e 'ssh -i ${env.KEY_FILE} \
+                            -o UserKnownHostsFile=/dev/null \
+                            -o StrictHostKeyChecking=no' \
+                    ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
+            """
         }
     }
 }
