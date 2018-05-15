@@ -2,7 +2,7 @@ def DOCKER_IMG = "registry.fedoraproject.org/fedora:28"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
-def rdgo  = "${env.ARTIFACT_SERVER_DIR}/rdgo"
+def rdgo = "${env.ARTIFACT_SERVER_DIR}/rdgo"
 node(env.NODE) {
     checkout scm
 
@@ -22,7 +22,7 @@ node(env.NODE) {
                 sh """
                     mkdir -p ${rdgo}
                     rsync -Hplpt --stats \
-                        -e 'ssh -i $(env.KEY_FILE} \
+                        -e 'ssh -i ${env.KEY_FILE} \
                             -o UserKnownHostFiles=/dev/null \
                            -o StrictHostKeyChecking=no' \
                         ${env.ARTIFACT_SERVER}:${rdgo}/ ${rdgo}
