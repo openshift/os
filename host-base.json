@@ -113,7 +113,8 @@
         "oci-umount",
         "origin-node",
         "origin-hyperkube",
-        "origin-clients"
+        "origin-clients",
+        "cri-o"
     ],
     "remove-from-packages": [
         [
