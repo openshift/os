@@ -1,0 +1,66 @@
+def DOCKER_IMG = "registry.fedoraproject.org/fedora:28"
+def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
+
+// this var conveniently refers to a location on the server as well as the local dir we sync to/from
+def rdgo  = "${env.ARTIFACT_SERVER_DIR}/rdgo"
+node(env.NODE) {
+    checkout scm
+
+    docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+        stage("Provision") {
+            sh """
+                dnf install -y git rsync openssh-clients dnf-plugins-core fedpkg
+                cp RPM-GPG-* /etc/pki/rpm-gpg/
+                dnf copr -y enable walters/buildtools-fedora
+                dnf install -y rpmdistro-gitoverlay
+            """
+        }
+
+        stage("Sync In") {
+            withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
+                                               keyFileVariable: 'KEY_FILE')]) {
+                sh """
+                    mkdir -p ${rdgo}
+                    rsync -Hplpt --stats \
+                        -e 'ssh -i $(env.KEY_FILE} \
+                            -o UserKnownHostFiles=/dev/null \
+                           -o StrictHostKeyChecking=no' \
+                        ${env.ARTIFACT_SERVER}:${rdgo}/ ${rdgo}
+                """
+            }
+        }
+
+        stage("Setup and Initialize RDGO") {
+            sh """
+                ln -sf $WORKSPACE/overlay.yml ${rdgo}/
+                cd ${rdgo}
+                rm -f rdgo.stamp
+                rpmdistro-gitoverlay init
+            """
+        }
+
+        stage("Resolve and Fetch Sources") {
+            sh "cd ${rdgo} && rpmdistro-gitoverlay resolve --fetch-all"
+        }
+
+        stage("Build Overlay Packages") {
+            sh "cd ${rdgo} && rpmdistro-gitoverlay build --touch-if-changed rdgo.stamp --logdir=log"
+        }
+
+        if (!fileExists("${rdgo}/rdgo.stamp")) {
+            currentBuild.result = 'SUCCESS'
+            return
+        }
+
+        stage("Sync Out") {
+            sh """
+                rsync -Hrlpt --stats --delete --delete-after \
+                    -e 'ssh -i ${env.KEY_FILE} \
+                            -o UserKnownHostsFile=/dev/null \
+                            -o StrictHostKeyChecking=no' \
+                    ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
+            """
+        }
+    }
+}
+
