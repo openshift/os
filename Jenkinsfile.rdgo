@@ -60,7 +60,7 @@ node(env.NODE) {
                         -e 'ssh -i ${env.KEY_FILE} \
                                 -o UserKnownHostsFile=/dev/null \
                                 -o StrictHostKeyChecking=no' \
-                     ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
+                        ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
                 """
             }
         }
