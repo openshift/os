@@ -110,7 +110,9 @@
         "glusterfs-fuse",
         "dnsmasq",
         "oci-umount",
-        "origin-node"
+        "origin-node",
+        "origin-hyperkube",
+        "origin-clients"
     ],
     "remove-from-packages": [
         [
