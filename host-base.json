@@ -125,6 +125,7 @@
     "units": [
         "docker.service",
         "tuned.service",
+        "ostree-remount.service",
         "docker-storage-setup.service"
     ],
     "default_target": "multi-user.target"
