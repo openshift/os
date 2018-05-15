@@ -9,7 +9,7 @@ node(env.NODE) {
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
         stage("Provision") {
             sh """
-                dnf install -y git rsync openssh-clients dnf-plugins-core fedpkg
+                dnf install -y git rsync openssh-clients dnf-plugins-core fedpkg dnf-utils
                 cp RPM-GPG-* /etc/pki/rpm-gpg/
                 dnf copr -y enable walters/buildtools-fedora
                 dnf install -y rpmdistro-gitoverlay
