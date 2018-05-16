@@ -49,6 +49,7 @@ node(env.NODE) {
 
         if (!fileExists("rdgo.stamp")) {
             currentBuild.result = 'SUCCESS'
+            currentBuild.description = '(No changes)'
             return
         }
 
@@ -69,6 +70,7 @@ node(env.NODE) {
                     aws s3 sync --delete ${rdgo}/build/ s3://aos-ci/rhcos/rdgo
                 """
             }
+            currentBuild.description = 'rdgo build+sync done'
         }
     }
 }
