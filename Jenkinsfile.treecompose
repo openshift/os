@@ -48,7 +48,7 @@ node(env.NODE) {
         }
 
         stage("Compose Tree") {
-            sh "rpm-ostree compose tree --repo=${repo} ${manifest} --write-commitid-to commit.txt"
+            sh "rpm-ostree compose tree --repo=${repo} ${manifest} --write-commitid-to $WORKSPACE/commit.txt"
             currentBuild.description = '🆕 commit ' + readFile('commit.txt');
         }
 
