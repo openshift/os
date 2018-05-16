@@ -27,3 +27,8 @@ components:
         name: ignition
         patches: drop
 
+  # Required as a cri-o dependency
+  - src: https://github.com/containernetworking/plugins.git
+    distgit:
+        name: containernetworking-cni
+        patches: drop
