@@ -43,11 +43,13 @@ node(env.NODE) {
 
         if (!fileExists('build.stamp')) {
             currentBuild.result = 'SUCCESS'
+            currentBuild.description = '(No changes)'
             return
         }
 
         stage("Compose Tree") {
-            sh "rpm-ostree compose tree --repo=${repo} ${manifest}"
+            sh "rpm-ostree compose tree --repo=${repo} ${manifest} --write-commitid-to commit.txt"
+            currentBuild.description = '🆕 commit ' + readFile('commit.txt');
         }
 
         stage("Sync Out") {
