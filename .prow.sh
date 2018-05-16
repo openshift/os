@@ -3,4 +3,5 @@ set -xeuo pipefail
 
 yum -y install jq
 make syntax-check
-make container
+# And disable the container again until we figure out about Prow -> internal
+# make container
