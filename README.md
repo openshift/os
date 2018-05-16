@@ -11,22 +11,21 @@ $ docker build .
 $ docker push SOME_IMAGE
 ```
 
-Turn a CentOS Atomic AWS AMI booted machine into this OS:
+Turn a [CentOS Atomic](https://wiki.centos.org/SpecialInterestGroup/Atomic/Download) booted machine into this OS:
 
-1. Launch an AMI for CentOS 7 (ami-a06447da) with at least 20GB disk (10GB is too small for now)
+1. Provision a machine (e.g. an `ami-a06447da` in AWS us-east-1) with at least 20GB disk (10GB is too small for now)
 2. Resize the disk:
 
 ```
-$ lvextend -l +25%FREE atomicos/root
-$ xfs_growfs /
+$ lvm lvextend -r -l +25%FREE atomicos/root
 ```
 
 3. SSH to the machine and run:
 
 ```
 $ docker run --network host -d -w /srv/tree/repo $REGISTRY/os:latest
-$ ostree remote add --no-gpg-verify local http://localhost:8080 origin/3.10/x86_64/os
-$ rpm-ostree rebase -r local:origin/3.10/x86_64/os
+$ ostree remote add --no-gpg-verify local http://localhost:8080 openshift/3.10/x86_64/os
+$ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
 
 # wait, SSH back in
 $ openshift version
@@ -39,8 +38,8 @@ $ kubectl run os-content --image=$REGISTRY/os:latest
 $ kubectl expose os-content --port 8080
 
 $ ssh root@NODE_HOST
-$ ostree remote add --no-gpg-verify local http://os-content.namespace.svc:8080 origin/3.10/x86_64/os
-$ rpm-ostree rebase -r local:origin/3.10/x86_64/os
+$ ostree remote add --no-gpg-verify local http://os-content.namespace.svc:8080 openshift/3.10/x86_64/os
+$ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
 
 # wait, SSH back in
 $ openshift version

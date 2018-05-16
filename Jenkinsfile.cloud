@@ -1,14 +1,7 @@
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
 def output = "${env.ARTIFACT_SERVER_DIR}/images"
 
-def ref
-if (env.BUILD_TYPE == 'origin') {
-    ref = "origin/3.10/x86_64/os"
-} else if (env.BUILD_TYPE == 'rhcos') {
-    ref = "openshift/3.10/x86_64/os"
-} else {
-    assert false
-}
+def ref = "openshift/3.10/x86_64/os";
 
 node(env.NODE) {
     checkout scm
