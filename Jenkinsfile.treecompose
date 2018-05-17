@@ -50,7 +50,7 @@ node(env.NODE) {
             sh "ostree --repo=${repo} rev-parse ${ref} > commit.txt"
             def commit = readFile('commit.txt');
             currentBuild.description = '🆕 commit ' + commit;
-            sh "rpm-ostree db diff ${commit}^ ${commit}"
+            sh "rpm-ostree --repo=${repo} db diff ${commit}^ ${commit}"
         }
 
         stage("Sync Out") {
