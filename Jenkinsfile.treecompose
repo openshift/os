@@ -5,6 +5,7 @@ def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 def repo = "${env.ARTIFACT_SERVER_DIR}/repo"
 
 def manifest = "host-rhcos.json"
+def ref = "openshift/3.10/x86_64/os";
 
 node(env.NODE) {
     checkout scm
@@ -45,8 +46,11 @@ node(env.NODE) {
         }
 
         stage("Compose Tree") {
-            sh "rpm-ostree compose tree --repo=${repo} ${manifest} --write-commitid-to $WORKSPACE/commit.txt"
-            currentBuild.description = '🆕 commit ' + readFile('commit.txt');
+            sh "rpm-ostree compose tree --repo=${repo} ${manifest}"
+            sh "ostree --repo=${repo} rev-parse ${ref} > commit.txt"
+            def commit = readFile('commit.txt');
+            currentBuild.description = '🆕 commit ' + commit;
+            sh "rpm-ostree db diff ${commit}^ ${commit}"
         }
 
         stage("Sync Out") {
