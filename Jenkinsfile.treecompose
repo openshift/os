@@ -4,10 +4,7 @@ def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
 def repo = "${env.ARTIFACT_SERVER_DIR}/repo"
 
-if (env.BUILD_TYPE != 'origin' && env.BUILD_TYPE != 'rhcos') {
-    assert false
-}
-def manifest = "host-${env.BUILD_TYPE}.json"
+def manifest = "host-rhcos.json"
 
 node(env.NODE) {
     checkout scm

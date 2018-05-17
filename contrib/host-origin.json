@@ -1,4 +1,5 @@
 {
+    "00comment": "This file isn't maintained anymore",
     "include": "host-base.json",
     "ref": "origin/3.10/x86_64/os",
     "repos": [

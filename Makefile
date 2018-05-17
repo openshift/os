@@ -1,4 +1,4 @@
-OS_FLAVOR ?= origin
+OS_FLAVOR ?= rhcos
 # Use for e.g. --cache-only
 COMPOSEFLAGS ?=
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
