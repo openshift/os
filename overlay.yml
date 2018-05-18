@@ -32,3 +32,6 @@ components:
     distgit:
         name: containernetworking-cni
         patches: drop
+
+  - src: github:openshift/redhat-release-coreos
+    spec: internal

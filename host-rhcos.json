@@ -6,5 +6,6 @@
         "rhel-7.5-server-extras",
         "rhel-7.5-atomic"
     ],
+    "packages": ["redhat-release-coreos"],
     "automatic_version_prefix": "3.10-7.5.0"
 }
