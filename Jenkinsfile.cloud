@@ -36,12 +36,19 @@ node(env.NODE) {
         """
     }
 
+    def commit
     stage("Finalizing") {
-        def dirname = (new Date()).format('YYYY-MM-dd-HH-mm-ss')
+        def image = sh(returnStdout: true, script: "ls /var/lib/imagefactory/storage/*.body").trim()
+        // just introspect after the fact to avoid race conditions
+        commit = sh(returnStdout: true,
+                    script: """LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/coreos/root:/ \
+                                    /ostree/repo/refs/remotes/rhcos/${ref}""").trim()
+        currentBuild.description = 'commit ' + commit
+
+        def dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
         def dirpath = "${output}/cloud/${dirname}"
         sh "mkdir -p ${dirpath}"
 
-        def image = sh(returnStdout: true, script: "ls /var/lib/imagefactory/storage/*.body").trim()
         sh "qemu-img convert -f raw -O qcow2 ${image} /${dirpath}/rhcos.qcow2"
         sh "gzip /${dirpath}/rhcos.qcow2"
 
