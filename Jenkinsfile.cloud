@@ -42,9 +42,8 @@ node(env.NODE) {
         sh "mkdir -p ${dirpath}"
 
         def image = sh(returnStdout: true, script: "ls /var/lib/imagefactory/storage/*.body").trim()
-        def final_image_name = "${env.BUILD_TYPE}.qcow2"
-        sh "qemu-img convert -f raw -O qcow2 ${image} /${dirpath}/${final_image_name}"
-        sh "gzip /${dirpath}/${final_image_name}"
+        sh "qemu-img convert -f raw -O qcow2 ${image} /${dirpath}/rhcos.qcow2"
+        sh "gzip /${dirpath}/rhcos.qcow2"
 
         sh "ln -sfn ${dirname} ${output}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
