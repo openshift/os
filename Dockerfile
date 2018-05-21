@@ -6,7 +6,7 @@ COPY . /srv/tree/
 
 RUN yum install -y make rpm-ostree
 
-RUN cd /srv/tree && make rpmostree-compose && \
+RUN cd /srv/tree && make repo-refresh && make rpmostree-compose && \
     rm -rf build-repo
 
 # Now inject this content into a new container
