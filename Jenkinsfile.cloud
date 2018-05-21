@@ -6,6 +6,20 @@ def ref = "openshift/3.10/x86_64/os";
 node(env.NODE) {
     checkout scm
 
+    stage("Provision") {
+        sh """
+           rpm -q imagefactory-plugins-TinMan \
+                  libguestfs-tools-c \
+                  rpm-ostree \
+                  rsync || \
+               dnf -y install ostree \
+                              imagefactory-plugins-TinMan \
+                              libguestfs-tools-c \
+                              rpm-ostree \
+                              rsync
+           """
+    }
+
     stage("Sync In") {
         withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
                                            keyFileVariable: 'KEY_FILE')]) {
