@@ -86,7 +86,6 @@ node(env.NODE) {
             rpm-ostree db diff --repo=${repo} \
                 ${prev_commit} ${commit} > ${dirpath}/${commit}.pkgdiff
         """
-        sh "sha256sum ${qcow}.gz | awk '{print $1}' > ${qcow}.gz.sha256sum"
     }
 
     stage("Sync Out") {
