@@ -1,10 +1,26 @@
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
-def output = "${env.ARTIFACT_SERVER_DIR}/images"
+def server_dir = "${env.ARTIFACT_SERVER_DIR}"
+def output = "${server_dir}/images"
+def repo = "${server_dir}/repo"
 
 def ref = "openshift/3.10/x86_64/os";
 
 node(env.NODE) {
     checkout scm
+
+    stage("Provision") {
+        sh """
+           rpm -q imagefactory-plugins-TinMan \
+                  libguestfs-tools-c \
+                  rpm-ostree \
+                  rsync || \
+               dnf -y install ostree \
+                              imagefactory-plugins-TinMan \
+                              libguestfs-tools-c \
+                              rpm-ostree \
+                              rsync
+           """
+    }
 
     stage("Sync In") {
         withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
@@ -15,7 +31,7 @@ node(env.NODE) {
                     -e 'ssh -i ${env.KEY_FILE} \
                             -o UserKnownHostsFile=/dev/null \
                             -o StrictHostKeyChecking=no' \
-                    ${env.ARTIFACT_SERVER}:${output}/ ${output}
+                    ${env.ARTIFACT_SERVER}:${server_dir}/{images,repo} ${server_dir}
             """
         }
     }
@@ -36,7 +52,7 @@ node(env.NODE) {
         """
     }
 
-    def commit
+    def commit, dirpath, qcow
     stage("Finalizing") {
         def image = sh(returnStdout: true, script: "ls /var/lib/imagefactory/storage/*.body").trim()
         // just introspect after the fact to avoid race conditions
@@ -46,15 +62,31 @@ node(env.NODE) {
         currentBuild.description = 'commit ' + commit
 
         def dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
-        def dirpath = "${output}/cloud/${dirname}"
+        dirpath = "${output}/cloud/${dirname}"
+        qcow = "${dirpath}/rhcos.qcow2"
         sh "mkdir -p ${dirpath}"
 
-        sh "qemu-img convert -f raw -O qcow2 ${image} /${dirpath}/rhcos.qcow2"
-        sh "gzip /${dirpath}/rhcos.qcow2"
+        sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
+        sh "gzip ${qcow}"
 
         sh "ln -sfn ${dirname} ${output}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
         sh "cd ${output}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
+    }
+
+    stage("Generate Metadata") {
+        def prev_commit = sh(returnStdout: true,
+                             script: "ostree --repo=${repo} rev-parse ${commit}^").trim()
+
+        sh """
+            rpm-ostree db list --repo=${repo} ${commit} > \
+                /${dirpath}/${commit}.rpmlist
+        """
+        sh """
+            rpm-ostree db diff --repo=${repo} \
+                ${prev_commit} ${commit} > ${dirpath}/${commit}.pkgdiff
+        """
+        sh "sha256sum ${qcow}.gz | awk "{print $1}" > ${qcow}.gz.sha256sum"
     }
 
     stage("Sync Out") {
