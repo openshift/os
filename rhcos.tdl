@@ -9,5 +9,8 @@
         </install>
         <rootpw>none</rootpw>
     </os>
+    <disk>
+        <size>6G</size>
+    </disk>
 </template>
 

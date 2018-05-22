@@ -1,3 +1,6 @@
+def DOCKER_IMG = "registry.fedoraproject.org/fedora:28"
+def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
+
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
 def server_dir = "${env.ARTIFACT_SERVER_DIR}"
 def output = "${server_dir}/images"
@@ -64,10 +67,12 @@ node(env.NODE) {
         def dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
         dirpath = "${output}/cloud/${dirname}"
         qcow = "${dirpath}/rhcos.qcow2"
+        vmdk = "${dirpath}/rhcos.vmdk"
         sh "mkdir -p ${dirpath}"
 
         sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
         sh "gzip ${qcow}"
+        sh "qemu-img convert -f raw -O vmdk ${image} -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}"
 
         sh "ln -sfn ${dirname} ${output}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
@@ -87,6 +92,7 @@ node(env.NODE) {
                 ${prev_commit} ${commit} > ${dirpath}/${commit}.pkgdiff
         """
         sh "sha256sum ${qcow}.gz | awk '{print \$1}' > ${qcow}.gz.sha256sum"
+        sh "sha256sum ${vmdk} | awk '{print \$1}' > ${vmdk}.sha256sum"
     }
 
     stage("Sync Out") {
@@ -99,6 +105,30 @@ node(env.NODE) {
                             -o StrictHostKeyChecking=no' \
                     ${output}/ ${env.ARTIFACT_SERVER}:${output}
             """
+        }
+    }
+
+    stage("Create AMI") {
+        docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+            // not packaged yet, just build from src for now
+            sh "dnf install -y git golang"
+            sh "git clone https://github.com/coreos/mantle"
+            sh "mantle/build ore"
+
+            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+                              credentialsId: env['AWS_CREDENTIALS']]]) {
+                sh """
+                    # use a symlink so that our uploaded filename is unique
+                    ln -sf ${output}/cloud/latest/rhcos.vmdk rhcos-${commit}.vmdk
+                    mantle/bin/ore aws upload --region us-east-1 \
+                        --ami-name 'rhcos_dev_${commit[0..6]}' \
+                        --ami-description 'Red Hat CoreOS ${commit}' \
+                        --bucket 's3://${env.S3_PRIVATE_BUCKET}/rhcos/cloud' \
+                        --file rhcos-${commit}.vmdk \
+                        --name "rhcos_dev_${commit[0..6]}" \
+                        --delete-object # already default, just being explicit
+                """
+            }
         }
     }
 }
