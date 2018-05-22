@@ -85,11 +85,11 @@ node(env.NODE) {
 
         sh """
             rpm-ostree db list --repo=${repo} ${commit} > \
-                /${dirpath}/${commit}.rpmlist
+                /${dirpath}/pkglist.txt
         """
         sh """
             rpm-ostree db diff --repo=${repo} \
-                ${prev_commit} ${commit} > ${dirpath}/${commit}.pkgdiff
+                ${prev_commit} ${commit} > ${dirpath}/pkgdiff.txt
         """
         sh "sha256sum ${qcow}.gz | awk '{print \$1}' > ${qcow}.gz.sha256sum"
         sh "sha256sum ${vmdk} | awk '{print \$1}' > ${vmdk}.sha256sum"
