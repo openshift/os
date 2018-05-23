@@ -55,14 +55,19 @@ node(env.NODE) {
         """
     }
 
-    def commit, dirpath, qcow, vmdk
+    def commit, version, dirpath, qcow, vmdk
     stage("Finalizing") {
         def image = sh(returnStdout: true, script: "ls /var/lib/imagefactory/storage/*.body").trim()
         // just introspect after the fact to avoid race conditions
         commit = sh(returnStdout: true,
                     script: """LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/coreos/root:/ \
                                     /ostree/repo/refs/remotes/rhcos/${ref}""").trim()
-        currentBuild.description = 'commit ' + commit
+        version = sh(returnStdout: true,
+                     script: "ostree show --repo=${repo} --print-metadata-key=version ${commit}").trim()
+        assert (version.startsWith("'") && version.endsWith("'"))
+        version = version[1..-2] // trim single quotes
+
+        currentBuild.description = "${version} (${commit})"
 
         def dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
         dirpath = "${output}/cloud/${dirname}"
