@@ -39,6 +39,23 @@ node(env.NODE) {
         }
     }
 
+    // Check if there's a new version out.
+    // Really, we should be checksumming e.g. the ks and tdl too.
+    def latest_version, last_build_version
+    stage("Check for Changes") {
+        latest_version = sh(returnStdout: true,
+                            script: "ostree show --repo=${repo} --print-metadata-key=version ${ref}").trim()
+        latest_version = latest_version[1..-2] // trim single quotes
+        last_build_version = sh(returnStdout: true,
+                                script: "cat ${output}/cloud/version.txt || :").trim()
+    }
+
+    if (latest_version == last_build_version) {
+        currentBuild.result = 'SUCCESS'
+        currentBuild.description = '(No changes)'
+        return
+    }
+
     stage("Prepare Configs") {
         sh "sed -i 's,\\(<url>\\).*\\(<\\/url\\),\\1${env.INSTALLER_TREE_URL}\\2,' rhcos.tdl"
         sh "sed -i 's,@@OSTREE_INSTALL_URL@@,${env.OSTREE_INSTALL_URL},' cloud.ks"
@@ -74,6 +91,9 @@ node(env.NODE) {
         qcow = "${dirpath}/rhcos.qcow2"
         vmdk = "${dirpath}/rhcos.vmdk"
         sh "mkdir -p ${dirpath}"
+        // this belongs better in a JSON file, but for now just use a file;
+        // this is used higher up to determine no-op changes
+        sh "echo '${version}' > ${dirpath}/version.txt"
 
         sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
         sh "gzip ${qcow}"
