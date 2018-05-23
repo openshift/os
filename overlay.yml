@@ -6,9 +6,10 @@ aliases:
     url: https://src.fedoraproject.org/git/rpms/
     cacertpath: DigiCertHighAssuranceEVRootCA.crt
 
+# f28 used as it forces the use of the correct cri-o spec
 distgit:
   prefix: fedorapkgs
-  branch: master
+  branch: f28
   
 root:
   mock: centos-7-and-extras-$arch.cfg
@@ -19,7 +20,7 @@ components:
     branch: docker-1.13.1-rhel
 
   - src: github:kubernetes-incubator/cri-o
-    override-version: "1.11"
+    branch: release-1.10
 
   - src: github:coreos/ignition
     distgit:
