@@ -38,7 +38,7 @@ node(env.NODE) {
         stage("Check for Changes") {
             sh "rm -f $WORKSPACE/build.stamp"
             sh "rpm-ostree compose tree --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}"
-            # XXX: need to factor this out in a common lib
+            // XXX: need to factor this out in a common lib
             last_build_version = sh(returnStdout: true,
                                     script: "ostree show --repo=${repo} --print-metadata-key=version ${ref}").trim()
             last_build_version = last_build_version[1..-2] // trim single quotes
