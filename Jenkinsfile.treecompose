@@ -1,21 +1,19 @@
-def DOCKER_IMG = "registry.fedoraproject.org/fedora:28"
+def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
 def repo = "${env.ARTIFACT_SERVER_DIR}/repo"
 
-def manifest = "host-rhcos.json"
+def manifest = "host.yaml"
 def ref = "openshift/3.10/x86_64/os";
 
 node(env.NODE) {
     checkout scm
 
+    // We will likely be iterating on this image a lot, so do the equvialent of Kubernetes
+    // `imagePullPolicy: Always`.
+    docker.image(DOCKER_IMG).pull()
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-        stage("Provision") {
-            sh "dnf install -y git make rpm-ostree rsync openssh-clients"
-            sh "cp RPM-GPG-* /etc/pki/rpm-gpg/"
-            sh "make repo-refresh"
-        }
 
         stage("Sync In") {
             withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
@@ -24,12 +22,10 @@ node(env.NODE) {
                     # a few idempotent commands for bootstrapping
                     mkdir -p ${repo}
                     ostree init --repo=${repo} --mode=archive
-
-                    rsync -Hrlpt --stats \
-                        -e 'ssh -i ${env.KEY_FILE} \
-                                -o UserKnownHostsFile=/dev/null \
-                                -o StrictHostKeyChecking=no' \
-                        ${env.ARTIFACT_SERVER}:${repo}/ ${repo}
+                    /usr/app/ostree-releng-scripts/rsync-repos \
+                    --src ${env.ARTIFACT_SERVER}:${repo}/ --dest=${repo} \
+                    --rsync-opt=--stats --rsync-opt=-e \
+                    --rsync-opt='ssh -i ${env.KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
                 """
             }
         }
@@ -37,7 +33,7 @@ node(env.NODE) {
         def last_build_version, force_nocache
         stage("Check for Changes") {
             sh "rm -f $WORKSPACE/build.stamp"
-            sh "rpm-ostree compose tree --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}"
+            sh "coreos-assembler --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}"
             // XXX: need to factor this out in a common lib
             last_build_version = sh(returnStdout: true,
                                     script: "ostree show --repo=${repo} --print-metadata-key=version ${ref}").trim()
@@ -47,6 +43,11 @@ node(env.NODE) {
             }
         }
 
+        stage("Provision") {
+            sh "cp RPM-GPG-* /etc/pki/rpm-gpg/"
+            sh "make repo-refresh"
+        }
+
         if (!fileExists('build.stamp') && last_build_version != force_nocache) {
             currentBuild.result = 'SUCCESS'
             currentBuild.description = '(No changes)'
@@ -54,7 +55,7 @@ node(env.NODE) {
         }
 
         stage("Compose Tree") {
-            sh "rpm-ostree compose tree --repo=${repo} ${manifest}"
+            sh "coreos-assembler --repo=${repo} ${manifest}"
             sh "ostree --repo=${repo} rev-parse ${ref} > commit.txt"
             def commit = readFile('commit.txt').trim();
             currentBuild.description = '🆕 commit ' + commit;
@@ -67,11 +68,10 @@ node(env.NODE) {
                 sh """
                     ostree prune --repo=${repo} --keep-younger-than='30 days ago' --refs-only
                     ostree summary --repo=${repo} --update
-                    rsync -Hrlpt --stats --delete --delete-after \
-                        -e 'ssh -i ${env.KEY_FILE} \
-                                -o UserKnownHostsFile=/dev/null \
-                                -o StrictHostKeyChecking=no' \
-                        ${repo}/ ${env.ARTIFACT_SERVER}:${repo}
+                    /usr/app/ostree-releng-scripts/rsync-repos \
+                    --dest ${env.ARTIFACT_SERVER}:${repo}/ --src=${repo} \
+                    --rsync-opt=--stats --rsync-opt=-e \
+                    --rsync-opt='ssh -i ${env.KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
                 """
             }
         }
