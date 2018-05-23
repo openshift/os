@@ -4,7 +4,6 @@ def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
 def server_dir = "${env.ARTIFACT_SERVER_DIR}"
 def output = "${server_dir}/images"
-def repo = "${server_dir}/repo"
 
 def ref = "openshift/3.10/x86_64/os";
 
@@ -34,9 +33,16 @@ node(env.NODE) {
                     -e 'ssh -i ${env.KEY_FILE} \
                             -o UserKnownHostsFile=/dev/null \
                             -o StrictHostKeyChecking=no' \
-                    ${env.ARTIFACT_SERVER}:${server_dir}/{images,repo} ${server_dir}
+                    ${env.ARTIFACT_SERVER}:${server_dir}/images ${server_dir}
             """
         }
+
+        // Also initialize an ostree repo for change detection
+        sh """
+            rm -rf repo && ostree init --repo=repo --mode=bare-user
+            ostree --repo=repo remote add tmp --no-gpg-verify ${env.OSTREE_INSTALL_URL}
+            ostree --repo=repo pull --commit-metadata-only tmp ${ref}
+        """
     }
 
     // Check if there's a new version out.
@@ -44,7 +50,7 @@ node(env.NODE) {
     def latest_version, last_build_version
     stage("Check for Changes") {
         latest_version = sh(returnStdout: true,
-                            script: "ostree show --repo=${repo} --print-metadata-key=version ${ref}").trim()
+                            script: "ostree show --repo=repo --print-metadata-key=version tmp:${ref}").trim()
         latest_version = latest_version[1..-2] // trim single quotes
         last_build_version = sh(returnStdout: true,
                                 script: "cat ${output}/cloud/version.txt || :").trim()
@@ -79,8 +85,12 @@ node(env.NODE) {
         commit = sh(returnStdout: true,
                     script: """LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/coreos/root:/ \
                                     /ostree/repo/refs/remotes/rhcos/${ref}""").trim()
+
+        // do this again *after* running imgfac to close race
+        // fetch parent too for the later db diff
+        sh "ostree --repo=repo pull --depth=1 --commit-metadata-only tmp ${commit}"
         version = sh(returnStdout: true,
-                     script: "ostree show --repo=${repo} --print-metadata-key=version ${commit}").trim()
+                     script: "ostree show --repo=repo --print-metadata-key=version ${commit}").trim()
         assert (version.startsWith("'") && version.endsWith("'"))
         version = version[1..-2] // trim single quotes
 
@@ -105,19 +115,26 @@ node(env.NODE) {
     }
 
     stage("Generate Metadata") {
-        def prev_commit = sh(returnStdout: true,
-                             script: "ostree --repo=${repo} rev-parse ${commit}^").trim()
+        // we're stuck with an older host because imagefactory produces kernel
+        // panics on newer hosts, so let's use a container to have access to a
+        // newer rpm-ostree that understands the new pkglist metadata
+        docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+            sh "dnf install -y rpm-ostree ostree"
 
-        sh """
-            rpm-ostree db list --repo=${repo} ${commit} > \
-                /${dirpath}/pkglist.txt
-        """
-        sh """
-            rpm-ostree db diff --repo=${repo} \
-                ${prev_commit} ${commit} > ${dirpath}/pkgdiff.txt
-        """
-        sh "sha256sum ${qcow}.gz | awk '{print \$1}' > ${qcow}.gz.sha256sum"
-        sh "sha256sum ${vmdk} | awk '{print \$1}' > ${vmdk}.sha256sum"
+            def prev_commit = sh(returnStdout: true,
+                                 script: "ostree --repo=repo rev-parse ${commit}^").trim()
+
+            sh """
+                rpm-ostree db list --repo=repo ${commit} > \
+                    /${dirpath}/pkglist.txt
+            """
+            sh """
+                rpm-ostree db diff --repo=repo \
+                    ${prev_commit} ${commit} > ${dirpath}/pkgdiff.txt
+            """
+            sh "sha256sum ${qcow}.gz | awk '{print \$1}' > ${qcow}.gz.sha256sum"
+            sh "sha256sum ${vmdk} | awk '{print \$1}' > ${vmdk}.sha256sum"
+        }
     }
 
     stage("Sync Out") {
