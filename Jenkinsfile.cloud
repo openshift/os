@@ -116,7 +116,7 @@ node(env.NODE) {
     stage("Create AMI") {
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
             // not packaged yet, just build from src for now
-            sh "dnf install -y git golang"
+            sh "dnf install -y git golang awscli jq"
             sh "git clone https://github.com/coreos/mantle"
             sh "mantle/build ore"
 
@@ -127,11 +127,20 @@ node(env.NODE) {
                     ln -sf ${output}/cloud/latest/rhcos.vmdk rhcos-${commit}.vmdk
                     mantle/bin/ore aws upload --region us-east-1 \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
-                        --ami-description 'Red Hat CoreOS ${commit}' \
+                        --ami-description 'Red Hat CoreOS ${version} (${commit})' \
                         --bucket 's3://${env.S3_PRIVATE_BUCKET}/rhcos/cloud' \
                         --file rhcos-${commit}.vmdk \
                         --name "rhcos_dev_${commit[0..6]}" \
-                        --delete-object # already default, just being explicit
+                        --delete-object | tee out.json # already default, just being explicit
+
+                    # Add the version and commit as tags to both the AMI and the underlying snapshot.
+                    # We should teach mantle to apply extra tags.
+                    ami=\$(jq -r .HVM out.json)
+                    snapshot=\$(jq -r .SnapshotID out.json)
+                    AWS_DEFAULT_REGION=us-east-1 aws ec2 create-tags \
+                        --resources \${ami} \${snapshot} \
+                        --tags Key=ostree_commit,Value=${commit} \
+                               Key=ostree_version,Value=${version}
                 """
             }
         }
