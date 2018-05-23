@@ -30,6 +30,11 @@ node(env.NODE) {
             }
         }
 
+        stage("Provision") {
+            sh "cp RPM-GPG-* /etc/pki/rpm-gpg/"
+            sh "make repo-refresh"
+        }
+
         def last_build_version, force_nocache
         stage("Check for Changes") {
             sh "rm -f $WORKSPACE/build.stamp"
@@ -41,11 +46,6 @@ node(env.NODE) {
             if (fileExists('force-nocache-build')) {
                 force_nocache = readFile('force-nocache-build').trim();
             }
-        }
-
-        stage("Provision") {
-            sh "cp RPM-GPG-* /etc/pki/rpm-gpg/"
-            sh "make repo-refresh"
         }
 
         if (!fileExists('build.stamp') && last_build_version != force_nocache) {
