@@ -10,6 +10,7 @@ RUN cd /srv/tree && make repo-refresh && make rpmostree-compose && \
 # Now inject this content into a new container
 FROM registry.centos.org/centos/centos:7
 RUN yum install -y epel-release && yum -y install nginx && yum clean all
+# Keep this in sync with Dockerfile.rollup.in
 COPY --from=build /srv/tree /srv/tree
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY index.html subdomain.css /srv/tree/repo/

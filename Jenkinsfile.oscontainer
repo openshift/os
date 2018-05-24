@@ -1,0 +1,23 @@
+def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
+// Turns out the Jenkins docker stuff totally breaks with SELinux
+def DOCKER_ARGS = "--privileged"
+
+node(env.NODE) {
+    checkout scm
+
+    stage("Prepare Dockerfile") {
+        docker.image(DOCKER_IMG).pull()
+        docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+          sh """sed -e 's,@OSTREE_REPO_URL@,${env.OSTREE_INSTALL_URL},' < Dockerfile.rollup.in > Dockerfile.rollup"""
+        }
+    }
+    docker.withRegistry("${env.REGISTRY}", "${env.REGISTRY_CREDENTIALS}") {
+        def img;
+        stage("Build container") {
+           img = docker.build("${env.IMAGE_NAME}", "-f Dockerfile.rollup .")
+        }
+        stage("Push container") {
+           img.push()
+        }
+    }
+}
