@@ -6,6 +6,7 @@ def rdgo = "${env.ARTIFACT_SERVER_DIR}/rdgo"
 node(env.NODE) {
     checkout scm
 
+    try {
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
         stage("Provision") {
             sh """
@@ -44,7 +45,7 @@ node(env.NODE) {
         }
 
         stage("Build Overlay Packages") {
-            sh "cd ${rdgo} && rpmdistro-gitoverlay build --touch-if-changed $WORKSPACE/rdgo.stamp --logdir=log"
+            sh "cd ${rdgo} && rpmdistro-gitoverlay build --touch-if-changed $WORKSPACE/rdgo.stamp --logdir=${WORKSPACE}/log"
         }
 
         if (!fileExists("rdgo.stamp")) {
@@ -72,6 +73,10 @@ node(env.NODE) {
             }
             currentBuild.description = 'rdgo build+sync done'
         }
+    }
+
+    } finally {
+        archiveArtifacts artifacts: "log/**"
     }
 }
 
