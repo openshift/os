@@ -1,6 +1,5 @@
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
-docker.image(DOCKER_IMG).pull()
 
 // this var conveniently refers to a location on the server as well as the local dir we sync to/from
 def server_dir = "${env.ARTIFACT_SERVER_DIR}"
@@ -10,6 +9,7 @@ def ref = "openshift/3.10/x86_64/os";
 
 node(env.NODE) {
     checkout scm
+    docker.image(DOCKER_IMG).pull()
 
     stage("Provision") {
         sh """
