@@ -56,7 +56,7 @@ node(env.NODE) {
             force_nocache = readFile('force-nocache-build').trim();
         }
         last_build_version = sh(returnStdout: true,
-                                script: "cat ${output}/cloud/version.txt || :").trim()
+                                script: "cat ${output}/cloud/latest/version.txt || :").trim()
     }
 
     if (latest_version == last_build_version && latest_version != force_nocache) {
