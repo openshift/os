@@ -5,6 +5,7 @@ def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 def rdgo = "${env.ARTIFACT_SERVER_DIR}/rdgo"
 node(env.NODE) {
     checkout scm
+    utils = load("pipeline-utils.groovy")
 
     try {
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
@@ -20,14 +21,7 @@ node(env.NODE) {
         stage("Sync In") {
             withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
                                                keyFileVariable: 'KEY_FILE')]) {
-                sh """
-                    mkdir -p ${rdgo}
-                    rsync -Hplpt --stats \
-                        -e 'ssh -i ${env.KEY_FILE} \
-                            -o UserKnownHostsFile=/dev/null \
-                            -o StrictHostKeyChecking=no' \
-                        ${env.ARTIFACT_SERVER}:${rdgo}/ ${rdgo}
-                """
+                utils.rsync_dir_in(env.ARTIFACT_SERVER, env.KEY_FILE, rdgo)
             }
         }
 
@@ -57,13 +51,7 @@ node(env.NODE) {
         stage("Sync Out") {
             withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
                                                keyFileVariable: 'KEY_FILE')]) {
-                sh """
-                    rsync -Hrlpt --stats --delete --delete-after \
-                        -e 'ssh -i ${env.KEY_FILE} \
-                                -o UserKnownHostsFile=/dev/null \
-                                -o StrictHostKeyChecking=no' \
-                        ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
-                """
+                utils.rsync_dir_out(env.ARTIFACT_SERVER, env.KEY_FILE, rdgo)
             }
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                               credentialsId: env['AWS_CREDENTIALS']]]) {
