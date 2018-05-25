@@ -154,11 +154,6 @@ node(env.NODE) {
 
     stage("Create AMI") {
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-            // not packaged yet, just build from src for now
-            sh "dnf install -y git golang awscli jq"
-            sh "git clone https://github.com/coreos/mantle"
-            sh "mantle/build ore"
-
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
                               credentialsId: env['AWS_CREDENTIALS']]]) {
                 sh """
