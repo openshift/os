@@ -10,3 +10,10 @@ baseurl=${LATEST_OPENSHIFT_REPO}
 type=rpm
 enabled=1
 gpgcheck=0" > openshift.repo
+
+REPOURL_PREFIX=http://rpm-mirror-ci.svc.ci.openshift.org/
+
+curl -L --remote-name-all \
+     ${REPOURL_PREFIX}/rhel-7.5-server{,-optional,-extras}.repo \
+     ${REPOURL_PREFIX}/rhel-7.5-atomic.repo \
+     ${REPOURL_PREFIX}/docker.repo
