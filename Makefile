@@ -1,9 +1,7 @@
-OS_FLAVOR ?= rhcos
 # Use for e.g. --cache-only
 COMPOSEFLAGS ?=
 ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 CACHE_ARGS := $(shell if test -d cache; then echo $(shell pwd)/cache; fi)
-CONTAINER_NAME ?= $(OS_FLAVOR)-os
 
 all: rpmostree-compose
 
@@ -14,10 +12,6 @@ syntax-check:
 		jq < $${jsonfile} . >/dev/null; \
 		echo "OK"; \
 	done
-
-.PHONY: container
-container: repo-refresh
-	imagebuilder -t $(CONTAINER_NAME) -privileged ${ROOT_DIR}
 
 .PHONY: repo-refresh
 repo-refresh:
@@ -32,6 +26,6 @@ init-ostree-repo:
 rpmostree-compose: ${ROOT_DIR}/openshift.repo init-ostree-repo
 	if test -d cache; then cachedir='--cachedir $(shell pwd)/cache'; fi && \
 	  cd ${ROOT_DIR} && set -x && \
-	  rpm-ostree $(COMPOSEFLAGS) compose tree $${cachedir:-} --repo=$(shell pwd)/build-repo host-$(OS_FLAVOR).json
+	  coreos-assembler $(COMPOSEFLAGS) $${cachedir:-} --repo=$(shell pwd)/build-repo host.yaml
 	ostree --repo=repo pull-local build-repo
 	ostree --repo=repo summary -u

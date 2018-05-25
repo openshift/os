@@ -1,10 +1,8 @@
 # Use fedora as we maintain our tools a bit better there
-FROM registry.fedoraproject.org/fedora:28 AS build
+FROM quay.io/cgwalters/coreos-assembler AS build
 
 COPY RPM-GPG-KEY-* /etc/pki/rpm-gpg/
 COPY . /srv/tree/
-
-RUN yum install -y make rpm-ostree
 
 RUN cd /srv/tree && make repo-refresh && make rpmostree-compose && \
     rm -rf build-repo
