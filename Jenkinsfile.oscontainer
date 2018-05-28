@@ -1,23 +1,37 @@
+def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 // Turns out the Jenkins docker stuff totally breaks with SELinux
 def DOCKER_ARGS = "--privileged"
 
-node(env.NODE) {
+node(NODE) {
+    docker.image(DOCKER_IMG).pull()
+
     checkout scm
+    utils = load("pipeline-utils.groovy")
+    utils.define_parameters()
 
     stage("Prepare Dockerfile") {
-        docker.image(DOCKER_IMG).pull()
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-          sh """sed -e 's,@OSTREE_REPO_URL@,${env.OSTREE_INSTALL_URL},' < Dockerfile.rollup.in > Dockerfile.rollup"""
+            withCredentials([
+                string(credentialsId: params.OSTREE_INSTALL_URL, variable: 'OSTREE_INSTALL_URL'),
+            ]) {
+                sh "sed -e 's,@OSTREE_REPO_URL@,${OSTREE_INSTALL_URL},' < Dockerfile.rollup.in > Dockerfile.rollup"
+            }
         }
     }
-    docker.withRegistry("${env.REGISTRY}", "${env.REGISTRY_CREDENTIALS}") {
-        def img;
-        stage("Build container") {
-           img = docker.build("${env.IMAGE_NAME}", "-f Dockerfile.rollup .")
-        }
-        stage("Push container") {
-           img.push()
+
+    withCredentials([
+        string(credentialsId: params.REGISTRY, variable: 'REGISTRY'),
+        string(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'REGISTRY_CREDENTIALS')]),
+    {
+        docker.withRegistry("${REGISTRY}", "${REGISTRY_CREDENTIALS}") {
+            def img;
+            stage("Build container") {
+               img = docker.build("coreos/openshift-redhat-coreos:3.10", "-f Dockerfile.rollup .")
+            }
+            stage("Push container") {
+               img.push()
+            }
         }
     }
 }

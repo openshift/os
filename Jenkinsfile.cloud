@@ -1,17 +1,19 @@
+def NODE = "rhcos-imgfac-jslave"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
 // this var conveniently refers to a location on the server as well as the
 // local dir we sync to/from
-def output = "${env.ARTIFACT_SERVER_DIR}/images"
+def images = "/srv/rhcos/output/images"
 
 def ref = "openshift/3.10/x86_64/os";
 
-node(env.NODE) {
+node(NODE) {
     docker.image(DOCKER_IMG).pull()
 
     checkout scm
     utils = load("pipeline-utils.groovy")
+    utils.define_parameters()
 
     stage("Provision") {
         sh """
@@ -28,17 +30,23 @@ node(env.NODE) {
     }
 
     stage("Sync In") {
-        withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
-                                           keyFileVariable: 'KEY_FILE')]) {
-            utils.rsync_dir_in(env.ARTIFACT_SERVER, env.KEY_FILE, output)
+        withCredentials([
+            string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+            sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+        ]) {
+            utils.rsync_dir_in(ARTIFACT_SERVER, KEY_FILE, images)
         }
 
         // Also initialize an ostree repo for change detection
-        sh """
-            rm -rf repo && ostree init --repo=repo --mode=bare-user
-            ostree --repo=repo remote add tmp --no-gpg-verify ${env.OSTREE_INSTALL_URL}
-            ostree --repo=repo pull --commit-metadata-only tmp ${ref}
-        """
+        withCredentials([
+            string(credentialsId: params.OSTREE_INSTALL_URL, variable: 'OSTREE_INSTALL_URL'),
+        ]) {
+            sh """
+                rm -rf repo && ostree init --repo=repo --mode=bare-user
+                ostree --repo=repo remote add tmp --no-gpg-verify ${OSTREE_INSTALL_URL}
+                ostree --repo=repo pull --commit-metadata-only tmp ${ref}
+            """
+        }
     }
 
     // Check if there's a new version out.
@@ -49,7 +57,7 @@ node(env.NODE) {
         if (fileExists('force-nocache-build')) {
             force_nocache = readFile('force-nocache-build').trim();
         }
-        last_build_version = utils.sh_capture("cat ${output}/cloud/latest/version.txt || :")
+        last_build_version = utils.sh_capture("cat ${images}/cloud/latest/version.txt || :")
     }
 
     if (latest_version == last_build_version && latest_version != force_nocache) {
@@ -59,10 +67,15 @@ node(env.NODE) {
     }
 
     stage("Prepare Configs") {
-        sh "sed -i 's,\\(<url>\\).*\\(<\\/url\\),\\1${env.INSTALLER_TREE_URL}\\2,' rhcos.tdl"
-        sh "sed -i 's,@@OSTREE_INSTALL_URL@@,${env.OSTREE_INSTALL_URL},' cloud.ks"
-        sh "sed -i 's,@@OSTREE_INSTALL_REF@@,${ref},' cloud.ks"
-        sh "rm -rf /var/lib/imagefactory/storage/*"
+        withCredentials([
+            string(credentialsId: params.OSTREE_INSTALL_URL, variable: 'OSTREE_INSTALL_URL'),
+            string(credentialsId: params.INSTALLER_TREE_URL, variable: 'INSTALLER_TREE_URL'),
+        ]) {
+            sh "sed -i 's,\\(<url>\\).*\\(<\\/url\\),\\1${INSTALLER_TREE_URL}\\2,' rhcos.tdl"
+            sh "sed -i 's,@@OSTREE_INSTALL_URL@@,${OSTREE_INSTALL_URL},' cloud.ks"
+            sh "sed -i 's,@@OSTREE_INSTALL_REF@@,${ref},' cloud.ks"
+            sh "rm -rf /var/lib/imagefactory/storage/*"
+        }
     }
 
     stage("Running imagefactory") {
@@ -90,7 +103,7 @@ node(env.NODE) {
         currentBuild.description = "${version} (${commit})"
 
         def dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
-        dirpath = "${output}/cloud/${dirname}"
+        dirpath = "${images}/cloud/${dirname}"
         qcow = "${dirpath}/rhcos.qcow2"
         vmdk = "${dirpath}/rhcos.vmdk"
         sh "mkdir -p ${dirpath}"
@@ -102,9 +115,9 @@ node(env.NODE) {
         sh "gzip ${qcow}"
         sh "qemu-img convert -f raw -O vmdk ${image} -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}"
 
-        sh "ln -sfn ${dirname} ${output}/cloud/latest"
+        sh "ln -sfn ${dirname} ${images}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
-        sh "cd ${output}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
+        sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
     }
 
     stage("Generate Metadata") {
@@ -124,23 +137,27 @@ node(env.NODE) {
     }
 
     stage("Sync Out") {
-        withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
-                                           keyFileVariable: 'KEY_FILE')]) {
-            utils.rsync_dir_out(env.ARTIFACT_SERVER, env.KEY_FILE, output)
+        withCredentials([
+            string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+            sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+        ]) {
+            utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
         }
     }
 
     stage("Create AMI") {
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                              credentialsId: env['AWS_CREDENTIALS']]]) {
+            withCredentials([
+                [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
+                string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
+            ]) {
                 sh """
                     # use a symlink so that our uploaded filename is unique
-                    ln -sf ${output}/cloud/latest/rhcos.vmdk rhcos-${commit}.vmdk
+                    ln -sf ${images}/cloud/latest/rhcos.vmdk rhcos-${commit}.vmdk
                     ore aws upload --region us-east-1 \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
                         --ami-description 'Red Hat CoreOS ${version} (${commit})' \
-                        --bucket 's3://${env.S3_PRIVATE_BUCKET}/rhcos/cloud' \
+                        --bucket 's3://${S3_PRIVATE_BUCKET}/rhcos/cloud' \
                         --file rhcos-${commit}.vmdk \
                         --name "rhcos_dev_${commit[0..6]}" \
                         --delete-object | tee out.json # already default, just being explicit

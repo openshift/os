@@ -1,32 +1,35 @@
+def NODE = "rhcos-imgfac-jslave"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
-// this var conveniently refers to a location on the server as well as the local dir we sync to/from
-def repo = "${env.ARTIFACT_SERVER_DIR}/repo"
+// this var conveniently refers to a location on the server as well as the
+// local dir we sync to/from
+def repo = "/srv/rhcos/output/repo"
 
 def manifest = "host.yaml"
 def ref = "openshift/3.10/x86_64/os";
 
-node(env.NODE) {
+node(NODE) {
+    docker.image(DOCKER_IMG).pull()
+
     checkout scm
     utils = load("pipeline-utils.groovy")
+    utils.define_parameters()
 
-    // We will likely be iterating on this image a lot, so do the equvialent of Kubernetes
-    // `imagePullPolicy: Always`.
-    docker.image(DOCKER_IMG).pull()
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-
         stage("Sync In") {
-            withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
-                                               keyFileVariable: 'KEY_FILE')]) {
+            withCredentials([
+                string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+                sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+            ]) {
                 sh """
                     # a few idempotent commands for bootstrapping
                     mkdir -p ${repo}
                     ostree init --repo=${repo} --mode=archive
                     /usr/app/ostree-releng-scripts/rsync-repos \
-                    --src ${env.ARTIFACT_SERVER}:${repo}/ --dest=${repo} \
+                    --src ${ARTIFACT_SERVER}:${repo}/ --dest=${repo} \
                     --rsync-opt=--stats --rsync-opt=-e \
-                    --rsync-opt='ssh -i ${env.KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+                    --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
                 """
             }
         }
@@ -61,15 +64,17 @@ node(env.NODE) {
         }
 
         stage("Sync Out") {
-            withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
-                                               keyFileVariable: 'KEY_FILE')]) {
+            withCredentials([
+                string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+                sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+            ]) {
                 sh """
                     ostree prune --repo=${repo} --keep-younger-than='30 days ago' --refs-only
                     ostree summary --repo=${repo} --update
                     /usr/app/ostree-releng-scripts/rsync-repos \
-                    --dest ${env.ARTIFACT_SERVER}:${repo}/ --src=${repo} \
+                    --dest ${ARTIFACT_SERVER}:${repo}/ --src=${repo} \
                     --rsync-opt=--stats --rsync-opt=-e \
-                    --rsync-opt='ssh -i ${env.KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+                    --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
                 """
             }
         }
