@@ -159,7 +159,7 @@ node(env.NODE) {
                 sh """
                     # use a symlink so that our uploaded filename is unique
                     ln -sf ${output}/cloud/latest/rhcos.vmdk rhcos-${commit}.vmdk
-                    mantle/bin/ore aws upload --region us-east-1 \
+                    ore aws upload --region us-east-1 \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
                         --ami-description 'Red Hat CoreOS ${version} (${commit})' \
                         --bucket 's3://${env.S3_PRIVATE_BUCKET}/rhcos/cloud' \
