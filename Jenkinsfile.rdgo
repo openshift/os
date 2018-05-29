@@ -1,10 +1,17 @@
-def DOCKER_IMG = "registry.fedoraproject.org/fedora:28"
+def NODE = "atomic-jslave-autobrew"
+def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
-// this var conveniently refers to a location on the server as well as the local dir we sync to/from
-def rdgo = "${env.ARTIFACT_SERVER_DIR}/rdgo"
-node(env.NODE) {
+// this var conveniently refers to a location on the server as well as the
+// local dir we sync to/from
+def rdgo = "/srv/rhcos/output/rdgo"
+
+node(NODE) {
+    docker.image(DOCKER_IMG).pull()
+
     checkout scm
+    utils = load("pipeline-utils.groovy")
+    utils.define_parameters()
 
     try {
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
@@ -18,16 +25,11 @@ node(env.NODE) {
         }
 
         stage("Sync In") {
-            withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
-                                               keyFileVariable: 'KEY_FILE')]) {
-                sh """
-                    mkdir -p ${rdgo}
-                    rsync -Hplpt --stats \
-                        -e 'ssh -i ${env.KEY_FILE} \
-                            -o UserKnownHostsFile=/dev/null \
-                            -o StrictHostKeyChecking=no' \
-                        ${env.ARTIFACT_SERVER}:${rdgo}/ ${rdgo}
-                """
+            withCredentials([
+                string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+                sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+            ]) {
+                utils.rsync_dir_in(ARTIFACT_SERVER, KEY_FILE, rdgo)
             }
         }
 
@@ -55,21 +57,16 @@ node(env.NODE) {
         }
 
         stage("Sync Out") {
-            withCredentials([sshUserPrivateKey(credentialsId: env['ARTIFACT_SSH_CREDS_ID'],
-                                               keyFileVariable: 'KEY_FILE')]) {
-                sh """
-                    rsync -Hrlpt --stats --delete --delete-after \
-                        -e 'ssh -i ${env.KEY_FILE} \
-                                -o UserKnownHostsFile=/dev/null \
-                                -o StrictHostKeyChecking=no' \
-                        ${rdgo}/ ${env.ARTIFACT_SERVER}:${rdgo}
-                """
+            withCredentials([
+                string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+                sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+            ]) {
+                utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, rdgo)
             }
-            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
-                              credentialsId: env['AWS_CREDENTIALS']]]) {
-                sh """
-                    aws s3 sync --delete ${rdgo}/build/ s3://aos-ci/rhcos/rdgo
-                """
+            withCredentials([
+                [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
+            ]) {
+                sh "aws s3 sync --delete ${rdgo}/build/ s3://aos-ci/rhcos/rdgo"
             }
             currentBuild.description = 'rdgo build+sync done'
         }
