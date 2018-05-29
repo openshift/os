@@ -22,8 +22,8 @@ node(NODE) {
 
     withCredentials([
         string(credentialsId: params.REGISTRY, variable: 'REGISTRY'),
-        string(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'REGISTRY_CREDENTIALS')]),
-    {
+        string(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'REGISTRY_CREDENTIALS'),
+    ]) {
         docker.withRegistry("${REGISTRY}", "${REGISTRY_CREDENTIALS}") {
             def img;
             stage("Build container") {
