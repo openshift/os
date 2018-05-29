@@ -29,6 +29,14 @@ components:
         patches: drop
         branch: master
 
+  # RHEL/Fedora fork lives here for now
+  - src: github:dustymabe/bootengine
+    distgit:
+        src: https://github.com/ashcrow/bootengine-specs.git
+        name: dracut-bootengine
+        patches: drop
+        branch: master
+
   # Required as a cri-o dependency
   - src: https://github.com/containernetworking/plugins.git
     distgit:
