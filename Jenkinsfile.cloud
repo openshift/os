@@ -1,3 +1,4 @@
+def TIMER = "H H/3 * * *"
 def NODE = "rhcos-imgfac-jslave"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
@@ -13,7 +14,7 @@ node(NODE) {
 
     checkout scm
     utils = load("pipeline-utils.groovy")
-    utils.define_parameters()
+    utils.define_properties(TIMER)
 
     stage("Provision") {
         sh """

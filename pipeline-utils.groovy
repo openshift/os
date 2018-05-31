@@ -6,13 +6,14 @@
 // let's try not to use env vars here to keep things
 // decoupled and easier to grok
 
-def define_parameters() {
+def define_properties(timer) {
     /* There's a subtle gotcha here. Don't use `env.$PARAM`, but `params.$PARAM`
      * instead. The former will *not* be set on the first run, since the
      * parameters are not set yet. The latter will be set on the first run as
      * soon as the below is executed. See:
      * https://issues.jenkins-ci.org/browse/JENKINS-40574 */
     properties([
+      pipelineTriggers([cron(timer)]),
       parameters([
         credentials(name: 'ARTIFACT_SERVER',
                     credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
