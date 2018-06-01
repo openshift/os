@@ -44,7 +44,7 @@ packages:
  - selinux-policy-targeted policycoreutils-python
  - setools-console
  # System setup
- - ignition cloud-init cloud-utils-growpart
+ - ignition dracut-bootengine cloud-init cloud-utils-growpart
  - dracut-network
  # Bootloader
  - grub2 grub2-efi ostree-grub2 efibootmgr shim
