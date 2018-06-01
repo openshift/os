@@ -1,3 +1,4 @@
+def TIMER = "H/30 * * * *"
 def NODE = "rhcos-imgfac-jslave"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
@@ -14,7 +15,7 @@ node(NODE) {
 
     checkout scm
     utils = load("pipeline-utils.groovy")
-    utils.define_parameters()
+    utils.define_properties(TIMER)
 
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
         stage("Sync In") {

@@ -1,3 +1,4 @@
+def TIMER = "H/30 * * * *"
 def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
@@ -11,7 +12,7 @@ node(NODE) {
 
     checkout scm
     utils = load("pipeline-utils.groovy")
-    utils.define_parameters()
+    utils.define_properties(TIMER)
 
     try {
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
