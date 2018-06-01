@@ -16,24 +16,15 @@
             This service provides the latest OSTree repo within an OpenShift cluster. You may also view the
             <a href="/repo/">OSTree repo directly</a>.
         </p>
-        <h2>Examples</h2>
-        <h3>In a cluster</h3>
+        <h2>Using this container in a cluster</h2>
         <pre>
         $ ssh root@NODE_HOST
-        $ ostree remote add --no-gpg-verify local http://os-content.namespace.svc:8080 openshift/3.10/x86_64/os
-        $ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
+        $ ostree remote add --no-gpg-verify os-svc http://os-content.namespace.svc:8080/repo
+        $ rpm-ostree rebase -r os-svc:openshift/3.10/x86_64/os
 
         # wait, SSH back in
-        $ openshift version</pre>
-
-        <h3>Locally</h3>
-        <pre>
-        $ docker run --network host -d -w /srv/tree/repo $REGISTRY/os:latest
-        $ ostree remote add --no-gpg-verify local http://localhost:8080 openshift/3.10/x86_64/os
-        $ rpm-ostree rebase -r local:openshift/3.10/x86_64/os
-
-        # wait, SSH back in
-        $ openshift version</pre>
+        $ openshift version
+        </pre>
 
         <h2>Found a bug?</h2>
         If so, please report it using <a href="https://github.com/openshift/os/issues/new?labels=bug">this link</a>.
