@@ -7,6 +7,7 @@ repos:
   - rhel-7.5-server-optional
   - rhel-7.5-server-extras
   - rhel-7.5-atomic
+  - dustymabe-ignition
 install_langs:
  - en_US
 documentation: false
@@ -44,7 +45,7 @@ packages:
  - selinux-policy-targeted policycoreutils-python
  - setools-console
  # System setup
- - ignition cloud-init cloud-utils-growpart
+ - ignition ignition-dracut cloud-init cloud-utils-growpart
  - dracut-network
  # Bootloader
  - grub2 grub2-efi ostree-grub2 efibootmgr shim

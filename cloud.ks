@@ -16,7 +16,13 @@ services --disabled=network,avahi-daemon
 
 zerombr
 clearpart --initlabel --all
-bootloader --timeout=1 --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0"
+# Add the following to kernel boot args:
+#  - ip=dhcp           # how to get network
+#  - rd.neednet=1      # tell dracut we need network
+#  - enforcing=0       # ignition + selinux doesn't work
+#  - coreos.first_boot # tell ignition to run
+#  - coreos.oem.id=ec2 # only target ec2 for now
+bootloader --timeout=1 --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 ip=dhcp rd.neednet=1 enforcing=0 coreos.first_boot coreos.oem.id=ec2"
 
 part /boot --size=300 --fstype="xfs"
 part pv.01 --grow

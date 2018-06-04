@@ -22,12 +22,13 @@ components:
   - src: github:kubernetes-incubator/cri-o
     branch: release-1.10
 
-  - src: github:coreos/ignition
-    distgit:
-        src: https://github.com/ashcrow/ignition-specs.git
-        name: ignition
-        patches: drop
-        branch: master
+# pull ignition directly from copr for now
+# - src: github:coreos/ignition
+#   distgit:
+#       src: https://github.com/ashcrow/ignition-specs.git
+#       name: ignition
+#       patches: drop
+#       branch: master
 
   # Required as a cri-o dependency
   - src: https://github.com/containernetworking/plugins.git
