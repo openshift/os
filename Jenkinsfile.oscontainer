@@ -29,8 +29,14 @@ node(NODE) {
             stage("Build container") {
                img = docker.build("coreos/openshift-redhat-coreos:3.10", "-f Dockerfile.rollup .")
             }
+            if (params.DRY_RUN) {
+                echo "DRY_RUN set, skipping push"
+                currentBuild.result = 'SUCCESS'
+                currentBuild.description = '(dry run)'
+                return
+            }
             stage("Push container") {
-               img.push()
+                img.push()
             }
         }
     }
