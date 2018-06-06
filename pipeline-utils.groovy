@@ -2,19 +2,23 @@
  * provides some commonly used functions.
  */
 
-
 // let's try not to use env vars here to keep things
 // decoupled and easier to grok
 
 def define_properties(timer) {
+
+    // Set this to TRUE to disable the timer, and set DRY_RUN=true by default
+    def developmentPipeline = false;
+
     /* There's a subtle gotcha here. Don't use `env.$PARAM`, but `params.$PARAM`
      * instead. The former will *not* be set on the first run, since the
      * parameters are not set yet. The latter will be set on the first run as
      * soon as the below is executed. See:
      * https://issues.jenkins-ci.org/browse/JENKINS-40574 */
     properties([
-      pipelineTriggers([cron(timer)]),
+      pipelineTriggers(developmentPipeline ? [] : [cron(timer)]),
       parameters([
+        booleanParam(name: 'DRY_RUN', defaultValue: developmentPipeline, description: 'If true, do not push changes'),
         credentials(name: 'ARTIFACT_SERVER',
                     credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
                     description: "Server used to push/receive built artifacts.",

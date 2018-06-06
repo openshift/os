@@ -57,6 +57,13 @@ node(NODE) {
             return
         }
 
+        if (params.DRY_RUN) {
+            echo "DRY_RUN set, skipping push"
+            currentBuild.result = 'SUCCESS'
+            currentBuild.description = '(dry run)'
+            return
+        }
+
         stage("Sync Out") {
             withCredentials([
                 string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
