@@ -12,11 +12,16 @@ def ref = "openshift/3.10/x86_64/os";
 node(NODE) {
     docker.image(DOCKER_IMG).pull()
 
+    stage("Clean workspace") {
+       step([$class: 'WsCleanup'])
+    }
+
     checkout scm
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
-    stage("Provision") {
+    def par_stages = [:]
+    par_stages["provision"] = { -> stage("Provision") {
         sh """
            rpm -q imagefactory-plugins-TinMan \
                   libguestfs-tools-c \
@@ -28,7 +33,12 @@ node(NODE) {
                               rpm-ostree \
                               rsync
            """
-    }
+    } }
+    par_stages["clone qcow2-to-vagrant"] = { -> stage("Clone qcow2-to-vagrant") {
+        // I tried to use git() but not sure where that went, it isn't the workspace
+        sh('git clone https://github.com/cgwalters/qcow2-to-vagrant')
+    } }
+    parallel par_stages; par_stages = [:]
 
     stage("Sync In") {
         withCredentials([
@@ -88,9 +98,9 @@ node(NODE) {
         """
     }
 
-    def commit, version, dirpath, qcow, vmdk
-    stage("Finalizing") {
-        def image = utils.sh_capture("ls /var/lib/imagefactory/storage/*.body")
+    def dirname, image, commit, version, dirpath, qcow, vmdk, vagrant_libvirt
+    stage("Postprocessing") {
+        image = utils.sh_capture("ls /var/lib/imagefactory/storage/*.body")
         // just introspect after the fact to avoid race conditions
         commit = utils.sh_capture("""
             LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/coreos/root:/ \
@@ -103,25 +113,32 @@ node(NODE) {
         version = utils.get_rev_version("repo", commit)
         currentBuild.description = "${version} (${commit})"
 
-        def dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
+        dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
         dirpath = "${images}/cloud/${dirname}"
         qcow = "${dirpath}/rhcos.qcow2"
         vmdk = "${dirpath}/rhcos.vmdk"
+        vagrant_libvirt = "${dirpath}/rhcos-vagrant-libvirt.box"
         sh "mkdir -p ${dirpath}"
         // this belongs better in a JSON file, but for now just use a file;
         // this is used higher up to determine no-op changes
         sh "echo '${version}' > ${dirpath}/version.txt"
-
-        sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
-        sh "gzip ${qcow}"
+    }
+    par_stages["qcow2"] = { -> stage("Generate qcow2") {
+        sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow} && gzip ${qcow}"
+    } }
+    par_stages["vmdk"] = { -> stage("Generate vmdk") {
         sh "qemu-img convert -f raw -O vmdk ${image} -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}"
+    } }
+    par_stages["vagrant-libvirt"] = { -> stage("Generate vagrant-libvirt") {
+        // We use direct as we hit SELinux issues otherwise
+        sh "env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${image} ${vagrant_libvirt}"
+    } }
+    parallel par_stages; par_stages = [:]
 
+    stage("Finalizing, generate metadata") {
         sh "ln -sfn ${dirname} ${images}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
         sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
-    }
-
-    stage("Generate Metadata") {
         // we're stuck with an older host because imagefactory produces kernel
         // panics on newer hosts, so let's use a container to have access to a
         // newer rpm-ostree that understands the new pkglist metadata
@@ -133,6 +150,7 @@ node(NODE) {
                 rpm-ostree db diff --repo=repo ${prev_commit} ${commit} > ${dirpath}/pkgdiff.txt
                 sha256sum ${qcow}.gz | awk '{print \$1}' > ${qcow}.gz.sha256sum
                 sha256sum ${vmdk} | awk '{print \$1}' > ${vmdk}.sha256sum
+                sha256sum ${vagrant_libvirt} | awk '{print \$1}' > ${vagrant_libvirt}.sha256sum
             """
         }
     }
