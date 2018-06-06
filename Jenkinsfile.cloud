@@ -12,6 +12,10 @@ def ref = "openshift/3.10/x86_64/os";
 node(NODE) {
     docker.image(DOCKER_IMG).pull()
 
+    stage("Clean workspace") {
+       step([$class: 'WsCleanup'])
+    }
+
     checkout scm
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
