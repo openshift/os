@@ -1,5 +1,5 @@
 def TIMER = "H/30 * * * *"
-def NODE = "rhcos-imgfac-jslave"
+def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
