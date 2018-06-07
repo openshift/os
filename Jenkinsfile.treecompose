@@ -77,7 +77,7 @@ node(NODE) {
                 sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
             ]) {
                 sh """
-                    ostree prune --repo=${repo} --keep-younger-than='30 days ago' --refs-only
+                    ostree prune --repo=${repo} --keep-younger-than='5 days ago' --refs-only
                     ostree summary --repo=${repo} --update
                     /usr/app/ostree-releng-scripts/rsync-repos \
                     --dest ${ARTIFACT_SERVER}:${repo}/ --src=${repo} \
