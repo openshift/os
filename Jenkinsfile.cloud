@@ -3,6 +3,9 @@ def NODE = "rhcos-imgfac-jslave"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
+// Are there really other regions?  We're sending explorers to find out
+def AWS_REGION = "us-east-1"
+
 // this var conveniently refers to a location on the server as well as the
 // local dir we sync to/from
 def images = "/srv/rhcos/output/images"
@@ -163,15 +166,6 @@ node(NODE) {
        return
    }
 
-    stage("Sync Out") {
-        withCredentials([
-            string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
-            sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
-        ]) {
-            utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
-        }
-    }
-
     stage("Create AMI") {
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
             withCredentials([
@@ -181,24 +175,34 @@ node(NODE) {
                 sh """
                     # use a symlink so that our uploaded filename is unique
                     ln -sf ${images}/cloud/latest/rhcos.vmdk rhcos-${commit}.vmdk
-                    ore aws upload --region us-east-1 \
+                    amijson=${dirpath}/aws-${AWS_REGION}.json
+                    ore aws upload --region ${AWS_REGION} \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
                         --ami-description 'Red Hat CoreOS ${version} (${commit})' \
                         --bucket 's3://${S3_PRIVATE_BUCKET}/rhcos/cloud' \
                         --file rhcos-${commit}.vmdk \
                         --name "rhcos_dev_${commit[0..6]}" \
-                        --delete-object | tee out.json # already default, just being explicit
+                        --delete-object | tee \${amijson}
 
                     # Add the version and commit as tags to both the AMI and the underlying snapshot.
                     # We should teach mantle to apply extra tags.
-                    ami=\$(jq -r .HVM out.json)
+                    ami=\$(jq -r .HVM \${amijson})
                     snapshot=\$(jq -r .SnapshotID out.json)
-                    AWS_DEFAULT_REGION=us-east-1 aws ec2 create-tags \
+                    AWS_DEFAULT_REGION=${AWS_REGION} aws ec2 create-tags \
                         --resources \${ami} \${snapshot} \
                         --tags Key=ostree_commit,Value=${commit} \
                                Key=ostree_version,Value=${version}
                 """
             }
+        }
+    }
+
+    stage("Sync Out") {
+        withCredentials([
+            string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+            sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+        ]) {
+            utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
         }
     }
 }
