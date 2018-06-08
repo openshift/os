@@ -114,7 +114,7 @@ node(NODE) {
 
         // do this again *after* running imgfac to close race
         // fetch parent too for the later db diff
-        sh "ostree --repo=repo pull --depth=1 --commit-metadata-only tmp ${commit}"
+        sh "ostree --repo=repo pull --mirror --depth=1 --commit-metadata-only rhcos ${commit}"
         version = utils.get_rev_version("repo", commit)
         currentBuild.description = "${version} (${commit})"
 
