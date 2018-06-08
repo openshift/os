@@ -11,8 +11,8 @@ rootpw --lock --iscrypted locked
 firewall --disabled
 
 network --bootproto=dhcp --onboot=on
-services --enabled=sshd,cloud-init,cloud-init-local,cloud-config,cloud-final
-services --disabled=network,avahi-daemon
+services --enabled=sshd
+services --disabled=network,avahi-daemon,cloud-init,cloud-config,cloud-final,cloud-init-local
 
 zerombr
 clearpart --initlabel --all
