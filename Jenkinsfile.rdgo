@@ -78,6 +78,8 @@ node(NODE) {
             }
             currentBuild.description = 'rdgo build+sync done'
         }
+
+        build("coreos-rhcos-treecompose")
     }
 
     } finally {
