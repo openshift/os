@@ -187,7 +187,7 @@ node(NODE) {
                     # Add the version and commit as tags to both the AMI and the underlying snapshot.
                     # We should teach mantle to apply extra tags.
                     ami=\$(jq -r .HVM \${amijson})
-                    snapshot=\$(jq -r .SnapshotID out.json)
+                    snapshot=\$(jq -r .SnapshotID \${amijson})
                     AWS_DEFAULT_REGION=${AWS_REGION} aws ec2 create-tags \
                         --resources \${ami} \${snapshot} \
                         --tags Key=ostree_commit,Value=${commit} \
