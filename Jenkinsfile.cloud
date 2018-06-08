@@ -57,17 +57,18 @@ node(NODE) {
         ]) {
             sh """
                 rm -rf repo && ostree init --repo=repo --mode=bare-user
-                ostree --repo=repo remote add tmp --no-gpg-verify ${OSTREE_INSTALL_URL}
-                ostree --repo=repo pull --commit-metadata-only tmp ${ref}
+                ostree --repo=repo remote add rhcos --no-gpg-verify ${OSTREE_INSTALL_URL}
+                ostree --repo=repo pull --mirror --commit-metadata-only rhcos
             """
         }
     }
 
     // Check if there's a new version out.
     // Really, we should be checksumming e.g. the ks and tdl too.
-    def latest_version, last_build_version, force_nocache
+    def latest_commit, latest_version, last_build_version, force_nocache
     stage("Check for Changes") {
-        latest_version = utils.get_rev_version("repo", "tmp:${ref}")
+        latest_commit = utils.sh_capture("ostree --repo=repo rev-parse ${ref}")
+        latest_version = utils.get_rev_version("repo", "${latest_commit}")
         if (fileExists('force-nocache-build')) {
             force_nocache = readFile('force-nocache-build').trim();
         }
@@ -75,6 +76,7 @@ node(NODE) {
     }
 
     if (latest_version == last_build_version && latest_version != force_nocache) {
+        echo "Last built ${latest_version} (${latest_commit}) - no changes"
         currentBuild.result = 'SUCCESS'
         currentBuild.description = '(No changes)'
         return
