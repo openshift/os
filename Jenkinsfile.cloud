@@ -122,20 +122,21 @@ node(NODE) {
         // this belongs better in a JSON file, but for now just use a file;
         // this is used higher up to determine no-op changes
         sh "echo '${version}' > ${dirpath}/version.txt"
+        // And do the qcow2 conversion now
+        sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
+        sh "rm -f ${image}"
     }
-    par_stages["qcow2"] = { -> stage("Generate qcow2") {
-        sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow} && gzip ${qcow}"
-    } }
     par_stages["vmdk"] = { -> stage("Generate vmdk") {
-        sh "qemu-img convert -f raw -O vmdk ${image} -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}"
+        sh "qemu-img convert -f qcow2 -O vmdk ${qcow} -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}"
     } }
     par_stages["vagrant-libvirt"] = { -> stage("Generate vagrant-libvirt") {
         // We use direct as we hit SELinux issues otherwise
-        sh "env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${image} ${vagrant_libvirt}"
+        sh "env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${qcow} ${vagrant_libvirt}"
     } }
     parallel par_stages; par_stages = [:]
 
     stage("Finalizing, generate metadata") {
+        sh "gzip ${qcow}"
         sh "ln -sfn ${dirname} ${images}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
         sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
