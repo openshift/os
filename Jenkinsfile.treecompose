@@ -62,7 +62,7 @@ node(NODE) {
             sh "ostree --repo=${repo} rev-parse ${ref} > commit.txt"
             def commit = readFile('commit.txt').trim();
             version = utils.get_rev_version("${repo}", commit)
-            currentBuild.description = '🆕 ${version} (commit ${commit})';
+            currentBuild.description = "🆕 ${version} (commit ${commit})";
             sh "rpm-ostree --repo=${repo} db diff ${commit}^ ${commit}"
         }
 
