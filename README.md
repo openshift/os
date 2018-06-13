@@ -20,13 +20,23 @@ Turn a [CentOS Atomic](https://wiki.centos.org/SpecialInterestGroup/Atomic/Downl
 $ lvm lvextend -r -l +25%FREE atomicos/root
 ```
 
-3. SSH to the machine and run:
+3. SSH to the machine and execute one of the following:
+
+```
+$ pivot -r $REGISTRY/os:latest 
+```
+
+OR
 
 ```
 $ docker run --network host -d -w /srv/tree/repo $REGISTRY/os:latest
 $ ostree remote add --no-gpg-verify oscontainer http://localhost:8080/repo
 $ rpm-ostree rebase -r oscontainer:openshift/3.10/x86_64/os
+```
 
+THEN
+
+```
 # wait, SSH back in
 $ openshift version
 ```
