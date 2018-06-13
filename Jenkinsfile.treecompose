@@ -89,6 +89,6 @@ node(NODE) {
             }
         }
 
-        build("coreos-rhcos-cloud")
+        build job: 'coreos-rhcos-cloud', wait: false
     }
 }
