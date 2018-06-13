@@ -92,13 +92,6 @@ systemctl mask tmp.mount
 # make sure firstboot doesn't start
 echo "RUN_FIRSTBOOT=NO" > /etc/sysconfig/firstboot
 
-# Additional drivers for vmware and hyperv
-echo 'add_drivers+="mptspi vmw_pvscsi "'    > /etc/dracut.conf.d/vmware-fusion-drivers.conf
-echo 'add_drivers+="hv_storvsc hv_netvsc "' > /etc/dracut.conf.d/hyperv-drivers.conf
-# Rerun dracut for the installed kernel (not the running kernel):
-KERNEL_VERSION=$(rpm -q kernel --qf '%{V}-%{R}.%{arch}\n')
-dracut -f /boot/initramfs-$KERNEL_VERSION.img $KERNEL_VERSION
-
 # Anaconda is writing a /etc/resolv.conf from the generating environment.
 # The system should start out with an empty file.
 truncate -s 0 /etc/resolv.conf
