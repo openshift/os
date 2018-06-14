@@ -39,5 +39,6 @@ components:
   - src: github:openshift/redhat-release-coreos
     spec: internal
 
-  - src: github:ashcrow/pivot
+  - src: github:cgwalters/pivot
+    branch: support-nogit
     spec: internal
