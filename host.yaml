@@ -80,6 +80,8 @@ packages:
  - vim-minimal nano
  # OpenShift
  - origin-node origin-hyperkube origin-clients
+ # pivot/ota tools
+ - pivot
 
 remove-from-packages:
   - - yum
