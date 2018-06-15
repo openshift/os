@@ -132,7 +132,9 @@ node(NODE) {
         sh "rm -f ${image}"
     }
     par_stages["vmdk"] = { -> stage("Generate vmdk") {
-        sh "qemu-img convert -f qcow2 -O vmdk ${qcow} -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}"
+        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${vmdk}.tmp vmware
+              qemu-img convert -f qcow2 -O vmdk ${vmdk}.tmp -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}
+              rm ${vmdk}.tmp"""
     } }
     par_stages["vagrant-libvirt"] = { -> stage("Generate vagrant-libvirt") {
         // We use direct as we hit SELinux issues otherwise
@@ -141,7 +143,9 @@ node(NODE) {
     parallel par_stages; par_stages = [:]
 
     stage("Finalizing, generate metadata") {
-        sh "gzip ${qcow}"
+        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${qcow}.openstack openstack
+              mv ${qcow}.openstack ${qcow}
+              gzip ${qcow}"""
         sh "ln -sfn ${dirname} ${images}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
         sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
@@ -176,13 +180,13 @@ node(NODE) {
             ]) {
                 sh """
                     # use a symlink so that our uploaded filename is unique
-                    ln -sf ${images}/cloud/latest/rhcos.vmdk rhcos-${commit}.vmdk
+                    env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${images}/cloud/latest/rhcos.vmdk rhcos-aws-${commit}.vmdk ec2
                     amijson=${dirpath}/aws-${AWS_REGION}.json
                     ore aws upload --region ${AWS_REGION} \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
                         --ami-description 'Red Hat CoreOS ${version} (${commit})' \
                         --bucket 's3://${S3_PRIVATE_BUCKET}/rhcos/cloud' \
-                        --file rhcos-${commit}.vmdk \
+                        --file rhcos-aws-${commit}.vmdk \
                         --name "rhcos_dev_${commit[0..6]}" \
                         --delete-object | tee \${amijson}
 
