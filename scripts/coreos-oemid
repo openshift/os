@@ -41,7 +41,7 @@ gf() {
 }
 
 gf run
-gf list-filesystems > ${tmpd}/filesystems.txt
+gf list-filesystems |tee ${tmpd}/filesystems.txt
 vg=/dev/coreos/root
 if ! grep -qFe "${vg}" ${tmpd}/filesystems.txt; then
     sed -e 's,^,# ,' < ${tmpd}/filesystems.txt
