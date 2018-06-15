@@ -173,6 +173,9 @@ node(NODE) {
    }
 
     stage("Create AMI") {
+        sh """
+            env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${images}/cloud/latest/rhcos.vmdk rhcos-aws-${commit}.vmdk ec2
+        """
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
             withCredentials([
                 [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
@@ -180,7 +183,6 @@ node(NODE) {
             ]) {
                 sh """
                     # use a symlink so that our uploaded filename is unique
-                    env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${images}/cloud/latest/rhcos.vmdk rhcos-aws-${commit}.vmdk ec2
                     amijson=${dirpath}/aws-${AWS_REGION}.json
                     ore aws upload --region ${AWS_REGION} \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
