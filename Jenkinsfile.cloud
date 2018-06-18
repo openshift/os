@@ -103,7 +103,7 @@ node(NODE) {
         """
     }
 
-    def dirname, image, commit, version, dirpath, qcow, vmdk, vagrant_libvirt
+    def dirname, image, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
     stage("Postprocessing") {
         image = utils.sh_capture("ls /var/lib/imagefactory/storage/*.body")
         // just introspect after the fact to avoid race conditions
@@ -129,23 +129,36 @@ node(NODE) {
         sh "echo '${version}' > ${dirpath}/version.txt"
         // And do the qcow2 conversion now
         sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
-        sh "rm -f ${image}"
+        sh "rm ${image}"
     }
+    // These three are generated from the QCOW2
     par_stages["vmdk"] = { -> stage("Generate vmdk") {
         sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${vmdk}.tmp vmware
               qemu-img convert -f qcow2 -O vmdk ${vmdk}.tmp -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}
               rm ${vmdk}.tmp"""
     } }
+    // But note that EC2 goes into workspace, we upload it directly
+    ec2 = "${WORKSPACE}/rhcos-aws-${commit}.vmdk"
+    par_stages["ec2"] = { -> stage("Generate EC2") {
+        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${WORKSPACE}/rhcos-aws.qcow2 ec2
+              qemu-img convert -f qcow2 -O vmdk ${WORKSPACE}/rhcos-aws.qcow2 -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${ec2}
+              rm ${WORKSPACE}/rhcos-aws.qcow2"""
+    } }
     par_stages["vagrant-libvirt"] = { -> stage("Generate vagrant-libvirt") {
         // We use direct as we hit SELinux issues otherwise
         sh "env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${qcow} ${vagrant_libvirt}"
     } }
+    par_stages["openstack"] = { -> stage("Generate OpenStack") {
+        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${qcow}.openstack openstack
+              gzip < ${qcow}.openstack > ${qcow}.gz
+              rm ${qcow}.openstack"""
+    } }
+    // Execute parallel group
     parallel par_stages; par_stages = [:]
 
     stage("Finalizing, generate metadata") {
-        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${qcow}.openstack openstack
-              mv ${qcow}.openstack ${qcow}
-              gzip ${qcow}"""
+        // Everything above in parallel worked on qcow, we're done with it now
+        sh "rm ${qcow}"
         sh "ln -sfn ${dirname} ${images}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
         sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
@@ -180,15 +193,15 @@ node(NODE) {
             ]) {
                 sh """
                     # use a symlink so that our uploaded filename is unique
-                    env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${images}/cloud/latest/rhcos.vmdk rhcos-aws-${commit}.vmdk ec2
                     amijson=${dirpath}/aws-${AWS_REGION}.json
                     ore aws upload --region ${AWS_REGION} \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
                         --ami-description 'Red Hat CoreOS ${version} (${commit})' \
                         --bucket 's3://${S3_PRIVATE_BUCKET}/rhcos/cloud' \
-                        --file rhcos-aws-${commit}.vmdk \
+                        --file ${ec2} \
                         --name "rhcos_dev_${commit[0..6]}" \
                         --delete-object | tee \${amijson}
+                    rm ${ec2}
 
                     # Add the version and commit as tags to both the AMI and the underlying snapshot.
                     # We should teach mantle to apply extra tags.
