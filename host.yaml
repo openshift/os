@@ -68,7 +68,7 @@ packages:
  # Time sync
  - chrony
  # Extra runtime
- - authconfig sssd shadow-utils kexec-tools
+ - authconfig sssd shadow-utils
  - logrotate
  # tuned
  - tuned tuned-profiles-atomic
