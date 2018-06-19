@@ -14,7 +14,7 @@ user --name=core --groups='wheel,adm,systemd-journal'
 firewall --disabled
 
 network --bootproto=dhcp --onboot=on
-services --enabled=sshd,cloud-init,cloud-init-local,cloud-config,cloud-final
+services --enabled=sshd
 services --disabled=network,avahi-daemon
 
 zerombr
