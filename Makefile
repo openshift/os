@@ -26,6 +26,6 @@ init-ostree-repo:
 rpmostree-compose: ${ROOT_DIR}/openshift.repo init-ostree-repo
 	if test -d cache; then cachedir='--cachedir $(shell pwd)/cache'; fi && \
 	  cd ${ROOT_DIR} && set -x && \
-	  coreos-assembler $(COMPOSEFLAGS) $${cachedir:-} --repo=$(shell pwd)/build-repo host.yaml
+	  rpm-ostree compose tree $(COMPOSEFLAGS) $${cachedir:-} --repo=$(shell pwd)/build-repo host.yaml
 	ostree --repo=repo pull-local build-repo
 	ostree --repo=repo summary -u

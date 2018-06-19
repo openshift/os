@@ -4,7 +4,8 @@ FROM quay.io/cgwalters/coreos-assembler AS build
 COPY RPM-GPG-KEY-* /etc/pki/rpm-gpg/
 COPY . /srv/build/
 
-RUN cd /srv/build && make repo-refresh && make rpmostree-compose && \
+RUN rpm -q rpm-ostree && rpm-ostree --version && \
+    cd /srv/build && make repo-refresh && make rpmostree-compose && \
     rm -rf build-repo
 
 # Now inject this content into a new container
