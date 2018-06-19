@@ -29,3 +29,8 @@ set -x
 
 cp -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 build-locale-archive
+
+# Nuke network.service from orbit
+# https://github.com/openshift/os/issues/117
+rm /etc/rc.d/init.d/network
+rm /etc/rc.d/rc*.d/*network
