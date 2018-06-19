@@ -11,11 +11,12 @@
 - mock
 
 ### May need to be built from source
-- [coreos-assembler](https://github.com/cgwalters/coreos-assembler/): [container](http://quay.io/cgwalters/coreos-assembler)
 - [rpmdistro-gitoverlay](https://github.com/projectatomic/rpmdistro-gitoverlay)
 - [imagefactory-plugins-TinMan](https://github.com/redhat-imaging/imagefactory)
 
 ## Building
+
+Choose a local mirror to use for OSTREE_INSTALL_URL from [the list](https://admin.fedoraproject.org/mirrormanager/mirrors/Fedora/28/x86_64)
 
 - Clone ``openshift/os``
 - Move into the cloned repo
