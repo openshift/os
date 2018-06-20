@@ -20,6 +20,7 @@ mutate-os-release: "7"
 postprocess-script: "compose-post.sh"
 etc-group-members:
   - wheel
+  - sudo
   - systemd-journal
   - adm
   - docker
