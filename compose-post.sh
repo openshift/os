@@ -30,6 +30,10 @@ set -x
 cp -f /usr/lib/locale/locale-archive /usr/lib/locale/locale-archive.tmpl
 build-locale-archive
 
+# https://github.com/openshift/os/issues/96
+# sudo group https://github.com/openshift/os/issues/96
+echo '%sudo        ALL=(ALL)       NOPASSWD: ALL' > /etc/sudoers.d/coreos-sudo-group
+
 # Nuke network.service from orbit
 # https://github.com/openshift/os/issues/117
 rm /etc/rc.d/init.d/network
