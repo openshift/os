@@ -55,7 +55,7 @@ packages:
  # SSH
  - openssh-server openssh-clients
  # Containers
- - docker podman skopeo runc cri-o
+ - docker podman skopeo runc cri-o cri-tools
  - docker-lvm-plugin docker-novolume-plugin
  - oci-umount
  # Networking
