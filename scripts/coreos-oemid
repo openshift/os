@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -xeuo pipefail
 
 # Usage: coreos-oemid <input image> <output image> OEMID
