@@ -62,6 +62,7 @@ packages:
  - bridge-utils nfs-utils biosdevname iptables-services
  - NetworkManager dnsmasq
  # Storage
+ - container-storage-setup cloud-utils-growpart
  - lvm2 iscsi-initiator-utils sg3_utils
  - device-mapper-multipath
  - xfsprogs e2fsprogs mdadm
