@@ -190,6 +190,7 @@ node(NODE) {
             withCredentials([
                 [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
                 string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
+                string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
             ]) {
                 sh """
                     # use a symlink so that our uploaded filename is unique
@@ -203,14 +204,21 @@ node(NODE) {
                         --delete-object | tee \${amijson}
                     rm ${ec2}
 
+                    export AWS_DEFAULT_REGION=${AWS_REGION}
+
                     # Add the version and commit as tags to both the AMI and the underlying snapshot.
                     # We should teach mantle to apply extra tags.
                     ami=\$(jq -r .HVM \${amijson})
                     snapshot=\$(jq -r .SnapshotID \${amijson})
-                    AWS_DEFAULT_REGION=${AWS_REGION} aws ec2 create-tags \
+                    aws ec2 create-tags \
                         --resources \${ami} \${snapshot} \
                         --tags Key=ostree_commit,Value=${commit} \
                                Key=ostree_version,Value=${version}
+
+                    # give launch permissions to OpenShift CI
+                    aws ec2 modify-image-attribute \
+                        --image-id \${ami} \
+                        --launch-permission '{"Add":[{"UserId":"${AWS_CI_ACCOUNT}"}]}'
                 """
             }
         }
