@@ -150,13 +150,14 @@ node(NODE) {
     } }
     par_stages["openstack"] = { -> stage("Generate OpenStack") {
         sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${qcow}.openstack openstack
-              gzip < ${qcow}.openstack > ${qcow}.gz
+              gzip < ${qcow}.openstack > ${qcow}.openstack.gz
               rm ${qcow}.openstack"""
     } }
     // Execute parallel group
     parallel par_stages; par_stages = [:]
 
     stage("Finalizing, generate metadata") {
+        sh "gzip < ${qcow} > ${qcow}.qemu.gz"
         // Everything above in parallel worked on qcow, we're done with it now
         sh "rm ${qcow}"
         sh "ln -sfn ${dirname} ${images}/cloud/latest"
