@@ -11,6 +11,9 @@ repos:
 install_langs:
  - en_US
 documentation: false
+# Doesn't quite work out of the box yet in RHEL7,
+# but see https://pagure.io/fedora-atomic/pull-request/62/edit
+tmp-is-dir: false
 initramfs-args:
   - "--no-hostonly"
   - "--add"
