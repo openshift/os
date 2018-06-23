@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
+set -xe
+
+# See machineid-compat in host.yaml.
+# Since that makes presets run on boot, we need to have our defaults in /usr
+ln -sfr /usr/lib/systemd/system/{multi-user,default}.target
 
 # The loops below are too spammy otherwise...
 set +x

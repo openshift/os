@@ -17,6 +17,8 @@ initramfs-args:
   - "iscsi"
 automatic_version_prefix: "3.10-7.5"
 mutate-os-release: "7"
+# https://github.com/projectatomic/rpm-ostree/pull/1425
+machineid-compat: false
 postprocess-script: "compose-post.sh"
 etc-group-members:
   - wheel
@@ -91,8 +93,3 @@ remove-from-packages:
     - "/usr/bin/.*"
   - - filesystem
     - "/usr/share/backgrounds"
-units:
-  - "docker.service"
-  - "tuned.service"
-  - "docker-storage-setup.service"
-default_target: "multi-user.target"
