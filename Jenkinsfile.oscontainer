@@ -22,12 +22,17 @@ node(NODE) {
     }
 
     withCredentials([
-        string(credentialsId: params.REGISTRY, variable: 'REGISTRY'),
+        usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
     ]) {
-        docker.withRegistry("${REGISTRY}", params.REGISTRY_CREDENTIALS) {
+        def (username, password) = "${CREDS}".split(':')
+        sh """set +x
+              echo docker login -e 'unused@example.com' -u 'username' -p password registry.svc.ci.openshift.org
+              docker login -e 'unused@example.com' -u "${username}" -p "${password}" registry.svc.ci.openshift.org
+              echo "login done" """
+        docker.withRegistry("https://registry.svc.ci.openshift.org") {
             def img;
             stage("Build container") {
-               img = docker.build("coreos/openshift-redhat-coreos:3.10", "-f Dockerfile.rollup .")
+               img = docker.build("registry.svc.ci.openshift.org/rhcos/os:latest", "--no-cache -f Dockerfile.rollup .")
             }
             if (params.DRY_RUN) {
                 echo "DRY_RUN set, skipping push"
