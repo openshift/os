@@ -172,9 +172,10 @@ node(NODE) {
             sh """
                 rpm-ostree db list --repo=repo ${commit} > /${dirpath}/pkglist.txt
                 rpm-ostree db diff --repo=repo ${prev_commit} ${commit} > ${dirpath}/pkgdiff.txt
-                sha256sum ${qcow}.gz | awk '{print \$1}' > ${qcow}.gz.sha256sum
-                sha256sum ${vmdk} | awk '{print \$1}' > ${vmdk}.sha256sum
-                sha256sum ${vagrant_libvirt} | awk '{print \$1}' > ${vagrant_libvirt}.sha256sum
+                for f in ${qcow}.qemu.gz ${qcow}.openstack.gz ${vmdk} ${vagrant_libvirt}; do
+                    test -f \${f}
+                    sha256sum \${f} | awk '{print \$1}' > \${f}.sha256sum
+                done
             """
         }
     }
