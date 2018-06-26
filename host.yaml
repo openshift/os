@@ -83,7 +83,7 @@ packages:
  - tuned tuned-profiles-atomic
  # Used by admins interactively
  - sudo coreutils less tar xz gzip bzip2 rsync tmux
- - nmap-ncat net-tools bind-utils
+ - nmap-ncat net-tools bind-utils strace
  - bash-completion
  # Editors
  - vim-minimal nano
