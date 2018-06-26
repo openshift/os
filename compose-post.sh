@@ -42,3 +42,7 @@ echo '%sudo        ALL=(ALL)       NOPASSWD: ALL' > /etc/sudoers.d/coreos-sudo-g
 # https://github.com/openshift/os/issues/117
 rm /etc/rc.d/init.d/network
 rm /etc/rc.d/rc*.d/*network
+
+# And readahead https://bugzilla.redhat.com/show_bug.cgi?id=1594984
+# It's long dead upstream, we definitely don't want it.
+rm -f /usr/lib/systemd/systemd-readahead /usr/lib/systemd/system/systemd-readahead-*
