@@ -46,3 +46,15 @@ rm /etc/rc.d/rc*.d/*network
 # And readahead https://bugzilla.redhat.com/show_bug.cgi?id=1594984
 # It's long dead upstream, we definitely don't want it.
 rm -f /usr/lib/systemd/systemd-readahead /usr/lib/systemd/system/systemd-readahead-*
+
+# Let's have a non-boring motd, just like CL (although theirs is more subdued
+# nowadays compared to early versions with ASCII art).  One thing we do here
+# is add --- as a "separator"; the idea is that any "dynamic" information should
+# be below that.
+cat > /etc/motd <<EOF
+Red Hat CoreOS
+  Information: https://url.corp.redhat.com/redhat-coreos
+  Bugs: https://github.com/openshift/os
+---
+
+EOF
