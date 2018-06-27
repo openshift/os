@@ -44,9 +44,6 @@ echo 'GROWPART=true' >> /etc/sysconfig/docker-storage-setup
 # https://pagure.io/atomic-wg/issue/343
 echo 'ROOT_SIZE=+100%FREE' >> /etc/sysconfig/docker-storage-setup
 
-# Work around https://bugzilla.redhat.com/show_bug.cgi?id=1193590
-cp /etc/skel/.bash* /var/roothome
-
 # older versions of livecd-tools do not follow "rootpw --lock" line above
 # https://bugzilla.redhat.com/show_bug.cgi?id=964299
 passwd -l root
