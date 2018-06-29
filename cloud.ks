@@ -23,8 +23,8 @@ clearpart --initlabel --all
 #  - ip=dhcp           # how to get network
 #  - rd.neednet=1      # tell dracut we need network
 #  - enforcing=0       # ignition + selinux doesn't work
-#  - coreos.first_boot # tell ignition to run
-bootloader --timeout=1 --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 ip=dhcp rd.neednet=1 enforcing=0 coreos.first_boot"
+#  - $coreos_firstboot # This is actually a GRUB variable
+bootloader --timeout=1 --append="no_timer_check console=tty1 console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 ip=dhcp rd.neednet=1 enforcing=0 $coreos_firstboot"
 
 part /boot --size=300 --fstype="xfs"
 part pv.01 --grow
@@ -37,6 +37,9 @@ ostreesetup --nogpg --osname=rhcos --remote=rhcos --url=@@OSTREE_INSTALL_URL@@ -
 reboot
 
 %post --erroronfail
+
+# https://github.com/dustymabe/ignition-dracut/pull/12
+touch /boot/coreos-firstboot
 
 # Configure docker-storage-setup to resize the partition table on boot
 # https://github.com/projectatomic/docker-storage-setup/pull/25
