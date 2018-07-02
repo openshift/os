@@ -19,11 +19,8 @@ components:
     override-version: "1.13.1"
     branch: docker-1.13.1-rhel
 
-  - src: github:kubernetes-incubator/cri-o
-    branch: release-1.10
-
-  - src: github:kubernetes-incubator/cri-tools
-    branch: release-1.10
+  - distgit: cri-o
+  - distgit: cri-tools
 
 # pull ignition directly from copr for now
 # - src: github:coreos/ignition
