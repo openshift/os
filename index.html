@@ -19,7 +19,7 @@
         <h2>Using this container in a cluster</h2>
         <pre>
         $ ssh root@NODE_HOST
-        $ ostree remote add --no-gpg-verify os-svc http://os-content.namespace.svc:8080/repo
+        $ ostree remote add --no-gpg-verify os-svc http://os-content.namespace.svc:8080/
         $ rpm-ostree rebase -r os-svc:openshift/3.10/x86_64/os
 
         # wait, SSH back in

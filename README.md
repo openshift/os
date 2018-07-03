@@ -29,7 +29,7 @@ $ pivot -r $REGISTRY/os:latest
 OR
 
 ```
-$ docker run --network host -d -w /srv/tree/repo $REGISTRY/os:latest
+$ docker run --network host -d -w /srv/repo $REGISTRY/os:latest
 $ ostree remote add --no-gpg-verify oscontainer http://localhost:8080/repo
 $ rpm-ostree rebase -r oscontainer:openshift/3.10/x86_64/os
 ```
