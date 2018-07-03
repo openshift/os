@@ -1,4 +1,3 @@
-def TIMER = "H/30 * * * *"
 def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 // Turns out the Jenkins docker stuff totally breaks with SELinux
@@ -9,7 +8,7 @@ node(NODE) {
 
     checkout scm
     utils = load("pipeline-utils.groovy")
-    utils.define_properties(TIMER)
+    utils.define_properties(null)
 
     stage("Prepare Dockerfile") {
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
