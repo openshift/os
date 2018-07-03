@@ -89,6 +89,8 @@ node(NODE) {
             }
         }
 
+        // Trigger downstream jobs
         build job: 'coreos-rhcos-cloud', wait: false
+        build job: 'coreos-rhcos-oscontainer', wait: false
     }
 }
