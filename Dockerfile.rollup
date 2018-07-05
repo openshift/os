@@ -1,8 +1,9 @@
+# This file is used from Jenkinsfile.treecompose to generate
+# the "oscontainer" image which has an embedded ostree repo inside.
+# It expects "repo" to exist in the current directory.
 FROM registry.fedoraproject.org/fedora:28
 RUN yum -y install ostree nginx && yum clean all
-# These variables are templated 
-ADD rollup.sh /root
-RUN env OSTREE_REPO_URL=@OSTREE_REPO_URL@ /root/rollup.sh && rm -f /root/rollup.sh
+COPY repo /srv/repo
 # Keep this in sync with Dockerfile
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY index.html subdomain.css /srv/repo/
