@@ -26,15 +26,13 @@ node(NODE) {
     def par_stages = [:]
     par_stages["provision"] = { -> stage("Provision") {
         sh """
-           rpm -q imagefactory-plugins-TinMan \
-                  libguestfs-tools-c \
-                  rpm-ostree \
-                  rsync || \
-               dnf -y install ostree \
-                              imagefactory-plugins-TinMan \
-                              libguestfs-tools-c \
-                              rpm-ostree \
-                              rsync
+           pkgs="imagefactory-plugins-TinMan \
+                 libguestfs-tools-c \
+                 rpm-ostree \
+                 rsync"
+           if ! rpm -q \$pkgs 2>/dev/null; then
+             dnf -y install \$pkgs
+           fi
            """
     } }
     par_stages["clone qcow2-to-vagrant"] = { -> stage("Clone qcow2-to-vagrant") {
