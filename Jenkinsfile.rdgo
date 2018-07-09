@@ -37,7 +37,7 @@ node(NODE) {
         stage("Setup and Initialize RDGO") {
             sh """
                 rm -f rdgo.stamp
-                ln -sf $WORKSPACE/overlay.yml ${rdgo}/
+                ln -sf $WORKSPACE/rdgo/overlay.yml ${rdgo}/
                 cd ${rdgo}
                 rpmdistro-gitoverlay init
             """
