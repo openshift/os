@@ -39,6 +39,8 @@ the latest RPMs. To make it instead use the RPMs from a
 - Move into the cloned repo
 - Build packages from source repos: `make rdgo`
 - Make the ostree: ``make rpmostree-compose``
+    - Note that this will copy any missing RPM-GPG keys from
+      this repo to your environment's `/etc/pki/rpm-gpg/`.
 - Make the qcow2: `make os-image`
     - Requires virtualization. For simplicity, it's easier
       to run this outside a container rather than inside.
