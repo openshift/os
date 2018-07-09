@@ -4,7 +4,7 @@ ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 CACHE_ARGS := $(shell if test -d cache; then echo $(shell pwd)/cache; fi)
 
 REPO ?= /srv/rhcos/repo
-INSTALLER_TREE_URL ?= https://dl.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os
+INSTALLER_TREE_URL ?= https://download.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os/
 OSTREE_INSTALL_URL ?= ${REPO}
 REF ?= openshift/3.10/x86_64/os
 
@@ -57,6 +57,7 @@ rdgo:
 # Composes an ostree
 .PHONY: rpmostree-compose
 rpmostree-compose: ${ROOT_DIR}/openshift.repo init-ostree-repo
+	cp -n RPM-GPG-* /etc/pki/rpm-gpg/
 	mkdir -p ${REPO}
 	ostree init --repo=${REPO} --mode=archive
 	if test -d cache; then cachedir='--cachedir $(shell pwd)/cache'; fi && \
