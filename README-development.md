@@ -18,11 +18,43 @@
 
 ## Building
 
-- Clone ``openshift/os``
+NOTE: this is not actually how the pipeline builds
+artifacts. The canonical way to build RHCOS are in the
+`Jenkinsfile.*` pipeline files. The basic idea of `rdgo`,
+`rpm-ostree compose tree`, then `imagefactory` is the same
+though.
+
+Right now, each of the `make` targets below are
+"independent" of each other, rather than one feeding off the
+output of the previous. So additional work is required to
+re-use content.
+
+Correspondingly, you don't have to run all of the targets.
+E.g. running `make rpmostree-compose` by default will use
+the latest RPMs. To make it instead use the RPMs from a
+`make rdgo`, one must create a repo file pointing to rdgo's
+`build/` dir and add the repo name to `host.yaml`.
+
+- Clone `openshift/os`
 - Move into the cloned repo
-- Build packages from source repos: ``make rdgo``
+- Build packages from source repos: `make rdgo`
 - Make the ostree: ``make rpmostree-compose``
-- Make the qcow2: ``make os-image`
+- Make the qcow2: `make os-image`
+    - Requires virtualization. For simplicity, it's easier
+      to run this outside a container rather than inside.
+      See also
+      https://github.com/cgwalters/coreos-assembler/issues/7.
+    - This takes a `OSTREE_INSTALL_URL` arg which should be
+      a URL to either the internal RHCOS OSTree repo or a
+      repo you previously built with `make
+      rpmostree-compose`.
+    - In many cases, it's much easier to instead build an
+      OSTree and then use an existing RHCOS image and
+      `rpm-ostree rebase` to the built OSTree. You only need
+      to build images if e.g. you make modifications to
+      `cloud.ks` or the TDL. (For ignition, one can force it
+      to rerun after the first boot by playing with the
+      kernel cmdline, deleting `/etc/machine-id`, etc...)
 
 # Container Image
 
