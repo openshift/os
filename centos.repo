@@ -4,7 +4,7 @@ name=CentOS-Base
 mirrorlist=http://mirrorlist.centos.org/?release=7&arch=$basearch&repo=os&infra=$infra
 #baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=./pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 exclude=cloud-utils-growpart
 
 [CentOS-extras]
@@ -12,7 +12,7 @@ name=CentOS-$releasever - Extras
 mirrorlist=http://mirrorlist.centos.org/?release=7&arch=$basearch&repo=extras&infra=$infra
 #baseurl=http://mirror.centos.org/centos/$releasever/extras/$basearch/
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=./pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 exclude=cloud-utils-growpart
 
 #released updates 
@@ -21,7 +21,7 @@ name=CentOS-releasever - Updates
 mirrorlist=http://mirrorlist.centos.org/?release=7&arch=$basearch&repo=updates&infra=$infra
 #baseurl=http://mirror.centos.org/centos/$releasever/updates/$basearch/
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=./pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 exclude=cloud-utils-growpart
 
 # CentOS-CR.repo
@@ -50,11 +50,11 @@ exclude=cloud-utils-growpart
 name=CentOS-7 - cr
 baseurl=http://mirror.centos.org/centos/7/cr/$basearch/
 gpgcheck=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=./pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
 enabled=0
 
 [rhel-atomic-rebuild]
 name=rhel-atomic-rebuild
 baseurl=http://mirror.centos.org/centos/7/atomic/x86_64/
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+gpgkey=./pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
