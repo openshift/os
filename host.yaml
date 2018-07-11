@@ -46,15 +46,13 @@ packages:
  - redhat-release-coreos
  # rpm-ostree
  - rpm-ostree nss-altfiles
- # Subscriptions
- - subscription-manager subscription-manager-plugin-ostree
- - subscription-manager-plugin-container
  # SELinux
  - selinux-policy-targeted policycoreutils-python
  - setools-console
  # System setup
  - ignition ignition-dracut
  - dracut-network
+ - passwd
  # Bootloader
  - grub2 grub2-efi ostree-grub2 efibootmgr shim
  # SSH
@@ -93,7 +91,5 @@ packages:
  - pivot
 
 remove-from-packages:
-  - - yum
-    - "/usr/bin/.*"
   - - filesystem
     - "/usr/share/backgrounds"
