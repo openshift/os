@@ -76,7 +76,6 @@ node(NODE) {
         stage("Compose Tree") { sh """
             rm ${repo}/refs/heads/* -rf
             env G_DEBUG=fatal-warnings coreos-assembler --repo=${repo} ${manifest}
-            ostree --repo=${repo} prune --refs-only --depth=0
             ostree --repo=${repo} rev-parse ${ref} > commit.txt
         """
             def commit = readFile('commit.txt').trim();
@@ -85,6 +84,7 @@ node(NODE) {
             if (previous_commit.length() > 0) {
                 sh "rpm-ostree --repo=${repo} db diff ${previous_commit} ${commit}"
             }
+            sh "ostree --repo=${repo} prune --refs-only --depth=0"
             sh "ostree summary --repo=${repo} --update"
         }
 
