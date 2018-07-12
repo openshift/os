@@ -75,7 +75,7 @@ node(NODE) {
         // then we do a repo prune after.
         stage("Compose Tree") { sh """
             rm ${repo}/refs/heads/* -rf
-            coreos-assembler --repo=${repo} ${manifest}
+            env G_DEBUG=fatal-warnings coreos-assembler --repo=${repo} ${manifest}
             ostree --repo=${repo} prune --refs-only --depth=0
             ostree --repo=${repo} rev-parse ${ref} > commit.txt
         """
