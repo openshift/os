@@ -47,6 +47,9 @@ rm /etc/rc.d/rc*.d/*network
 # It's long dead upstream, we definitely don't want it.
 rm -f /usr/lib/systemd/systemd-readahead /usr/lib/systemd/system/systemd-readahead-*
 
+# Enable crio by default
+systemctl enable crio
+
 # Let's have a non-boring motd, just like CL (although theirs is more subdued
 # nowadays compared to early versions with ASCII art).  One thing we do here
 # is add --- as a "separator"; the idea is that any "dynamic" information should
