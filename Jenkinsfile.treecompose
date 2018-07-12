@@ -110,7 +110,6 @@ node(NODE) {
       """ }
       stage("Build new container") { sh """
           podman build -t ${OSCONTAINER_IMG} -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
-          rm ${treecompose_workdir} -rf
       """ }
       stage("Push container") { sh """
           podman push ${OSCONTAINER_IMG}
@@ -118,7 +117,9 @@ node(NODE) {
       """
           def cid = readFile('imgid.txt').trim();
           currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
-      }
+      stage("Cleanup") { sh """
+          rm ${treecompose_workdir} -rf
+      """ }
 
      stage("rsync out") {
      withCredentials([
