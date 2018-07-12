@@ -118,22 +118,22 @@ node(NODE) {
           def cid = readFile('imgid.txt').trim();
           currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
       }
-      stage("Cleanup") { sh """
-          rm ${treecompose_workdir} -rf
-      """ }
 
-     stage("rsync out") {
-     withCredentials([
+      stage("rsync out") {
+      withCredentials([
          string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
          sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
-     ]) {
-     sh """
+      ]) {
+      sh """
          /usr/app/ostree-releng-scripts/rsync-repos \
              --dest ${ARTIFACT_SERVER}:${repo}/ --src=${repo}/ \
              --rsync-opt=--stats --rsync-opt=-e \
              --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-     """ } }
+      """ } }
 
+      stage("Cleanup") { sh """
+          rm ${treecompose_workdir} -rf
+      """ }
   }
 
   // Trigger downstream jobs
