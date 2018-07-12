@@ -117,6 +117,7 @@ node(NODE) {
       """
           def cid = readFile('imgid.txt').trim();
           currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
+      }
       stage("Cleanup") { sh """
           rm ${treecompose_workdir} -rf
       """ }
