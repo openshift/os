@@ -1,49 +1,62 @@
 def TIMER = "H/30 * * * *"
 def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
-def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
+def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
+def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os:latest"
+def DOCKER_ARGS = "--net=host -v /srv:/srv -v /run/docker.sock:/run/docker.sock --privileged"
 
-// this var conveniently refers to a location on the server as well as the
-// local dir we sync to/from
-def repo = "/srv/rhcos/output/repo"
+def treecompose_workdir = "/srv/rhcos/treecompose"
+def repo = "${treecompose_workdir}/repo"
 
 def manifest = "host.yaml"
 def ref = "openshift/3.10/x86_64/os";
 
 node(NODE) {
-    docker.image(DOCKER_IMG).pull()
-
     checkout scm
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
+    // Split the credentials up
+    def username, password;
+    withCredentials([
+        usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
+    ]) {
+        (username, password) = "${CREDS}".split(':')
+    }
+
+    docker.image(DOCKER_IMG).pull()
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-        stage("Sync In") {
-            withCredentials([
-                string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
-                sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
-            ]) {
-                sh """
-                    # a few idempotent commands for bootstrapping
-                    mkdir -p ${repo}
-                    ostree init --repo=${repo} --mode=archive
-                    /usr/app/ostree-releng-scripts/rsync-repos \
-                    --src ${ARTIFACT_SERVER}:${repo}/ --dest=${repo} \
-                    --rsync-opt=--stats --rsync-opt=-e \
-                    --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-                """
-            }
-        }
+        stage("Login") { sh """
+            set +x
+            echo podman login -u ${username} -p '<password>' ${API_CI_REGISTRY}
+            podman login -u "${username}" -p "${password}" ${API_CI_REGISTRY}
+            echo "login done"
+        """ }
 
-        stage("Provision") {
-            sh "cp RPM-GPG-* /etc/pki/rpm-gpg/"
-            sh "make repo-refresh"
-        }
+        stage("Pull and run oscontainer") { sh """
+            rm ${treecompose_workdir} -rf
+            mkdir -p ${treecompose_workdir}
+            rm -rf /var/lib/containers && mkdir /var/lib/containers
+            mkdir -p ${treecompose_workdir}/containers
+            mount --bind ${treecompose_workdir}/containers /var/lib/containers
+            skopeo inspect docker://${OSCONTAINER_IMG}
+            podman pull ${OSCONTAINER_IMG}
+            cid=\$(podman run --net=host -d --name oscontainer --entrypoint sleep ${OSCONTAINER_IMG} infinity)
+            ln -sf \$(podman mount \${cid})/srv/repo ${treecompose_workdir}/repo
+        """ }
 
-        def last_build_version, force_nocache
-        stage("Check for Changes") {
-            sh "rm -f $WORKSPACE/build.stamp"
-            sh "coreos-assembler --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}"
+        def previous_commit, last_build_version, force_nocache
+        stage("Check for Changes") { sh """
+            cp RPM-GPG-* /etc/pki/rpm-gpg/
+            make repo-refresh
+            rm -f $WORKSPACE/build.stamp
+            ls -al ${repo}
+            ostree --repo=${repo} rev-parse ${ref} > commit.txt || true
+        """
+            previous_commit = readFile('commit.txt').trim();
+        sh """
+            coreos-assembler --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}
+        """
             last_build_version = utils.get_rev_version(repo, ref)
             if (fileExists('force-nocache-build')) {
                 force_nocache = readFile('force-nocache-build').trim();
@@ -57,13 +70,22 @@ node(NODE) {
             return
         }
 
-        stage("Compose Tree") {
-            sh "coreos-assembler --repo=${repo} ${manifest}"
-            sh "ostree --repo=${repo} rev-parse ${ref} > commit.txt"
+        // Note that we don't keep history in the ostree repo, so we
+        // delete the ref head (so rpm-ostree won't add a parent) and
+        // then we do a repo prune after.
+        stage("Compose Tree") { sh """
+            rm ${repo}/refs/heads/* -rf
+            coreos-assembler --repo=${repo} ${manifest}
+            ostree --repo=${repo} prune --refs-only --depth=0
+            ostree --repo=${repo} rev-parse ${ref} > commit.txt
+        """
             def commit = readFile('commit.txt').trim();
             version = utils.get_rev_version("${repo}", commit)
             currentBuild.description = "🆕 ${version} (commit ${commit})";
-            sh "rpm-ostree --repo=${repo} db diff ${commit}^ ${commit}"
+            if (previous_commit.length() > 0) {
+                sh "rpm-ostree --repo=${repo} db diff ${previous_commit} ${commit}"
+            }
+            sh "ostree summary --repo=${repo} --update"
         }
 
         if (params.DRY_RUN) {
@@ -73,24 +95,45 @@ node(NODE) {
             return
         }
 
-        stage("Sync Out") {
-            withCredentials([
-                string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
-                sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
-            ]) {
-                sh """
-                    ostree prune --repo=${repo} --keep-younger-than='5 days ago' --refs-only
-                    ostree summary --repo=${repo} --update
-                    /usr/app/ostree-releng-scripts/rsync-repos \
-                    --dest ${ARTIFACT_SERVER}:${repo}/ --src=${repo} \
-                    --rsync-opt=--stats --rsync-opt=-e \
-                    --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-                """
-            }
-        }
+      // This takes OSTree repo and copies it out of the original
+      // container into our working directory, which then gets put
+      // into a new container image.  This is slow, but it's hard to do better
+      // with Docker/OCI images.  Ideally there'd be a way to "bind mount" content
+      // into the build environment rather than copying.
+      stage("Prepare repo copy") { sh """
+          cp -a --reflink=auto * ${treecompose_workdir}/
+          repo=\$(readlink ${treecompose_workdir}/repo)
+          rm ${treecompose_workdir}/repo
+          cp -a --reflink=auto \${repo} ${treecompose_workdir}/repo
+          podman kill oscontainer
+          podman rm oscontainer
+      """ }
+      stage("Build new container") { sh """
+          podman build -t ${OSCONTAINER_IMG} -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
+          rm ${treecompose_workdir} -rf
+      """ }
+      stage("Push container") { sh """
+          podman push ${OSCONTAINER_IMG}
+          podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG} > imgid.txt
+      """
+          def cid = readFile('imgid.txt').trim();
+          currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
+      }
 
-        // Trigger downstream jobs
-        build job: 'coreos-rhcos-cloud', wait: false
-        build job: 'coreos-rhcos-oscontainer', wait: false
-    }
+     stage("rsync out") {
+     withCredentials([
+         string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+         sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+     ]) {
+     sh """
+         /usr/app/ostree-releng-scripts/rsync-repos \
+             --dest ${ARTIFACT_SERVER}:${repo}/ --src=${repo}/ \
+             --rsync-opt=--stats --rsync-opt=-e \
+             --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+     """ } }
+
+  }
+
+  // Trigger downstream jobs
+  build job: 'coreos-rhcos-cloud', wait: false
 }
