@@ -8,7 +8,7 @@ repos:
   - rhel-7.5-server-extras
   - rhel-7.5-atomic
   - dustymabe-ignition
-install_langs:
+install-langs:
  - en_US
 documentation: false
 # Doesn't quite work out of the box yet in RHEL7,
