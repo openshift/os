@@ -224,12 +224,24 @@ node(NODE) {
         }
     }
 
-    stage("Sync Out") {
+    par_stages["rsync-out"] = { -> stage("rsync out") {
         withCredentials([
             string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
             utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
         }
-    }
+    } }
+    par_stages("s3-upload") = -> { stage("S3 upload") {
+        docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+            withCredentials([
+                [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
+                string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
+                string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
+            ]) { sh """
+                aws s3 sync --delete ${images}/ s3://rhcos/images/
+            """ }
+        }
+    } }
+    parallel par_stages; par_stages = [:]
 }
