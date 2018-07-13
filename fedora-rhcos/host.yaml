@@ -1,0 +1,98 @@
+#
+# HEY YOU!
+#
+# The canonical version of this is in host.yaml - edit that first!
+#
+#
+ref: "openshift/3.10/x86_64/os"
+repos:
+  - openshift
+  - fedora
+  - fedora-updates
+  - dustymabe-ignition
+install_langs:
+ - en_US
+documentation: false
+# Doesn't quite work out of the box yet in RHEL7,
+# but see https://pagure.io/fedora-atomic/pull-request/62/edit
+tmp-is-dir: false
+initramfs-args:
+  - "--no-hostonly"
+  - "--add"
+  - "iscsi"
+automatic_version_prefix: "3.10-28"
+mutate-os-release: "28"
+# https://github.com/projectatomic/rpm-ostree/pull/1425
+machineid-compat: false
+postprocess-script: "compose-post.sh"
+etc-group-members:
+  - wheel
+  - sudo
+  - systemd-journal
+  - adm
+  - docker
+ignore-removed-users:
+  - root
+ignore-removed-groups:
+  - root
+check-passwd:
+  type: "file"
+  filename: "passwd"
+check-groups:
+  type: "file"
+  filename: "group"
+packages:
+ # Kernel + systemd
+ - kernel irqbalance microcode_ctl systemd
+ # Release package
+ - redhat-release-coreos
+ # rpm-ostree
+ - rpm-ostree nss-altfiles
+ # SELinux
+ - selinux-policy-targeted policycoreutils-python
+ - setools-console
+ # System setup
+ - ignition ignition-dracut
+ - dracut-network
+ # Bootloader
+ - grub2 grub2-efi ostree-grub2 efibootmgr shim
+ # SSH
+ - openssh-server openssh-clients
+ # Containers
+ - docker podman skopeo runc cri-o cri-tools
+ - docker-lvm-plugin docker-novolume-plugin
+ - oci-umount
+ # Networking
+ - bridge-utils nfs-utils biosdevname iptables-services
+ - NetworkManager dnsmasq
+ # Storage
+ - container-storage-setup cloud-utils-growpart
+ - lvm2 iscsi-initiator-utils sg3_utils
+ - device-mapper-multipath
+ - xfsprogs e2fsprogs mdadm
+ - cryptsetup
+ # Remote storage
+ - ceph-common glusterfs-fuse
+ # Time sync
+ - chrony
+ # Extra runtime
+ - authconfig sssd shadow-utils
+ - logrotate
+ # tuned
+ - tuned tuned-profiles-atomic
+ # Used by admins interactively
+ - sudo coreutils less tar xz gzip bzip2 rsync tmux
+ - nmap-ncat net-tools bind-utils strace
+ - bash-completion
+ # Editors
+ - vim-minimal nano
+ # OpenShift
+ - origin-node origin-hyperkube origin-clients
+ # pivot/ota tools
+ - pivot
+
+remove-from-packages:
+  - - dnf
+    - "/usr/bin/.*"
+  - - filesystem
+    - "/usr/share/backgrounds"
