@@ -111,8 +111,7 @@ node(NODE) {
         """)
 
         // do this again *after* running imgfac to close race
-        // fetch parent too for the later db diff
-        sh "ostree --repo=repo pull --mirror --depth=1 --commit-metadata-only rhcos ${commit}"
+        sh "ostree --repo=repo pull --mirror --depth=0 --commit-metadata-only rhcos ${commit}"
         version = utils.get_rev_version("repo", commit)
         currentBuild.description = "${version} (${commit})"
 
@@ -165,11 +164,8 @@ node(NODE) {
         // panics on newer hosts, so let's use a container to have access to a
         // newer rpm-ostree that understands the new pkglist metadata
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-            def prev_commit = utils.sh_capture("ostree --repo=repo rev-parse ${commit}^")
-
             sh """
                 rpm-ostree db list --repo=repo ${commit} > /${dirpath}/pkglist.txt
-                rpm-ostree db diff --repo=repo ${prev_commit} ${commit} > ${dirpath}/pkgdiff.txt
                 for f in ${qcow}.qemu.gz ${qcow}.openstack.gz ${vmdk} ${vagrant_libvirt}; do
                     test -f \${f}
                     sha256sum \${f} | awk '{print \$1}' > \${f}.sha256sum
