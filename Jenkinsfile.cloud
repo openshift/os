@@ -232,7 +232,7 @@ node(NODE) {
             utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
         }
     } }
-    par_stages("s3-upload") = -> { stage("S3 upload") {
+    par_stages["s3-upload"] = { -> stage("S3 upload") {
         docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
             withCredentials([
                 [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
