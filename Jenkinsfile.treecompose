@@ -7,6 +7,8 @@ def DOCKER_ARGS = "--net=host -v /srv:/srv -v /run/docker.sock:/run/docker.sock 
 
 def treecompose_workdir = "/srv/rhcos/treecompose"
 def repo = "${treecompose_workdir}/repo"
+// We write to this one for now
+def artifact_repo = "/srv/rhcos/output/repo"
 
 def manifest = "host.yaml"
 def ref = "openshift/3.10/x86_64/os";
@@ -126,7 +128,7 @@ node(NODE) {
       ]) {
       sh """
          /usr/app/ostree-releng-scripts/rsync-repos \
-             --dest ${ARTIFACT_SERVER}:${repo}/ --src=${repo}/ \
+             --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
              --rsync-opt=--stats --rsync-opt=-e \
              --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
       """ } }
