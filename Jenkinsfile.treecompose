@@ -75,12 +75,13 @@ node(NODE) {
         // Note that we don't keep history in the ostree repo, so we
         // delete the ref head (so rpm-ostree won't add a parent) and
         // then we do a repo prune after.
+        def version, commit
         stage("Compose Tree") { sh """
             rm ${repo}/refs/heads/* -rf
             env G_DEBUG=fatal-warnings coreos-assembler --repo=${repo} ${manifest}
             ostree --repo=${repo} rev-parse ${ref} > commit.txt
         """
-            def commit = readFile('commit.txt').trim();
+            commit = readFile('commit.txt').trim();
             version = utils.get_rev_version("${repo}", commit)
             currentBuild.description = "🆕 ${version} (commit ${commit})";
             if (previous_commit.length() > 0) {
@@ -111,7 +112,10 @@ node(NODE) {
           podman rm oscontainer
       """ }
       stage("Build new container") { sh """
-          podman build -t ${OSCONTAINER_IMG} -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
+          podman build --build-arg OS_VERSION=${version} \
+                       --build-arg OS_COMMIT=${commit} \
+                       -t ${OSCONTAINER_IMG} \
+                       -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
       """ }
       stage("Push container") { sh """
           podman push ${OSCONTAINER_IMG}
