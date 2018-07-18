@@ -89,6 +89,8 @@ packages:
  - origin-node origin-hyperkube origin-clients
  # pivot/ota tools
  - pivot
+ # Red Hat CA certs
+ - subscription-manager-rhsm-certificates
 
 remove-from-packages:
   - - filesystem
