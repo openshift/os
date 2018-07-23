@@ -18,7 +18,6 @@ initramfs-args:
   - "--no-hostonly"
   - "--add"
   - "iscsi"
-automatic_version_prefix: "3.10-7.5"
 mutate-os-release: "7"
 # https://github.com/projectatomic/rpm-ostree/pull/1425
 machineid-compat: false

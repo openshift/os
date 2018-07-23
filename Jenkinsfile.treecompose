@@ -12,6 +12,7 @@ def artifact_repo = "/srv/rhcos/output/repo"
 
 def manifest = "host.yaml"
 def ref = "openshift/3.10/x86_64/os";
+def version_prefix = "3.10-7.5"
 
 node(NODE) {
     checkout scm
@@ -77,8 +78,11 @@ node(NODE) {
         // then we do a repo prune after.
         def version, commit
         stage("Compose Tree") { sh """
+            ostree_version = "${version_prefix}.${env.BUILD_NUMBER}"
             rm ${repo}/refs/heads/* -rf
-            env G_DEBUG=fatal-warnings coreos-assembler --repo=${repo} ${manifest}
+            env G_DEBUG=fatal-warnings coreos-assembler --repo=${repo} \
+                                                        --add-metadata-string=version=${ostree_version} \
+                                                        ${manifest}
             ostree --repo=${repo} rev-parse ${ref} > commit.txt
         """
             commit = readFile('commit.txt').trim();
