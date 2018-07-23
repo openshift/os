@@ -63,17 +63,17 @@ node(NODE) {
 
     // Check if there's a new version out.
     // Really, we should be checksumming e.g. the ks and tdl too.
-    def latest_commit, latest_version, last_build_version, force_nocache
+    def latest_commit, last_build_commit, latest_version, force_nocache
     stage("Check for Changes") {
         latest_commit = utils.sh_capture("ostree --repo=repo rev-parse ${ref}")
         latest_version = utils.get_rev_version("repo", "${latest_commit}")
         if (fileExists('force-nocache-build')) {
             force_nocache = readFile('force-nocache-build').trim();
         }
-        last_build_version = utils.sh_capture("cat ${images}/cloud/latest/version.txt || :")
+        last_build_commit = utils.sh_capture("cat ${images}/cloud/latest/commit.txt || :")
     }
 
-    if (latest_version == last_build_version && latest_version != force_nocache) {
+    if (latest_commit == last_build_commit && latest_commit != force_nocache) {
         echo "Last built ${latest_version} (${latest_commit}) - no changes"
         currentBuild.result = 'SUCCESS'
         currentBuild.description = '(No changes)'
@@ -123,7 +123,7 @@ node(NODE) {
         sh "mkdir -p ${dirpath}"
         // this belongs better in a JSON file, but for now just use a file;
         // this is used higher up to determine no-op changes
-        sh "echo '${version}' > ${dirpath}/version.txt"
+        sh "echo '${commit}' > ${dirpath}/commit.txt"
         // And do the qcow2 conversion now
         sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
         sh "rm ${image}"
