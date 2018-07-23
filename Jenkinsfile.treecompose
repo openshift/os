@@ -78,7 +78,7 @@ node(NODE) {
         // then we do a repo prune after.
         def version, commit
         stage("Compose Tree") { sh """
-            ostree_version = "${version_prefix}.${env.BUILD_NUMBER}"
+            def ostree_version = "${version_prefix}.${env.BUILD_NUMBER}"
             rm ${repo}/refs/heads/* -rf
             env G_DEBUG=fatal-warnings coreos-assembler --repo=${repo} \
                                                         --add-metadata-string=version=${ostree_version} \
