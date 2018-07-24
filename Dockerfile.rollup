@@ -4,8 +4,10 @@
 FROM registry.fedoraproject.org/fedora:28
 ARG OS_VERSION="3.10-7.5"
 ARG OS_COMMIT="null"
-LABEL io.openshift.os-version = "$OS_VERSION" \
-      io.openshift.os-commit = "$OS_COMMIT"
+# Use separate LABEL instructions until podman/buildah is fixed
+# https://github.com/projectatomic/buildah/issues/879
+LABEL io.openshift.os-version = "$OS_VERSION"
+LABEL io.openshift.os-commit = "$OS_COMMIT"
 RUN yum -y install ostree nginx && yum clean all
 COPY repo /srv/repo
 # Keep this in sync with Dockerfile
