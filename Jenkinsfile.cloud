@@ -1,7 +1,7 @@
 def TIMER = "H H/3 * * *"
-def NODE = "rhcos-imgfac-jslave"
+def NODE = "rhcos-jenkins"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
-def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
+def DOCKER_ARGS = "-v /srv:/srv --privileged --device /dev/kvm"
 
 // Are there really other regions?  We're sending explorers to find out
 def AWS_REGION = "us-east-1"
@@ -13,8 +13,7 @@ def images = "/srv/rhcos/output/images"
 def ref = "openshift/3.10/x86_64/os";
 
 node(NODE) {
-    docker.image(DOCKER_IMG).pull()
-
+    def par_stages = [:]
     stage("Clean workspace") {
        step([$class: 'WsCleanup'])
     }
@@ -23,29 +22,19 @@ node(NODE) {
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
-    def par_stages = [:]
-    par_stages["provision"] = { -> stage("Provision") {
-        sh """
-           pkgs="imagefactory-plugins-TinMan \
-                 libguestfs-tools-c \
-                 rpm-ostree \
-                 rsync"
-           if ! rpm -q \$pkgs 2>/dev/null; then
-             dnf -y install \$pkgs
-           fi
-           """
-    } }
-    par_stages["clone qcow2-to-vagrant"] = { -> stage("Clone qcow2-to-vagrant") {
+    docker.image(DOCKER_IMG).pull()
+    docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+    stage("Clone qcow2-to-vagrant") {
         // I tried to use git() but not sure where that went, it isn't the workspace
         sh('git clone https://github.com/cgwalters/qcow2-to-vagrant')
-    } }
-    parallel par_stages; par_stages = [:]
+    }
 
     stage("Sync In") {
         withCredentials([
             string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
+            sh "mkdir -p ${images}"
             utils.rsync_dir_in(ARTIFACT_SERVER, KEY_FILE, images)
         }
 
@@ -83,27 +72,33 @@ node(NODE) {
     stage("Prepare Configs") {
         withCredentials([
             string(credentialsId: params.OSTREE_INSTALL_URL, variable: 'OSTREE_INSTALL_URL'),
-            string(credentialsId: params.INSTALLER_TREE_URL, variable: 'INSTALLER_TREE_URL'),
         ]) {
-            sh "sed -i 's,\\(<url>\\).*\\(<\\/url\\),\\1${INSTALLER_TREE_URL}\\2,' rhcos.tdl"
             sh "sed -i 's,@@OSTREE_INSTALL_URL@@,${OSTREE_INSTALL_URL},' cloud.ks"
             sh "sed -i 's,@@OSTREE_INSTALL_REF@@,${ref},' cloud.ks"
-            sh "rm -rf /var/lib/imagefactory/storage/*"
         }
     }
 
-    stage("Running imagefactory") {
-        sh """
-            imagefactory --debug base_image \
-                --file-parameter install_script cloud.ks \
-                --parameter offline_icicle True \
-                rhcos.tdl
+    // Note this runs unprivileged to avoid the virt stack trying to use privileges
+    // We run in bwrap which sets up a pid namespace +init to ensure qemu is reaped,
+    // which libvirt relies on.
+    def image = "/tmp/rhcos.qcow2"
+    try {
+    withCredentials([
+        string(credentialsId: params.INSTALLER_TREE_URL, variable: 'INSTALLER_TREE_URL')]) {
+    stage("Running coreos-virt-install") { sh """
+        chmod a+rw /dev/kvm
+        setfacl -m u:builder:rwX ${WORKSPACE}
+        bwrap --bind / / --dev-bind /dev /dev --proc /proc --unshare-pid runuser -u builder -- coreos-virt-install --dest ${image} --create-disk \
+                --console-log-file ${WORKSPACE}/rhcos-qcow2-install.txt \
+                --wait=25 --kickstart cloud.ks --location "${INSTALLER_TREE_URL}"
         """
+    } }
+    } finally {
+        archiveArtifacts artifacts: "rhcos-qcow2-install.txt", allowEmptyArchive: true
     }
 
-    def dirname, image, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
+    def dirname, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
     stage("Postprocessing") {
-        image = utils.sh_capture("ls /var/lib/imagefactory/storage/*.body")
         // just introspect after the fact to avoid race conditions
         commit = utils.sh_capture("""
             LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/coreos/root:/ \
@@ -124,20 +119,18 @@ node(NODE) {
         // this belongs better in a JSON file, but for now just use a file;
         // this is used higher up to determine no-op changes
         sh "echo '${commit}' > ${dirpath}/commit.txt"
-        // And do the qcow2 conversion now
-        sh "qemu-img convert -f raw -O qcow2 ${image} ${qcow}"
-        sh "rm ${image}"
+        sh "mv ${image} ${qcow}"
     }
     // These three are generated from the QCOW2
     par_stages["vmdk"] = { -> stage("Generate vmdk") {
-        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${vmdk}.tmp vmware
+        sh """coreos-oemid ${qcow} ${vmdk}.tmp vmware
               qemu-img convert -f qcow2 -O vmdk ${vmdk}.tmp -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}
               rm ${vmdk}.tmp"""
     } }
     // But note that EC2 goes into workspace, we upload it directly
     ec2 = "${WORKSPACE}/rhcos-aws-${commit}.vmdk"
     par_stages["ec2"] = { -> stage("Generate EC2") {
-        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${WORKSPACE}/rhcos-aws.qcow2 ec2
+        sh """coreos-oemid ${qcow} ${WORKSPACE}/rhcos-aws.qcow2 ec2
               qemu-img convert -f qcow2 -O vmdk ${WORKSPACE}/rhcos-aws.qcow2 -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${ec2}
               rm ${WORKSPACE}/rhcos-aws.qcow2"""
     } }
@@ -146,7 +139,7 @@ node(NODE) {
         sh "env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${qcow} ${vagrant_libvirt}"
     } }
     par_stages["openstack"] = { -> stage("Generate OpenStack") {
-        sh """env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/scripts/coreos-oemid ${qcow} ${qcow}.openstack openstack
+        sh """coreos-oemid ${qcow} ${qcow}.openstack openstack
               gzip < ${qcow}.openstack > ${qcow}.openstack.gz
               rm ${qcow}.openstack"""
     } }
@@ -160,18 +153,13 @@ node(NODE) {
         sh "ln -sfn ${dirname} ${images}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
         sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
-        // we're stuck with an older host because imagefactory produces kernel
-        // panics on newer hosts, so let's use a container to have access to a
-        // newer rpm-ostree that understands the new pkglist metadata
-        docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
-            sh """
-                rpm-ostree db list --repo=repo ${commit} > /${dirpath}/pkglist.txt
-                for f in ${qcow}.qemu.gz ${qcow}.openstack.gz ${vmdk} ${vagrant_libvirt}; do
-                    test -f \${f}
-                    sha256sum \${f} | awk '{print \$1}' > \${f}.sha256sum
-                done
-            """
-        }
+        sh """
+            rpm-ostree db list --repo=repo ${commit} > /${dirpath}/pkglist.txt
+            for f in ${qcow}.qemu.gz ${qcow}.openstack.gz ${vmdk} ${vagrant_libvirt}; do
+                test -f \${f}
+                sha256sum \${f} | awk '{print \$1}' > \${f}.sha256sum
+            done
+        """
     }
 
    if (params.DRY_RUN) {
@@ -182,7 +170,6 @@ node(NODE) {
    }
 
     stage("Create AMI") {
-        docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
             withCredentials([
                 [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
                 string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
@@ -217,7 +204,6 @@ node(NODE) {
                         --launch-permission '{"Add":[{"UserId":"${AWS_CI_ACCOUNT}"}]}'
                 """
             }
-        }
     }
 
     par_stages["rsync-out"] = { -> stage("rsync out") {
@@ -229,7 +215,6 @@ node(NODE) {
         }
     } }
     par_stages["s3-upload"] = { -> stage("S3 upload") {
-        docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
             withCredentials([
                 [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
                 string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
@@ -238,6 +223,7 @@ node(NODE) {
                 aws s3 sync --delete ${images}/ s3://rhcos/images/
             """ }
         }
-    } }
+    }
     parallel par_stages; par_stages = [:]
+    }
 }

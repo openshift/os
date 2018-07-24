@@ -71,9 +71,6 @@ rpmostree-compose: ${ROOT_DIR}/openshift.repo init-ostree-repo
 os-image:
 	ostree --repo=repo remote add rhcos --no-gpg-verify ${OSTREE_INSTALL_URL}
 	ostree --repo=repo pull --mirror --commit-metadata-only rhcos
-	sed -i 's,\(<url>\).*\(<\/url\),\1${INSTALLER_TREE_URL}\2,' rhcos.tdl
 	sed -i 's,@@OSTREE_INSTALL_URL@@,${OSTREE_INSTALL_URL},' cloud.ks
 	sed -i 's,@@OSTREE_INSTALL_REF@@,${REF},' cloud.ks
-	imagefactory --debug base_image --file-parameter install_script cloud.ks --parameter offline_icicle True rhcos.tdl
-	export IMAGE=`ls /var/lib/imagefactory/storage/*.body`
-	qemu-img convert -f raw -O qcow2 ${IMAGE} rhcos-devel.qcow2
+	coreos-virt-install --dest rhcos-devel.qcow2 --create-disk --kickstart cloud.ks --location $(INSTALLER_TREE_URL)
