@@ -143,8 +143,8 @@ node(NODE) {
       stage("Cleanup") { sh """
           rm ${treecompose_workdir} -rf
       """ }
-  }
 
-  // Trigger downstream jobs
-  build job: 'coreos-rhcos-cloud', wait: false
+      // Trigger downstream jobs
+      build job: 'coreos-rhcos-cloud', wait: false
+  }
 }
