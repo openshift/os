@@ -12,10 +12,8 @@ RUN rpm -q rpm-ostree && rpm-ostree --version && \
 FROM registry.centos.org/centos/centos:7
 ARG OS_VERSION="3.10-7.5"
 ARG OS_COMMIT="null"
-# Use separate LABEL instructions until podman/buildah is fixed
-# https://github.com/projectatomic/buildah/issues/879
-LABEL io.openshift.os-version = "$OS_VERSION"
-LABEL io.openshift.os-commit = "$OS_COMMIT"
+LABEL io.openshift.os-version="$OS_VERSION" \
+      io.openshift.os-commit="$OS_COMMIT"
 RUN yum install -y epel-release && yum -y install nginx && yum clean all
 # Keep this in sync with Dockerfile.rollup.in
 COPY --from=build /srv/build/repo /srv/repo/
