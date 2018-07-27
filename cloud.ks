@@ -1,3 +1,5 @@
+# This line is interpreted by coreos-virt-install
+#--coreos-virt-install-disk-size-gb: 8
 text
 lang en_US.UTF-8
 keyboard us
