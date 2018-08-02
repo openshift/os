@@ -62,7 +62,7 @@ node(NODE) {
         last_build_commit = utils.sh_capture("cat ${images}/cloud/latest/commit.txt || :")
     }
 
-    if (latest_commit == last_build_commit && latest_commit != force_nocache) {
+    if (!params.DRY_RUN && (latest_commit == last_build_commit && latest_commit != force_nocache)) {
         echo "Last built ${latest_version} (${latest_commit}) - no changes"
         currentBuild.result = 'SUCCESS'
         currentBuild.description = '(No changes)'
@@ -97,7 +97,7 @@ node(NODE) {
         archiveArtifacts artifacts: "rhcos-qcow2-install.txt", allowEmptyArchive: true
     }
 
-    def dirname, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
+    def dirname, img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
     stage("Postprocessing") {
         // just introspect after the fact to avoid race conditions
         commit = utils.sh_capture("""
@@ -112,9 +112,10 @@ node(NODE) {
 
         dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
         dirpath = "${images}/cloud/${dirname}"
-        qcow = "${dirpath}/rhcos.qcow2"
-        vmdk = "${dirpath}/rhcos.vmdk"
-        vagrant_libvirt = "${dirpath}/rhcos-vagrant-libvirt.box"
+        img_prefix = "${dirpath}/rhcos-${version}"
+        qcow = "${img_prefix}.qcow2"
+        vmdk = "${img_prefix}.vmdk"
+        vagrant_libvirt = "${img_prefix}-vagrant-libvirt.box"
         sh "mkdir -p ${dirpath}"
         // this belongs better in a JSON file, but for now just use a file;
         // this is used higher up to determine no-op changes
@@ -128,26 +129,31 @@ node(NODE) {
               rm ${vmdk}.tmp"""
     } }
     // But note that EC2 goes into workspace, we upload it directly
-    ec2 = "${WORKSPACE}/rhcos-aws-${commit}.vmdk"
+    ec2 = "${WORKSPACE}/rhcos-${version}-aws.vmdk"
     par_stages["ec2"] = { -> stage("Generate EC2") {
         sh """coreos-oemid ${qcow} ${WORKSPACE}/rhcos-aws.qcow2 ec2
               qemu-img convert -f qcow2 -O vmdk ${WORKSPACE}/rhcos-aws.qcow2 -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${ec2}
               rm ${WORKSPACE}/rhcos-aws.qcow2"""
     } }
-    par_stages["vagrant-libvirt"] = { -> stage("Generate vagrant-libvirt") {
-        // We use direct as we hit SELinux issues otherwise
-        sh "env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${qcow} ${vagrant_libvirt}"
+    // We use direct as we hit SELinux issues otherwise
+    par_stages["vagrant-libvirt"] = { -> stage("Generate vagrant-libvirt") { sh """
+        env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${qcow} ${vagrant_libvirt}
+        ln -sr ${vagrant_libvirt} ${dirpath}/rhcos-vagrant-libvirt.box
+        """
     } }
     par_stages["openstack"] = { -> stage("Generate OpenStack") {
-        sh """coreos-oemid ${qcow} ${qcow}.openstack openstack
-              gzip < ${qcow}.openstack > ${qcow}.openstack.gz
-              rm ${qcow}.openstack"""
+        def img_openstack = "${img_prefix}-openstack.qcow2"
+        sh """coreos-oemid ${qcow} ${img_openstack} openstack
+              gzip ${img_openstack}
+              ln -sr ${img_openstack}.gz ${dirpath}/rhcos-openstack.qcow2.gz
+              """
     } }
     // Execute parallel group
     parallel par_stages; par_stages = [:]
 
     stage("Finalizing, generate metadata") {
-        sh "gzip < ${qcow} > ${qcow}.qemu.gz"
+        sh "gzip < ${qcow} > ${img_prefix}-qemu.qcow2.gz"
+        sh "ln -sr ${img_prefix}-qemu.qcow2.gz ${dirpath}/rhcos-qemu.qcow2.gz"
         // Everything above in parallel worked on qcow, we're done with it now
         sh "rm ${qcow}"
         sh "ln -sfn ${dirname} ${images}/cloud/latest"
@@ -155,7 +161,8 @@ node(NODE) {
         sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
         sh """
             rpm-ostree db list --repo=repo ${commit} > /${dirpath}/pkglist.txt
-            for f in ${qcow}.qemu.gz ${qcow}.openstack.gz ${vmdk} ${vagrant_libvirt}; do
+            cd ${dirpath} && find . -name '*.gz' -o -name '*.box' -o -name '*.vmdk' | \
+            while read f; do
                 test -f \${f}
                 sha256sum \${f} | awk '{print \$1}' > \${f}.sha256sum
             done
