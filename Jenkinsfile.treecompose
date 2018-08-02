@@ -59,7 +59,7 @@ node(NODE) {
         """
             previous_commit = readFile('commit.txt').trim();
         sh """
-            coreos-assembler --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}
+            rpm-ostree compose tree --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}
         """
             last_build_version = utils.get_rev_version(repo, ref)
             if (fileExists('force-nocache-build')) {
@@ -80,7 +80,7 @@ node(NODE) {
         def version, commit
         stage("Compose Tree") { sh """
             rm ${repo}/refs/heads/* -rf
-            env G_DEBUG=fatal-warnings coreos-assembler --repo=${repo} \
+            env G_DEBUG=fatal-warnings rpm-ostree compose tree --repo=${repo} \
                                                         --add-metadata-string=version=${version_prefix}.${env.BUILD_NUMBER} \
                                                         ${manifest}
             ostree --repo=${repo} rev-parse ${ref} > commit.txt
