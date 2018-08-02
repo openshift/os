@@ -37,7 +37,7 @@ node(NODE) {
         stage("Setup and Initialize RDGO") {
             sh """
                 rm -f rdgo.stamp
-                ln -sf $WORKSPACE/rdgo/overlay.yml ${rdgo}/
+                ln -sf ${WORKSPACE}/rdgo/overlay.yml ${rdgo}/
                 cd ${rdgo}
                 rpmdistro-gitoverlay init
             """
@@ -48,7 +48,7 @@ node(NODE) {
         }
 
         stage("Build Overlay Packages") {
-            sh "cd ${rdgo} && rpmdistro-gitoverlay build --touch-if-changed $WORKSPACE/rdgo.stamp --logdir=${WORKSPACE}/log"
+            sh "cd ${rdgo} && rpmdistro-gitoverlay build --touch-if-changed ${WORKSPACE}/rdgo.stamp --logdir=${WORKSPACE}/log"
         }
 
         if (!fileExists("rdgo.stamp")) {
