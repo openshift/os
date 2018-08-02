@@ -2,8 +2,8 @@
 # the "oscontainer" image which has an embedded ostree repo inside.
 # It expects "repo" to exist in the current directory.
 FROM registry.fedoraproject.org/fedora:28
-ARG OS_VERSION="3.10-7.5"
-ARG OS_COMMIT="null"
+ARG OS_VERSION=""
+ARG OS_COMMIT=""
 LABEL io.openshift.os-version="$OS_VERSION" \
       io.openshift.os-commit="$OS_COMMIT"
 RUN yum -y install ostree nginx && yum clean all
