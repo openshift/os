@@ -10,7 +10,6 @@ def rdgo = "/srv/rhcos/output/rdgo"
 node(NODE) {
     docker.image(DOCKER_IMG).pull()
 
-    checkout scm
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
