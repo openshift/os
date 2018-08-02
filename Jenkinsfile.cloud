@@ -62,7 +62,7 @@ node(NODE) {
         last_build_commit = utils.sh_capture("cat ${images}/cloud/latest/commit.txt || :")
     }
 
-    if (latest_commit == last_build_commit && latest_commit != force_nocache) {
+    if (!params.DRY_RUN && (latest_commit == last_build_commit && latest_commit != force_nocache)) {
         echo "Last built ${latest_version} (${latest_commit}) - no changes"
         currentBuild.result = 'SUCCESS'
         currentBuild.description = '(No changes)'
