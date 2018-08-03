@@ -62,11 +62,6 @@ PERSISTENT_DHCLIENT="yes"
 NM_CONTROLLED="yes"
 EOF
 
-# Because memory is scarce resource in most cloud/virt environments,
-# and because this impedes forensics, we are differing from the Fedora
-# default of having /tmp on tmpfs.
-systemctl mask tmp.mount
-
 # Anaconda is writing a /etc/resolv.conf from the generating environment.
 # The system should start out with an empty file.
 truncate -s 0 /etc/resolv.conf
