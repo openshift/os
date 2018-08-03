@@ -98,6 +98,16 @@ node(NODE) {
         archiveArtifacts artifacts: "rhcos-qcow2-install.txt", allowEmptyArchive: true
     }
 
+    // Quick kola sanity test
+    try {
+    stage("Kola rhcos.basic") { sh """
+        kola version
+        kola -b rhcos --tapfile rhcos-basic.tap --qemu-image ${image} run rhcos.basic
+    """ }
+    } finally {
+        archiveArtifacts artifacts: "rhcos-basic.tap", allowEmptyArchive: true
+    }
+
     def dirname, img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
     stage("Postprocessing") {
         // just introspect after the fact to avoid race conditions
