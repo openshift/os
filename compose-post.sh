@@ -6,6 +6,9 @@ set -xe
 # Since that makes presets run on boot, we need to have our defaults in /usr
 ln -sfr /usr/lib/systemd/system/{multi-user,default}.target
 
+# This is fixed in post-RHEL7 systemd
+ln -sf ../tmp.mount /usr/lib/systemd/system/local-fs.target.wants
+
 # The loops below are too spammy otherwise...
 set +x
 
