@@ -26,7 +26,7 @@ clearpart --initlabel --all
 #  - rd.neednet=1      # tell dracut we need network
 #  - enforcing=0       # ignition + selinux doesn't work
 #  - $coreos_firstboot # This is actually a GRUB variable
-bootloader --timeout=1 --append="no_timer_check console=ttyS0,115200n8 console=tty0 net.ifnames=0 biosdevname=0 ip=dhcp rd.neednet=1 enforcing=0 $coreos_firstboot"
+bootloader --timeout=1 --append="no_timer_check console=ttyS0,115200n8 console=tty0 net.ifnames=0 biosdevname=0 ip=dhcp rd.neednet=1 enforcing=0 rw $coreos_firstboot"
 
 part /boot --size=300 --fstype="xfs"
 part pv.01 --grow
