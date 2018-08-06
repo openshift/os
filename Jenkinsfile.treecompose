@@ -2,7 +2,7 @@ def TIMER = "H/30 * * * *"
 def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
-def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os:latest"
+def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo:latest"
 def DOCKER_ARGS = "--net=host -v /srv:/srv -v /run/docker.sock:/run/docker.sock --privileged"
 
 def treecompose_workdir = "/srv/rhcos/treecompose"
