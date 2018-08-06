@@ -1,5 +1,5 @@
 [rhcos-continuous]
-name=Bleeding edge of packages relevant to RHCOS
-baseurl=https://s3.amazonaws.com/aos-ci/rhcos/rdgo
+name=Packages built by this pipeline
+baseurl=http://aos-ostree.rhev-ci-vms.eng.rdu2.redhat.com/rhcos/rdgo/build/
 enabled=1
 gpgcheck=0
