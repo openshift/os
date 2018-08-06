@@ -2,6 +2,44 @@
 
 set -xe
 
+# bin+sbin unification; this is the case on e.g. Arch
+# today, and it helps the kola tool which does direct
+# SSH; don't need to worry about "is /sbin in root's path".
+#
+# First, handle any sbin -> bin symlinks, including
+# ones which cross names, like /usr/sbin/ping6 -> /usr/bin/ping
+for sbin in /usr/sbin/*; do
+    if ! test -L ${sbin}; then
+        continue
+    fi
+    bn=$(basename ${sbin})
+    bin=/usr/bin/${bn}
+    if ! [ -e "${bin}" ]; then
+        continue
+    fi
+    sbin_real=$(realpath ${sbin})
+    bin_real=$(realpath ${bin})
+    if [ "${bin_real}" = "${sbin_real}" ]; then
+        echo "sbin -> bin: ${bin_real} ${sbin_real}"
+        rm -f ${sbin}
+    fi
+done
+# Now walk over all files in sbin and move them,
+# this time handling any bin -> sbin links
+for sbin in /usr/sbin/*; do
+    bn=$(basename ${sbin})
+    bin=/usr/bin/${bn}
+    if test -L ${bin}; then
+       target=$(realpath ${bin})
+       if [ "${target}" = "${sbin}" ]; then
+           rm -f ${bin}
+       fi
+    fi
+    mv -n ${sbin} ${bin}
+done
+rmdir /usr/sbin
+ln -sr /usr/bin /usr/sbin
+
 # See machineid-compat in host.yaml.
 # Since that makes presets run on boot, we need to have our defaults in /usr
 ln -sfr /usr/lib/systemd/system/{multi-user,default}.target
