@@ -2,7 +2,7 @@ def TIMER = "H/30 * * * *"
 def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
-def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo:latest"
+def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo"
 def DOCKER_ARGS = "--net=host -v /srv:/srv -v /run/docker.sock:/run/docker.sock --privileged"
 
 def treecompose_workdir = "/srv/rhcos/treecompose"
@@ -48,8 +48,8 @@ node(NODE) {
             mkdir -p ${treecompose_workdir}/containers
             mount --bind ${treecompose_workdir}/containers /var/lib/containers
             skopeo inspect docker://${OSCONTAINER_IMG}
-            podman pull ${OSCONTAINER_IMG}
-            cid=\$(podman run --net=host -d --name oscontainer --entrypoint sleep ${OSCONTAINER_IMG} infinity)
+            podman pull ${OSCONTAINER_IMG}:latest
+            cid=\$(podman run --net=host -d --name oscontainer --entrypoint sleep ${OSCONTAINER_IMG}:latest infinity)
             ln -sf \$(podman mount \${cid})/srv/repo ${treecompose_workdir}/repo
         """ }
 
@@ -122,15 +122,19 @@ node(NODE) {
       stage("Build new container") { sh """
           podman build --build-arg OS_VERSION=${version} \
                        --build-arg OS_COMMIT=${commit} \
-                       -t ${OSCONTAINER_IMG} \
+                       -t ${OSCONTAINER_IMG}:latest \
                        -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
+          podman tag ${OSCONTAINER_IMG}:latest ${OSCONTAINER_IMG}:${version}
+          podman tag ${OSCONTAINER_IMG}:latest ${OSCONTAINER_IMG}:${commit}
       """ }
-      stage("Push container") { sh """
-          podman push ${OSCONTAINER_IMG}
-          podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG} > imgid.txt
+      stage("Push containers") { sh """
+          podman push ${OSCONTAINER_IMG}:latest
+          podman push ${OSCONTAINER_IMG}:${version}
+          podman push ${OSCONTIANER_IMG}:${commit}
+          podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG}:latest > imgid.txt
       """
           def cid = readFile('imgid.txt').trim();
-          currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
+          currentBuild.description = "🆕 ${OSCONTAINER_IMG}:latest@sha256:${cid} (${version})";
       }
 
       stage("rsync out") {
