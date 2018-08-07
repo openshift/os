@@ -1,14 +1,13 @@
 def TIMER = "H H/3 * * *"
 def NODE = "rhcos-jenkins"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
-def DOCKER_ARGS = "-v /srv:/srv --privileged --device /dev/kvm"
+// See https://github.com/projectatomic/bubblewrap/issues/284
+def DOCKER_ARGS = "--privileged --device /dev/kvm"
 
 // Are there really other regions?  We're sending explorers to find out
 def AWS_REGION = "us-east-1"
 
-// this var conveniently refers to a location on the server as well as the
-// local dir we sync to/from
-def images = "/srv/rhcos/output/images"
+def remote_images = "/srv/rhcos/output/images"
 
 def ref = "openshift/3.10/x86_64/os";
 
@@ -23,6 +22,8 @@ node(NODE) {
 
     docker.image(DOCKER_IMG).pull()
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+    def images = "${WORKSPACE}/images";
+
     stage("Clone qcow2-to-vagrant") {
         // I tried to use git() but not sure where that went, it isn't the workspace
         sh('git clone https://github.com/cgwalters/qcow2-to-vagrant')
@@ -34,7 +35,7 @@ node(NODE) {
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
             sh "mkdir -p ${images}"
-            utils.rsync_dir_in(ARTIFACT_SERVER, KEY_FILE, images)
+            utils.rsync_dir_in_dest(ARTIFACT_SERVER, KEY_FILE, remote_images, images)
         }
 
         // Also initialize an ostree repo for change detection
@@ -87,6 +88,8 @@ node(NODE) {
     stage("Running coreos-virt-install") { sh """
         chmod a+rw /dev/kvm
         setfacl -m u:builder:rwX ${WORKSPACE}
+        # TODO use --unshare-user; this breaks setgroups() though, see
+        # https://lwn.net/Articles/626665/ as well as the above bwrap issue
         bwrap --bind / / --dev-bind /dev /dev --proc /proc --unshare-pid runuser -u builder -- coreos-virt-install --dest ${image} --create-disk \
                 --console-log-file ${WORKSPACE}/rhcos-qcow2-install.txt \
                 --wait=25 --kickstart cloud.ks --location "${INSTALLER_TREE_URL}"
@@ -227,7 +230,7 @@ node(NODE) {
             string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
-            utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
+            utils.rsync_dir_out_dest(ARTIFACT_SERVER, KEY_FILE, images, remote_images)
         }
     } }
     par_stages["s3-upload"] = { -> stage("S3 upload") {
