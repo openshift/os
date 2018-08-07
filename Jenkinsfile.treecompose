@@ -5,11 +5,6 @@ def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo:latest"
 def DOCKER_ARGS = "--net=host -v /srv:/srv -v /run/docker.sock:/run/docker.sock --privileged"
 
-def treecompose_workdir = "/srv/rhcos/treecompose"
-def repo = "${treecompose_workdir}/repo"
-// We write to this one for now
-def artifact_repo = "/srv/rhcos/output/repo"
-
 def manifest = "host.yaml"
 // TODO - stop using the ref in favor of oscontainer:// pivot
 def ref = "openshift/3.10/x86_64/os";
@@ -34,6 +29,9 @@ node(NODE) {
 
     docker.image(DOCKER_IMG).pull()
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+        def host_workspace = utils.prepare_host_workspace()
+        def repo = "${host_workspace}/repo"
+
         stage("Login") { sh """
             set +x
             echo podman login -u ${username} -p '<password>' ${API_CI_REGISTRY}
@@ -42,15 +40,13 @@ node(NODE) {
         """ }
 
         stage("Pull and run oscontainer") { sh """
-            rm ${treecompose_workdir} -rf
-            mkdir -p ${treecompose_workdir}
             rm -rf /var/lib/containers && mkdir /var/lib/containers
-            mkdir -p ${treecompose_workdir}/containers
-            mount --bind ${treecompose_workdir}/containers /var/lib/containers
+            mkdir -p ${host_workspace}/containers
+            mount --bind ${host_workspace}/containers /var/lib/containers
             skopeo inspect docker://${OSCONTAINER_IMG}
             podman pull ${OSCONTAINER_IMG}
             cid=\$(podman run --net=host -d --name oscontainer --entrypoint sleep ${OSCONTAINER_IMG} infinity)
-            ln -sf \$(podman mount \${cid})/srv/repo ${treecompose_workdir}/repo
+            ln -sf \$(podman mount \${cid})/srv/repo ${host_workspace}/repo
         """ }
 
         def previous_commit, last_build_version, force_nocache
@@ -112,10 +108,10 @@ node(NODE) {
       // with Docker/OCI images.  Ideally there'd be a way to "bind mount" content
       // into the build environment rather than copying.
       stage("Prepare repo copy") { sh """
-          cp -a --reflink=auto * ${treecompose_workdir}/
-          repo=\$(readlink ${treecompose_workdir}/repo)
-          rm ${treecompose_workdir}/repo
-          cp -a --reflink=auto \${repo} ${treecompose_workdir}/repo
+          cp -a --reflink=auto * ${host_workspace}/
+          repo=\$(readlink ${host_workspace}/repo)
+          rm ${host_workspace}/repo
+          cp -a --reflink=auto \${repo} ${host_workspace}/repo
           podman kill oscontainer
           podman rm oscontainer
       """ }
@@ -123,7 +119,7 @@ node(NODE) {
           podman build --build-arg OS_VERSION=${version} \
                        --build-arg OS_COMMIT=${commit} \
                        -t ${OSCONTAINER_IMG} \
-                       -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
+                       -f ${host_workspace}/Dockerfile.rollup ${host_workspace}
       """ }
       stage("Push container") { sh """
           podman push ${OSCONTAINER_IMG}
@@ -140,13 +136,13 @@ node(NODE) {
       ]) {
       sh """
          /usr/app/ostree-releng-scripts/rsync-repos \
-             --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
+             --dest ${ARTIFACT_SERVER}:/srv/rhcos/output/repo --src=${repo}/ \
              --rsync-opt=--stats --rsync-opt=-e \
              --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
       """ } }
 
       stage("Cleanup") { sh """
-          rm ${treecompose_workdir} -rf
+          rm ${host_workspace} -rf
       """ }
 
       // Trigger downstream jobs

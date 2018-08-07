@@ -68,6 +68,22 @@ def define_properties(timer) {
     ])
 }
 
+// We currently unpack the oscontainer via podman-inside-docker; since
+// overlayfs on overlayfs doesn't work, we need access to a "host workspace"
+// which is distinct from ${WORKSPACE} which lives in the Jenkins agent container.
+// This is a bit like a Kubernetes emptyDir.
+def prepare_host_workspace() {
+    def host_workspace_prefix = "/srv/jenkins-host-workspace/${env.JOB_NAME}"
+    def host_workspace = "${host_workspace_prefix}.${env.BUILD_NUMBER}"
+    sh """
+        mkdir -p ${host_workspace_prefix}
+        rm ${host_workspace_prefix}/* -rf
+        mkdir ${host_workspace}
+    """
+    echo("Allocated host workspace: ${host_workspace}")
+    return host_workspace
+}
+
 def rsync_dir_in(server, key, dir) {
     rsync_dir(key, "${server}:${dir}", dir)
 }
