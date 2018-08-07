@@ -17,9 +17,7 @@ node(NODE) {
     stage("Clean workspace") {
        step([$class: 'WsCleanup'])
     }
-
     checkout scm
-
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 

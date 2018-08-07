@@ -8,11 +8,15 @@ def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 def rdgo = "/srv/rhcos/output/rdgo"
 
 node(NODE) {
-    docker.image(DOCKER_IMG).pull()
-
+    def par_stages = [:]
+    stage("Clean workspace") {
+       step([$class: 'WsCleanup'])
+    }
+    checkout scm
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
+    docker.image(DOCKER_IMG).pull()
     try {
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
         stage("Provision") {
