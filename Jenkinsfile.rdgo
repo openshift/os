@@ -1,7 +1,5 @@
 def TIMER = "H/30 * * * *"
 def NODE = "atomic-jslave-autobrew"
-def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
-def DOCKER_ARGS = "--net=host -v /srv:/srv --privileged"
 
 // this var conveniently refers to a location on the server as well as the
 // local dir we sync to/from
@@ -16,9 +14,8 @@ node(NODE) {
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
-    docker.image(DOCKER_IMG).pull()
     try {
-    docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+    utils.inside_assembler_container("-v /srv:/srv") {
         stage("Provision") {
             sh """
                 if [ ! -d ${rdgo} ]; then

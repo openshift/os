@@ -1,7 +1,5 @@
 def TIMER = "H H/3 * * *"
 def NODE = "rhcos-jenkins"
-def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
-def DOCKER_ARGS = "-v /srv:/srv --privileged --device /dev/kvm"
 
 // Are there really other regions?  We're sending explorers to find out
 def AWS_REGION = "us-east-1"
@@ -21,8 +19,7 @@ node(NODE) {
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
-    docker.image(DOCKER_IMG).pull()
-    docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+    utils.inside_assembler_container("-v /srv:/srv") {
     stage("Clone qcow2-to-vagrant") {
         // I tried to use git() but not sure where that went, it isn't the workspace
         sh('git clone https://github.com/cgwalters/qcow2-to-vagrant')
