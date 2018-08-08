@@ -17,7 +17,7 @@ initramfs-args:
   - "--no-hostonly"
   - "--add"
   - "iscsi"
-mutate-os-release: "7"
+mutate-os-release: "4.0"
 # https://github.com/projectatomic/rpm-ostree/pull/1425
 machineid-compat: false
 postprocess-script: "compose-post.sh"
