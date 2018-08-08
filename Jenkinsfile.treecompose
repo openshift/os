@@ -98,13 +98,6 @@ node(NODE) {
             sh "ostree summary --repo=${repo} --update"
         }
 
-        if (params.DRY_RUN) {
-            echo "DRY_RUN set, skipping push"
-            currentBuild.result = 'SUCCESS'
-            currentBuild.description = '(dry run)'
-            return
-        }
-
         // This takes OSTree repo and copies it out of the original
         // container into our working directory, which then gets put
         // into a new container image.  This is slow, but it's hard to do better
@@ -117,12 +110,21 @@ node(NODE) {
             podman kill oscontainer
             podman rm oscontainer
         """ }
+
         stage("Build new container") { sh """
             podman build --build-arg OS_VERSION=${version} \
                          --build-arg OS_COMMIT=${commit} \
                          -t ${OSCONTAINER_IMG} \
                          -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
         """ }
+
+        if (params.DRY_RUN) {
+            echo "DRY_RUN set, skipping push"
+            currentBuild.result = 'SUCCESS'
+            currentBuild.description = '(dry run)'
+            return
+        }
+
         stage("Push container") { sh """
             podman push ${OSCONTAINER_IMG}
             podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG} > imgid.txt
