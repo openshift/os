@@ -2,6 +2,8 @@ def TIMER = "H H/3 * * *"
 def NODE = "rhcos-jenkins"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def DOCKER_ARGS = "-v /srv:/srv --privileged --device /dev/kvm"
+def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
+def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo"
 
 // Are there really other regions?  We're sending explorers to find out
 def AWS_REGION = "us-east-1"
@@ -21,8 +23,23 @@ node(NODE) {
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
+    // Split the credentials up
+    def username, password;
+    withCredentials([
+        usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
+    ]) {
+        (username, password) = "${CREDS}".split(':')
+    }
+
     docker.image(DOCKER_IMG).pull()
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+    stage("Login") { sh """
+        set +x
+        echo podman login -u ${username} -p '<password>' ${API_CI_REGISTRY}
+        podman login -u "${username}" -p "${password}" ${API_CI_REGISTRY}
+        echo "login done"
+    """ }
+
     stage("Clone qcow2-to-vagrant") {
         // I tried to use git() but not sure where that went, it isn't the workspace
         sh('git clone https://github.com/cgwalters/qcow2-to-vagrant')
@@ -104,6 +121,17 @@ node(NODE) {
     """ }
     } finally {
         archiveArtifacts artifacts: "rhcos-basic.tap", allowEmptyArchive: true
+    }
+
+    // We passed some sanity checks, so pull the image again, retag it, and push
+    stage("Push an 'alpha' tag") {
+        if (params.DRY_RUN) {
+            echo "DRY_RUN set, skipping alpha tag"
+        } else if (!params.DRY_RUN) { sh """
+            podman pull ${OSCONTAINER_IMG}:${latest_commit}
+            podman tag ${OSCONTAINER_IMG}:${latest_commit} ${OSCONTAINER_IMG}:alpha
+            podman push ${OSCONTAINER_IMG}:alpha
+        """ }
     }
 
     def dirname, img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
