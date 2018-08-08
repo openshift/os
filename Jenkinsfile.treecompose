@@ -3,10 +3,8 @@ def NODE = "atomic-jslave-autobrew"
 def DOCKER_IMG = "quay.io/cgwalters/coreos-assembler"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo:latest"
-def DOCKER_ARGS = "--net=host -v /srv:/srv -v /run/docker.sock:/run/docker.sock --privileged"
+def DOCKER_ARGS = "--net=host -v /run/docker.sock:/run/docker.sock --privileged"
 
-def treecompose_workdir = "/srv/rhcos/treecompose"
-def repo = "${treecompose_workdir}/repo"
 // We write to this one for now
 def artifact_repo = "/srv/rhcos/output/repo"
 
@@ -34,6 +32,9 @@ node(NODE) {
 
     docker.image(DOCKER_IMG).pull()
     docker.image(DOCKER_IMG).inside(DOCKER_ARGS) {
+        def treecompose_workdir = "${WORKSPACE}/treecompose"
+        def repo = "${treecompose_workdir}/repo"
+
         stage("Login") { sh """
             set +x
             echo podman login -u ${username} -p '<password>' ${API_CI_REGISTRY}
@@ -113,9 +114,9 @@ node(NODE) {
       // into the build environment rather than copying.
       stage("Prepare repo copy") { sh """
           cp -a --reflink=auto * ${treecompose_workdir}/
-          repo=\$(readlink ${treecompose_workdir}/repo)
-          rm ${treecompose_workdir}/repo
-          cp -a --reflink=auto \${repo} ${treecompose_workdir}/repo
+          original_repo=\$(readlink ${treecompose_workdir}/repo)
+          rm ${repo}
+          cp -a --reflink=auto \${original_repo} ${repo}
           podman kill oscontainer
           podman rm oscontainer
       """ }
