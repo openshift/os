@@ -8,12 +8,13 @@ def DOCKER_ARGS = "--net=host -v /run/docker.sock:/run/docker.sock --privileged"
 // We write to this one for now
 def artifact_repo = "/srv/rhcos/output/repo"
 
-def manifest = "host.yaml"
-// TODO - stop using the ref in favor of oscontainer:// pivot
-def ref = "openshift/3.10/x86_64/os";
-def version_prefix = "4.0"
-
 node(NODE) {
+    def manifest = "host.yaml"
+    def manifest_data = readYaml file: "${manifest}";
+    // TODO - stop using the ref in favor of oscontainer:// pivot
+    def ref = manifest_data.ref;
+    def version_prefix = manifest_data["mutate-os-release"];
+
     def par_stages = [:]
     stage("Clean workspace") {
        step([$class: 'WsCleanup'])
