@@ -76,6 +76,14 @@ def rsync_dir_out(server, key, dir) {
     rsync_dir(key, dir, "${server}:${dir}")
 }
 
+def rsync_dir_in_dest(server, key, srcdir, destdir) {
+    rsync_dir(key, "${server}:${srcdir}", destdir)
+}
+
+def rsync_dir_out_dest(server, key, srcdir, destdir) {
+    rsync_dir(key, srcdir, "${server}:${destdir}")
+}
+
 def rsync_dir(key, from_dir, to_dir) {
     sh """
         rsync -Hrlpt --stats --delete --delete-after \

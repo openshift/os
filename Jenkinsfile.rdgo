@@ -71,11 +71,6 @@ node(NODE) {
             ]) {
                 utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, rdgo)
             }
-            withCredentials([
-                [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
-            ]) {
-                sh "aws s3 sync --delete ${rdgo}/build/ s3://rhcos/rdgo"
-            }
             currentBuild.description = 'rdgo build+sync done'
         }
 
