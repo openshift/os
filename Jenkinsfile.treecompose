@@ -115,7 +115,7 @@ node(NODE) {
             podman build --build-arg OS_VERSION=${version} \
                          --build-arg OS_COMMIT=${commit} \
                          -t ${OSCONTAINER_IMG} \
-                         -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
+                         -f ${WORKSPACE}/Dockerfile.rollup ${WORKSPACE}
         """ }
 
         if (params.DRY_RUN) {
