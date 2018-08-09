@@ -98,6 +98,26 @@ node(NODE) {
             sh "ostree summary --repo=${repo} --update"
         }
 
+        // This takes OSTree repo and copies it out of the original
+        // container into our working directory, which then gets put
+        // into a new container image.  This is slow, but it's hard to do better
+        // with Docker/OCI images.  Ideally there'd be a way to "bind mount" content
+        // into the build environment rather than copying.
+        stage("Prepare repo copy") { sh """
+            original_repo=\$(readlink ${treecompose_workdir}/repo)
+            rm ${repo}
+            cp -a --reflink=auto \${original_repo} ${repo}
+            podman kill oscontainer
+            podman rm oscontainer
+        """ }
+
+        stage("Build new container") { sh """
+            podman build --build-arg OS_VERSION=${version} \
+                         --build-arg OS_COMMIT=${commit} \
+                         -t ${OSCONTAINER_IMG} \
+                         -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
+        """ }
+
         if (params.DRY_RUN) {
             echo "DRY_RUN set, skipping push"
             currentBuild.result = 'SUCCESS'
@@ -105,49 +125,31 @@ node(NODE) {
             return
         }
 
-      // This takes OSTree repo and copies it out of the original
-      // container into our working directory, which then gets put
-      // into a new container image.  This is slow, but it's hard to do better
-      // with Docker/OCI images.  Ideally there'd be a way to "bind mount" content
-      // into the build environment rather than copying.
-      stage("Prepare repo copy") { sh """
-          original_repo=\$(readlink ${treecompose_workdir}/repo)
-          rm ${repo}
-          cp -a --reflink=auto \${original_repo} ${repo}
-          podman kill oscontainer
-          podman rm oscontainer
-      """ }
-      stage("Build new container") { sh """
-          podman build --build-arg OS_VERSION=${version} \
-                       --build-arg OS_COMMIT=${commit} \
-                       -t ${OSCONTAINER_IMG} \
-                       -f ${treecompose_workdir}/Dockerfile.rollup ${treecompose_workdir}
-      """ }
-      stage("Push container") { sh """
-          podman push ${OSCONTAINER_IMG}
-          podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG} > imgid.txt
-      """
-          def cid = readFile('imgid.txt').trim();
-          currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
-      }
+        stage("Push container") { sh """
+            podman push ${OSCONTAINER_IMG}
+            podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG} > imgid.txt
+        """
+            def cid = readFile('imgid.txt').trim();
+            currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
+        }
 
-      stage("rsync out") {
-      withCredentials([
-         string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
-         sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
-      ]) {
-      sh """
-         /usr/app/ostree-releng-scripts/rsync-repos \
-             --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
-             --rsync-opt=--stats --rsync-opt=-e \
-             --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-      """ } }
+        stage("rsync out") {
+        withCredentials([
+           string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+           sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+        ]) {
+        sh """
+           /usr/app/ostree-releng-scripts/rsync-repos \
+               --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
+               --rsync-opt=--stats --rsync-opt=-e \
+               --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+        """ } }
 
-      stage("Cleanup") { sh """
-          rm ${treecompose_workdir} -rf
-      """ }
+        stage("Cleanup") { sh """
+            rm ${treecompose_workdir} -rf
+        """ }
 
-      // Trigger downstream jobs
-      build job: 'coreos-rhcos-cloud', wait: false
+        // Trigger downstream jobs
+        build job: 'coreos-rhcos-cloud', wait: false
   }
 }
