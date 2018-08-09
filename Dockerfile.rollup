@@ -7,7 +7,7 @@ ARG OS_COMMIT=""
 LABEL io.openshift.os-version="$OS_VERSION" \
       io.openshift.os-commit="$OS_COMMIT"
 RUN yum -y install ostree nginx && yum clean all
-COPY repo /srv/repo
+COPY treecompose/repo /srv/repo
 # Keep this in sync with Dockerfile
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY index.html subdomain.css /srv/repo/
