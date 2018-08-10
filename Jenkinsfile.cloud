@@ -102,6 +102,8 @@ node(NODE) {
         kola -b rhcos --tapfile rhcos-basic.tap --qemu-image ${image} run rhcos.basic
     """ }
     } finally {
+        sh 'tar -cJf _kola_temp.tar.xz _kola_temp'
+        archiveArtifacts artifacts: "_kola_temp.tar.xz", allowEmptyArchive: true
         archiveArtifacts artifacts: "rhcos-basic.tap", allowEmptyArchive: true
     }
 
