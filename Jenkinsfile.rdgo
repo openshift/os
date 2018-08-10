@@ -69,6 +69,8 @@ node(NODE) {
                 string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
                 sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
             ]) {
+                # don't sync overlay.yml symlink since it won't resolve
+                sh "rm -f ${rdgo}/overlay.yml"
                 utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, rdgo)
             }
             currentBuild.description = 'rdgo build+sync done'
