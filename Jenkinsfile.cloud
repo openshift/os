@@ -231,16 +231,6 @@ node(NODE) {
             utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
         }
     } }
-    par_stages["s3-upload"] = { -> stage("S3 upload") {
-            withCredentials([
-                [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
-                string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
-                string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
-            ]) { sh """
-                aws s3 sync --delete ${images}/ s3://rhcos/images/
-            """ }
-        }
-    }
     parallel par_stages; par_stages = [:]
     }
 }
