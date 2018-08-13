@@ -99,12 +99,16 @@ node(NODE) {
     try {
     stage("Kola rhcos.basic") { sh """
         kola version
-        kola -b rhcos --tapfile rhcos-basic.tap --qemu-image ${image} run rhcos.basic
+        if ! kola -b rhcos --tapfile rhcos-basic.tap --qemu-image ${image} run rhcos.basic; then
+          cp ${image} ${WORKSPACE}
+          exit 1
+        fi
     """ }
     } finally {
         sh 'tar -cJf _kola_temp.tar.xz _kola_temp'
         archiveArtifacts artifacts: "_kola_temp.tar.xz", allowEmptyArchive: true
         archiveArtifacts artifacts: "rhcos-basic.tap", allowEmptyArchive: true
+        archiveArtifacts artifacts: "rhcos.qcow2", allowEmptyArchive: true
     }
 
     def dirname, img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
