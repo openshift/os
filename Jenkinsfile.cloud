@@ -166,6 +166,8 @@ node(NODE) {
     parallel par_stages; par_stages = [:]
 
     stage("Finalizing, generate metadata") {
+        // See https://github.com/openshift/installer/blob/master/Documentation/dev/libvirt-howto.md#13a-rhcos
+        sh "qemu-img resize ${qcow} +8G"
         sh "gzip < ${qcow} > ${img_prefix}-qemu.qcow2.gz"
         sh "ln -sr ${img_prefix}-qemu.qcow2.gz ${dirpath}/rhcos-qemu.qcow2.gz"
         // Everything above in parallel worked on qcow, we're done with it now
