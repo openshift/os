@@ -5,6 +5,8 @@ def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo:latest"
 
 // We write to this one for now
 def artifact_repo = "/srv/rhcos/output/repo"
+// We write pkg_diff.txt here
+def images = "/srv/rhcos/output/images"
 
 node(NODE) {
     def manifest = "host.yaml"
@@ -81,21 +83,27 @@ node(NODE) {
         // delete the ref head (so rpm-ostree won't add a parent) and
         // then we do a repo prune after.
         def version, commit
-        stage("Compose Tree") { sh """
-            rm ${repo}/refs/heads/* -rf
-            env G_DEBUG=fatal-warnings rpm-ostree compose tree --repo=${repo} \
-                                                        --add-metadata-string=version=${version_prefix}.${env.BUILD_NUMBER} \
-                                                        ${manifest}
-            ostree --repo=${repo} rev-parse ${ref} > commit.txt
-        """
-            commit = readFile('commit.txt').trim();
-            version = utils.get_rev_version("${repo}", commit)
-            currentBuild.description = "🆕 ${version} (commit ${commit})";
-            if (previous_commit.length() > 0) {
-                sh "rpm-ostree --repo=${repo} db diff ${previous_commit} ${commit}"
+        try {
+            stage("Compose Tree") { sh """
+                rm ${repo}/refs/heads/* -rf
+                env G_DEBUG=fatal-warnings rpm-ostree compose tree --repo=${repo} \
+                                                            --add-metadata-string=version=${version_prefix}.${env.BUILD_NUMBER} \
+                                                            ${manifest}
+                ostree --repo=${repo} rev-parse ${ref} > commit.txt
+            """
+                commit = readFile('commit.txt').trim();
+                version = utils.get_rev_version("${repo}", commit)
+                currentBuild.description = "🆕 ${version} (commit ${commit})";
+                if (previous_commit.length() > 0) { sh """
+                    rpm-ostree --repo=${repo} db diff ${previous_commit} ${commit} > ${WORKSPACE}/pkg_diff.txt
+                    mkdir -p ${images}
+                    cp ${WORKSPACE}/pkg_diff.txt ${images}/pkg_diff.txt"
+                """ }
+                sh "ostree --repo=${repo} prune --refs-only --depth=0"
+                sh "ostree summary --repo=${repo} --update"
             }
-            sh "ostree --repo=${repo} prune --refs-only --depth=0"
-            sh "ostree summary --repo=${repo} --update"
+        } finally {
+            archiveArtifacts artifacts: "pkg_diff.txt", allowEmptyArchive: true
         }
 
         // This takes OSTree repo and copies it out of the original
@@ -134,16 +142,20 @@ node(NODE) {
         }
 
         stage("rsync out") {
-        withCredentials([
-           string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
-           sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
-        ]) {
-        sh """
-           /usr/app/ostree-releng-scripts/rsync-repos \
-               --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
-               --rsync-opt=--stats --rsync-opt=-e \
-               --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-        """ } }
+            withCredentials([
+               string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+               sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+            ]) {
+            sh """
+               /usr/app/ostree-releng-scripts/rsync-repos \
+                   --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
+                   --rsync-opt=--stats --rsync-opt=-e \
+                   --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
+            """ 
+            if (previous_commit.length() > 0) {
+                utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
+            } }
+        }
 
         stage("Cleanup") { sh """
             rm ${treecompose_workdir} -rf
