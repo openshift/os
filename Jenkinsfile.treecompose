@@ -9,12 +9,6 @@ def artifact_repo = "/srv/rhcos/output/repo"
 def images = "/srv/rhcos/output/images"
 
 node(NODE) {
-    def manifest = "host.yaml"
-    def manifest_data = readYaml file: "${manifest}";
-    // TODO - stop using the ref in favor of oscontainer:// pivot
-    def ref = manifest_data.ref;
-    def version_prefix = manifest_data["mutate-os-release"];
-
     def par_stages = [:]
     stage("Clean workspace") {
        step([$class: 'WsCleanup'])
@@ -22,6 +16,12 @@ node(NODE) {
     checkout scm
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
+
+    def manifest = "host.yaml"
+    def manifest_data = readYaml file: "${manifest}";
+    // TODO - stop using the ref in favor of oscontainer:// pivot
+    def ref = manifest_data.ref;
+    def version_prefix = manifest_data["mutate-os-release"];
 
     // Split the credentials up
     def username, password;
