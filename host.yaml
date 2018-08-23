@@ -11,6 +11,8 @@ repos:
 install-langs:
  - en_US
 documentation: false
+# This should really be the default...
+boot_location: new
 # See https://pagure.io/fedora-atomic/pull-request/62
 tmp-is-dir: true
 initramfs-args:
