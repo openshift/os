@@ -17,7 +17,7 @@ node(NODE) {
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
-    def manifest = "host.yaml"
+    def manifest = "host-maipo.yaml"
     def manifest_data = readYaml file: "${manifest}";
     def ref = manifest_data.ref;
 

@@ -2,7 +2,7 @@
 
 set -xe
 
-# See machineid-compat in host.yaml.
+# See machineid-compat in host-base.yaml.
 # Since that makes presets run on boot, we need to have our defaults in /usr
 ln -sfr /usr/lib/systemd/system/{multi-user,default}.target
 
