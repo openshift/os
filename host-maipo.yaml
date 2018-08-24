@@ -1,0 +1,31 @@
+ref: "openshift/3.10/x86_64/os"
+include: host-base.yaml
+repos:
+  - atomic-centos-continuous
+  - rhcos-continuous
+  - openshift
+  - rhel-7.5-server
+  - rhel-7.5-server-optional
+  - rhel-7.5-server-extras
+  - rhel-7.5-atomic
+  - dustymabe-ignition
+mutate-os-release: "4.0"
+packages:
+ # auth legacy
+ - authconfig
+ # Docker legacy
+ - docker docker-lvm-plugin docker-novolume-plugin
+ - oci-umount
+ # tuned (legacy IMO)
+ - tuned tuned-profiles-atomic
+ # SELinux
+ - policycoreutils-python
+ # Networking legacy
+ - iptables-services
+ - bridge-utils biosdevname
+ # Container storage
+ - container-storage-setup cloud-utils-growpart
+ # Remote storage (maipo only)
+ - ceph-common glusterfs-fuse
+ # OpenShift
+ - origin-node origin-hyperkube origin-clients
