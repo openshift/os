@@ -62,7 +62,7 @@ rpmostree-compose: ${ROOT_DIR}/openshift.repo init-ostree-repo
 	ostree init --repo=${REPO} --mode=archive
 	if test -d cache; then cachedir='--cachedir $(shell pwd)/cache'; fi && \
 	  cd ${ROOT_DIR} && set -x && \
-	  rpm-ostree compose tree $(COMPOSEFLAGS) $${cachedir:-} --repo=$(shell pwd)/build-repo host.yaml
+	  rpm-ostree compose tree $(COMPOSEFLAGS) $${cachedir:-} --repo=$(shell pwd)/build-repo host-maipo.yaml
 	ostree --repo=repo pull-local build-repo
 	ostree --repo=repo summary -u
 
