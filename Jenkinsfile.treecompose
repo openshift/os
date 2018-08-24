@@ -1,5 +1,5 @@
 def TIMER = "H/30 * * * *"
-def NODE = "atomic-jslave-autobrew"
+def NODE = "rhcos-jenkins"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-maipo:latest"
 
