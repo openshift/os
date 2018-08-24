@@ -1,5 +1,5 @@
 def TIMER = "H/30 * * * *"
-def NODE = "atomic-jslave-autobrew"
+def NODE = "rhcos-jenkins"
 
 // this var conveniently refers to a location on the server as well as the
 // local dir we sync to/from
