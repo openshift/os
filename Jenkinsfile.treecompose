@@ -95,15 +95,13 @@ node(NODE) {
                 version = utils.get_rev_version("${repo}", commit)
                 currentBuild.description = "🆕 ${version} (commit ${commit})";
                 if (previous_commit.length() > 0) { sh """
-                    rpm-ostree --repo=${repo} db diff ${previous_commit} ${commit} > ${WORKSPACE}/pkg_diff.txt
-                    mkdir -p ${images}
-                    cp ${WORKSPACE}/pkg_diff.txt ${images}/pkg_diff.txt
+                    rpm-ostree --repo=${repo} db diff ${previous_commit} ${commit} > ${WORKSPACE}/pkg-diff.txt
                 """ }
                 sh "ostree --repo=${repo} prune --refs-only --depth=0"
                 sh "ostree summary --repo=${repo} --update"
             }
         } finally {
-            archiveArtifacts artifacts: "pkg_diff.txt", allowEmptyArchive: true
+            archiveArtifacts artifacts: "pkg-diff.txt", allowEmptyArchive: true
         }
 
         // This takes OSTree repo and copies it out of the original
@@ -152,9 +150,6 @@ node(NODE) {
                    --rsync-opt=--stats --rsync-opt=-e \
                    --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
             """ 
-            if (previous_commit.length() > 0) {
-                utils.rsync_dir_out(ARTIFACT_SERVER, KEY_FILE, images)
-            } }
         }
 
         stage("Cleanup") { sh """
