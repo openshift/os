@@ -23,36 +23,17 @@ node(NODE) {
     def ref = manifest_data.ref;
     def version_prefix = manifest_data["mutate-os-release"];
 
-    // Split the credentials up
-    def username, password;
-    withCredentials([
-        usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
-    ]) {
-        (username, password) = "${CREDS}".split(':')
-    }
-
     utils.inside_assembler_container("") {
-        def treecompose_workdir = "${WORKSPACE}/treecompose"
-        def repo = "${treecompose_workdir}/repo"
+        def treecompose_workdir = "${WORKSPACE}/treecompose";
+        def repo = "${treecompose_workdir}/repo";
 
-        stage("Login") { sh """
-            set +x
-            echo podman login -u ${username} -p '<password>' ${API_CI_REGISTRY}
-            podman login -u "${username}" -p "${password}" ${API_CI_REGISTRY}
-            echo "login done"
-        """ }
-
-        stage("Pull and run oscontainer") { sh """
-            rm ${treecompose_workdir} -rf
-            mkdir -p ${treecompose_workdir}
-            rm -rf /var/lib/containers && mkdir /var/lib/containers
-            mkdir -p ${treecompose_workdir}/containers
-            mount --bind ${treecompose_workdir}/containers /var/lib/containers
-            skopeo inspect docker://${OSCONTAINER_IMG}
-            podman pull ${OSCONTAINER_IMG}
-            cid=\$(podman run --net=host -d --name oscontainer --entrypoint sleep ${OSCONTAINER_IMG} infinity)
-            ln -sf \$(podman mount \${cid})/srv/repo ${treecompose_workdir}/repo
-        """ }
+        stage("Pull and run oscontainer") {
+            withCredentials([
+                usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
+            ]) {
+                sh """./scripts/pull-mount-oscontainer ${API_CI_REGISTRY} ${treecompose_workdir} ${OSCONTAINER_IMG}"""
+            }
+        }
 
         def previous_commit, last_build_version, force_nocache
         stage("Check for Changes") { sh """
