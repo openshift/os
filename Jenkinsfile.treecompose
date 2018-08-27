@@ -150,7 +150,7 @@ node(NODE) {
                    --rsync-opt=--stats --rsync-opt=-e \
                    --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
             """ 
-        }
+        } }
 
         stage("Cleanup") { sh """
             rm ${treecompose_workdir} -rf
