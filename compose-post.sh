@@ -43,12 +43,14 @@ echo '%sudo        ALL=(ALL)       NOPASSWD: ALL' > /etc/sudoers.d/coreos-sudo-g
 
 # Nuke network.service from orbit
 # https://github.com/openshift/os/issues/117
-rm /etc/rc.d/init.d/network
-rm /etc/rc.d/rc*.d/*network
+rm -rf /etc/rc.d/init.d/network /etc/rc.d/rc*.d/*network
 
 # And readahead https://bugzilla.redhat.com/show_bug.cgi?id=1594984
 # It's long dead upstream, we definitely don't want it.
 rm -f /usr/lib/systemd/systemd-readahead /usr/lib/systemd/system/systemd-readahead-*
+
+# We're not using resolved yet
+rm -f /usr/lib/systemd/system/systemd-resolved.service
 
 # Let's have a non-boring motd, just like CL (although theirs is more subdued
 # nowadays compared to early versions with ASCII art).  One thing we do here

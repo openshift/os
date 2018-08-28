@@ -66,6 +66,16 @@ def define_properties(timer) {
                     description: "(not secret) Local installer tree mirror to use when running imagefactory.",
                     defaultValue: '50db8fac-f9d8-44e1-af0f-be29325a2896',
                     required: true),
+        credentials(name: 'OOTPA_COMPOSE',
+                    credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
+                    description: "(not secret) URL for compose of ootpa base/appstream content",
+                    defaultValue: 'fc28db5f-62cc-4386-866d-ea69d2088410',
+                    required: true),
+        credentials(name: 'OOTPA_BUILDROOT_COMPOSE',
+                    credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
+                    description: "(not secret) URL for compose of ootpa buildroot content",
+                    defaultValue: 'aa396a81-6adc-44e8-8fbc-7ecc54bf883f',
+                    required: true),
       ])
     ])
 }

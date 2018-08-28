@@ -1,14 +1,9 @@
 def TIMER = "H/30 * * * *"
 def NODE = "rhcos-jenkins"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
-def OS_NAME = "maipo";
+def OS_NAME = "ootpa";
 def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}:latest"
-def COMPOSEFLAGS = "";
-
-// We write to this one for now
-def artifact_repo = "/srv/rhcos/output/repo"
-// We write pkg_diff.txt here
-def images = "/srv/rhcos/output/images"
+def COMPOSEFLAGS = "--unified-core";
 
 node(NODE) {
     def par_stages = [:]
@@ -37,6 +32,16 @@ node(NODE) {
             }
         }
 
+        // NOTE - this differs from the base treecompose job
+        withCredentials([
+            string(credentialsId: params.OOTPA_COMPOSE, variable: 'OOTPA_COMPOSE'),
+            string(credentialsId: params.OOTPA_BUILDROOT_COMPOSE, variable: 'OOTPA_BUILDROOT_COMPOSE'),
+        ]) {
+        sh """
+            sed -e 's,@OOTPA_COMPOSE@,${OOTPA_COMPOSE},' -e 's,@OOTPA_BUILDROOT_COMPOSE@,${OOTPA_BUILDROOT_COMPOSE},' < ootpa.repo.in > ootpa.repo
+        """
+        }
+
         def previous_commit, last_build_version, force_nocache
         stage("Check for Changes") { sh """
             cp RPM-GPG-* /etc/pki/rpm-gpg/
@@ -55,7 +60,7 @@ node(NODE) {
             }
         }
 
-        if (!fileExists('build.stamp') && last_build_version != force_nocache) {
+        if (!params.DRY_RUN && !fileExists('build.stamp') && last_build_version != force_nocache) {
             echo "No changes."
             currentBuild.result = 'SUCCESS'
             currentBuild.description = '(No changes)'
@@ -111,24 +116,8 @@ node(NODE) {
             currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${composeMeta.version})";
         }
 
-        stage("rsync out") {
-            withCredentials([
-               string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
-               sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
-            ]) {
-            sh """
-               /usr/app/ostree-releng-scripts/rsync-repos \
-                   --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
-                   --rsync-opt=--stats --rsync-opt=-e \
-                   --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-            """ 
-        } }
-
-        stage("Cleanup") { sh """
+       stage("Cleanup") { sh """
             rm ${treecompose_workdir} -rf
         """ }
-
-        // Trigger downstream jobs
-        build job: 'coreos-rhcos-cloud', wait: false
   }
 }
