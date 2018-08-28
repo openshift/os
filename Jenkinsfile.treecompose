@@ -56,7 +56,6 @@ node(NODE) {
 
         def previous_commit, last_build_version, force_nocache
         stage("Check for Changes") { sh """
-            cp RPM-GPG-* /etc/pki/rpm-gpg/
             make repo-refresh
             rm -f $WORKSPACE/build.stamp
             ls -al ${repo}
