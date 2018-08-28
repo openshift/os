@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+set -xeuo pipefail
+
+# First, login.  We expect a CREDS environment variable.
+registry=$1; shift
+set +x
+username=${CREDS%:*}
+password=${CREDS##*:}
+echo podman login -u "${username}" -p '<password>' ${registry}
+podman login -u "${username}" -p "${password}" ${registry}
+# Re-enable verbose mode
+set -x
+
+# Now parse arguments and mount the image.
+dest=$1; shift
+img=$1; shift
+rm ${dest} -rf
+mkdir -p ${dest}/containers
+# This ensures that we have container storage on overlayfs
+# on the host.
+containers_storage=/var/lib/containers
+rm -rf ${containers_storage} && mkdir ${containers_storage}
+mount --bind ${dest}/containers ${containers_storage}
+
+skopeo inspect docker://${img}
+podman pull ${img}
+cid=$(podman run --net=host -d --name oscontainer --entrypoint sleep ${img} infinity)
+ln -sf $(podman mount ${cid})/srv/repo ${dest}/repo
