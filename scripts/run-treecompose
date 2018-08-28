@@ -1,0 +1,39 @@
+#!/usr/bin/bash
+set -xeuo pipefail
+
+repo=$1; shift
+ref=$1; shift
+
+# We don't keep history in the tree.
+previous_commit=$(ostree --repo="${repo}" rev-parse "${ref}" || true)
+rm ${repo}/refs/heads/* -rf
+# This should be the default.  It'll help us trace down a
+# coredump we're seeing periodically.
+export G_DEBUG=fatal-warnings
+rpm-ostree compose tree --repo=${repo} "$@"
+commit=$(ostree --repo=${repo} rev-parse ${ref})
+version=$(ostree --repo=${repo} show --print-metadata-key=version ${commit} | sed -e "s,',,g")
+
+# Generate a package-level diff
+if [ -n "${previous_commit}" ]; then
+    rpm-ostree --repo=${repo} db diff "${previous_commit}" "${commit}" > pkg-diff.txt
+fi
+
+# Now do a prune (again no history in the repo)
+ostree --repo=${repo} prune --refs-only --depth=0
+ostree --repo=${repo} summary -u
+
+# Generate JSON
+if [ -n "${previous_commit}" ]; then
+    previous_commit_json='"'"${previous_commit}"'"'
+else
+    previous_commit_json=null
+fi
+# This is easy to parse from Groovy
+cat > compose.json <<EOF
+{
+ "previous-commit": ${previous_commit_json},
+ "commit": "${commit}",
+ "version": "${version}"
+}
+EOF
