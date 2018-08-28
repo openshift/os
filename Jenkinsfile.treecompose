@@ -53,7 +53,7 @@ node(NODE) {
             }
         }
 
-        if (!fileExists('build.stamp') && last_build_version != force_nocache) {
+        if (!params.DRY_RUN && !fileExists('build.stamp') && last_build_version != force_nocache) {
             echo "No changes."
             currentBuild.result = 'SUCCESS'
             currentBuild.description = '(No changes)'
