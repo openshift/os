@@ -63,23 +63,12 @@ node(NODE) {
         // Note that we don't keep history in the ostree repo, so we
         // delete the ref head (so rpm-ostree won't add a parent) and
         // then we do a repo prune after.
-        def version, commit
+        def composeMeta;
         try {
-            stage("Compose Tree") { sh """
-                rm ${repo}/refs/heads/* -rf
-                env G_DEBUG=fatal-warnings rpm-ostree compose tree --repo=${repo} \
-                                                            --add-metadata-string=version=${version_prefix}.${env.BUILD_NUMBER} \
-                                                            ${manifest}
-                ostree --repo=${repo} rev-parse ${ref} > commit.txt
-            """
-                commit = readFile('commit.txt').trim();
-                version = utils.get_rev_version("${repo}", commit)
-                currentBuild.description = "🆕 ${version} (commit ${commit})";
-                if (previous_commit.length() > 0) { sh """
-                    rpm-ostree --repo=${repo} db diff ${previous_commit} ${commit} > ${WORKSPACE}/pkg-diff.txt
-                """ }
-                sh "ostree --repo=${repo} prune --refs-only --depth=0"
-                sh "ostree summary --repo=${repo} --update"
+            stage("Compose Tree") {
+                sh """./scripts/run-treecompose ${repo} ${ref} ${manifest} --add-metadata-string=version=${version_prefix}.${env.BUILD_NUMBER}"""
+                composeMeta = readJSON file: "compose.json"
+                currentBuild.description = "🆕 ${composeMeta.version} (commit ${composeMeta.commit})";
             }
         } finally {
             archiveArtifacts artifacts: "pkg-diff.txt", allowEmptyArchive: true
@@ -99,8 +88,8 @@ node(NODE) {
         """ }
 
         stage("Build new container") { sh """
-            podman build --build-arg OS_VERSION=${version} \
-                         --build-arg OS_COMMIT=${commit} \
+            podman build --build-arg OS_VERSION=${composeMeta.version} \
+                         --build-arg OS_COMMIT=${composeMeta.commit} \
                          -t ${OSCONTAINER_IMG} \
                          -f ${WORKSPACE}/Dockerfile.rollup ${WORKSPACE}
         """ }
@@ -117,7 +106,7 @@ node(NODE) {
             podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG} > imgid.txt
         """
             def cid = readFile('imgid.txt').trim();
-            currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${version})";
+            currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${composeMeta.version})";
         }
 
         stage("rsync out") {
