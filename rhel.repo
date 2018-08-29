@@ -3,25 +3,25 @@ enabled=1
 baseurl=http://cdn.stage.redhat.com/content/dist/rhel/server/7/7.5/x86_64/os/
 metadata_expire=1m
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
 
 [rhel-7.5-server-optional]
 enabled=1
 baseurl=http://cdn.stage.redhat.com/content/dist/rhel/server/7/7.5/x86_64/optional/os/
 metadata_expire=1m
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
 
 [rhel-7.5-server-extras]
 enabled=1
 baseurl=http://cdn.stage.redhat.com/content/dist/rhel/server/7/7.5/x86_64/extras/os/
 metadata_expire=1m
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
 
 [rhel-7.5-atomic]
 enabled=1
 baseurl=http://cdn.stage.redhat.com/content/dist/rhel/atomic/7/7.5/x86_64/os/
 metadata_expire=1m
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
