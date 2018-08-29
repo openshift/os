@@ -192,15 +192,14 @@ node(NODE) {
        return
    }
 
-    stage("Create AMI") {
+    stage("Create Intermediate AMI") {
             withCredentials([
                 [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
                 string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
                 string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
             ]) {
                 sh """
-                    # use a symlink so that our uploaded filename is unique
-                    amijson=${dirpath}/aws-${AWS_REGION}.json
+                    amijson=${dirpath}/aws-${AWS_REGION}-smoketested.json
                     ore aws upload --region ${AWS_REGION} \
                         --ami-name 'rhcos_dev_${commit[0..6]}' \
                         --ami-description 'Red Hat CoreOS ${version} (${commit})' \
@@ -220,11 +219,6 @@ node(NODE) {
                         --resources \${ami} \${snapshot} \
                         --tags Key=ostree_commit,Value=${commit} \
                                Key=ostree_version,Value=${version}
-
-                    # give launch permissions to OpenShift CI
-                    aws ec2 modify-image-attribute \
-                        --image-id \${ami} \
-                        --launch-permission '{"Add":[{"UserId":"${AWS_CI_ACCOUNT}"}]}'
                 """
             }
     }
@@ -238,5 +232,13 @@ node(NODE) {
         }
     } }
     parallel par_stages; par_stages = [:]
+
+    // Build the job responsible for testing and publishing the ami
+    def ami_intermediate = utils.sh_capture("jq -r .HVM ${dirpath}/aws-${AWS_REGION}.json")
+    build job: 'coreos-rhcos-aws-test', wait: false, parameters: [
+        string(name: 'ami_intermediate', value: "${ami_intermediate}"),
+        string(name: 'dirpath', value: "${dirpath}"),
+        string(name: 'aws_type', value: "t2.small")
+    ]
     }
 }

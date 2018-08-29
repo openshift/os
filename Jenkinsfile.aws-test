@@ -1,0 +1,78 @@
+def NODE = "rhcos-jenkins"
+def AWS_REGION = "us-east-1"
+
+// this var conveniently refers to a location on the server as well as the
+// local dir we sync to/from
+def images = "/srv/rhcos/output/images"
+
+node(NODE) {
+    stage("Clean workspace") {
+       step([$class: 'WsCleanup'])
+    }
+    checkout scm
+    utils = load("pipeline-utils.groovy")
+
+    // This job should only be triggered by Jenkinsfile.cloud
+    utils.define_properties(null)
+
+    if (params.DRY_RUN) {
+        echo "DRY_RUN set, skipping aws tests and launch permissions"
+        currentBuild.result = 'NOT_BUILT'
+        currentBuild.description = '(dry run)'
+        return
+    }
+
+    utils.inside_assembler_container("-v /srv:/srv") {
+    stage("Sync In") {
+        withCredentials([
+            string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+            sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+        ]) {
+            sh "mkdir -p ${dirpath}"
+            utils.rsync_file_in(ARTIFACT_SERVER, KEY_FILE, "${dirpath}/aws-${AWS_REGION}-smoketested.json")
+        }
+    }
+
+    try {
+    stage("Run Kola tests on intermediate aws image") {
+            withCredentials([
+                [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
+                string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
+                string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
+            ]) {
+                currentBuild.description = "ami: ${ami_intermediate}"
+                sh """
+                    # Do testing with intermediate aws image passed in by cloud job
+                    if ! kola -b rhcos -p aws --aws-type ${aws_type} --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} run; then
+                        exit 1
+                    fi
+
+                    # Tests pass, tag the json in the artifact server to a persistent location
+                    # and give launch permissions to OpenShift CI
+                    if [ ! -e ${dirpath}/aws-${AWS_REGION}-smoketested.json ]; then
+                        echo "Cannot find smoketested json artifact."
+                        exit 1
+                    fi
+                    cp ${dirpath}/aws-${AWS_REGION}-smoketested.json ${images}/aws-${AWS_REGION}-tested.json
+                    aws ec2 modify-image-attribute \
+                        --image-id ${ami_intermediate} \
+                        --launch-permission '{"Add":[{"UserId":"${AWS_CI_ACCOUNT}"}]}'
+                """
+            }
+        }
+    } finally {
+        sh 'if test -e _kola_temp; then tar -cJf _kola_temp.tar.xz _kola_temp; fi'
+        archiveArtifacts artifacts: "_kola_temp.tar.xz", allowEmptyArchive: true
+        archiveArtifacts artifacts: "rhcos-aws.tap", allowEmptyArchive: true
+    }
+
+    stage("rsync out") {
+        withCredentials([
+            string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
+            sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
+        ]) {
+            utils.rsync_file_out(ARTIFACT_SERVER, KEY_FILE, "${images}/aws-${AWS_REGION}-tested.json")
+        }
+    }
+    }
+}

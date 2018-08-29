@@ -96,6 +96,24 @@ def rsync_dir(key, from_dir, to_dir) {
     """
 }
 
+def rsync_file_in(server, key, file) {
+    rsync_file(key, "${server}:${file}", file)
+}
+
+def rsync_file_out(server, key, file) {
+    rsync_file(key, file, "${server}:${file}")
+}
+
+def rsync_file(key, from_file, to_file) {
+    sh """
+        rsync -Hlpt --stats --delete --delete-after \
+            -e 'ssh -i ${key} \
+                    -o UserKnownHostsFile=/dev/null \
+                    -o StrictHostKeyChecking=no' \
+		    ${from_file} ${to_file}
+    """
+}
+
 def get_rev_version(repo, rev) {
     version = sh_capture("ostree show --repo=${repo} --print-metadata-key=version ${rev}")
     assert (version.startsWith("'") && version.endsWith("'"))
