@@ -35,15 +35,9 @@ node(NODE) {
             }
         }
 
-        def previous_commit, last_build_version, force_nocache
+        def last_build_version, force_nocache
         stage("Check for Changes") { sh """
             make repo-refresh
-            rm -f $WORKSPACE/build.stamp
-            ls -al ${repo}
-            ostree --repo=${repo} rev-parse ${ref} > commit.txt || true
-        """
-            previous_commit = readFile('commit.txt').trim();
-        sh """
             rpm-ostree compose tree --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}
         """
             last_build_version = utils.get_rev_version(repo, ref)
