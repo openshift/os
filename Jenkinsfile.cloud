@@ -50,17 +50,21 @@ node(NODE) {
 
     // Check if there's a new version out.
     // Really, we should be checksumming e.g. the ks and tdl too.
-    def latest_commit, last_build_commit, latest_version, force_nocache
+    def latest_commit, last_build_meta, latest_version, force_nocache
     stage("Check for Changes") {
         latest_commit = utils.sh_capture("ostree --repo=repo rev-parse ${ref}")
         latest_version = utils.get_rev_version("repo", "${latest_commit}")
         if (fileExists('force-nocache-build')) {
             force_nocache = readFile('force-nocache-build').trim();
         }
-        last_build_commit = utils.sh_capture("cat ${images}/cloud/latest/commit.txt || :")
+        def previous_meta_path = "${images}/cloud/latest/meta.json";
+        if (fileExists(previous_meta_path)) {
+            last_build_meta = readJSON file: previous_meta_path;
+        }
     }
 
-    if (!params.DRY_RUN && (latest_commit == last_build_commit && latest_commit != force_nocache)) {
+    def previously_built_commit = (last_build_meta != null && latest_commit == last_build_meta["ostree-commit"]);
+    if (!params.DRY_RUN && previously_built_commit && latest_commit != force_nocache) {
         echo "Last built ${latest_version} (${latest_commit}) - no changes"
         currentBuild.result = 'SUCCESS'
         currentBuild.description = '(No changes)'
@@ -111,7 +115,16 @@ node(NODE) {
         archiveArtifacts artifacts: "${image}", allowEmptyArchive: true
     }
 
-    def dirname, img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
+    // We write this to meta.json
+    def meta = [:];
+    Integer image_genver;
+    if (last_build_meta != null) {
+        image_genver = last_build_meta["image-genver"] + 1;
+    } else {
+        image_genver = 1;
+    }
+    meta["image-genver"] = image_genver;
+    def img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
     stage("Postprocessing") {
         // just introspect after the fact to avoid race conditions
         commit = utils.sh_capture("""
@@ -122,19 +135,24 @@ node(NODE) {
         // do this again *after* running imgfac to close race
         sh "ostree --repo=repo pull --mirror --depth=0 --commit-metadata-only rhcos ${commit}"
         version = utils.get_rev_version("repo", commit)
-        currentBuild.description = "${version} (${commit})"
+        meta["git-commit"] = utils.sh_capture("git describe --tags --always --abbrev=42");
+        meta["ostree-commit"] = commit;
+        meta["ostree-version"] = version;
+        meta["image-genver"] = "${image_genver}";
+        meta["image-version"] = "${version}-${image_genver}";
+        currentBuild.description = "${meta['image-version']} (${commit})"
 
-        dirname = (new Date()).format("YYYY-MM-dd-HH-mm-ss-") + commit
-        dirpath = "${images}/cloud/${dirname}"
+        dirpath = "${images}/cloud/${meta['image-version']}"
         img_prefix = "${dirpath}/rhcos-${version}"
         qcow = "${img_prefix}.qcow2"
         vmdk = "${img_prefix}.vmdk"
         vagrant_libvirt = "${img_prefix}-vagrant-libvirt.box"
         sh "mkdir -p ${dirpath}"
-        // this belongs better in a JSON file, but for now just use a file;
-        // this is used higher up to determine no-op changes
-        sh "echo '${commit}' > ${dirpath}/commit.txt"
         sh "mv ${image} ${qcow}"
+
+        writeFile file: "meta.json", text: groovy.json.JsonOutput.toJson(meta);
+        archiveArtifacts artifacts: "meta.json";
+        sh "cp --reflink=auto ${WORKSPACE}/meta.json ${dirpath}/meta.json";
     }
     // These three are generated from the QCOW2
     par_stages["vmdk"] = { -> stage("Generate vmdk") {
@@ -172,7 +190,7 @@ node(NODE) {
         sh "ln -sr ${img_prefix}-qemu.qcow2.gz ${dirpath}/rhcos-qemu.qcow2.gz"
         // Everything above in parallel worked on qcow, we're done with it now
         sh "rm ${qcow}"
-        sh "ln -sfn ${dirname} ${images}/cloud/latest"
+        sh "ln -sfn ${meta['image-version']} ${images}/cloud/latest"
         // just keep the last 2 (+ latest symlink)
         sh "cd ${images}/cloud && (ls | head -n -3 | xargs -r rm -rf)"
         sh """
