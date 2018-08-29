@@ -113,7 +113,9 @@ def inside_assembler_container(args, fn) {
     docker.image(assembler).pull();
     // All of our tasks currently require privileges since they use
     // nested containerization.  We also might as well provide KVM access.
-    docker.image(assembler).inside("--privileged --device /dev/kvm ${args}") {
+    // The --entrypoint is a hack, see https://issues.jenkins-ci.org/browse/JENKINS-33149
+    // Also it'd clearly be better if the inside() API took an array of arguments.
+    docker.image(assembler).inside("--entrypoint \"\" --privileged --device /dev/kvm ${args}") {
       fn()
     }
 }
