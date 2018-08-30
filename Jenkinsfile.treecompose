@@ -64,6 +64,7 @@ node(NODE) {
                 currentBuild.description = "🆕 ${composeMeta.version} (commit ${composeMeta.commit})";
             }
         } finally {
+            archiveArtifacts artifacts: "compose.json"
             archiveArtifacts artifacts: "pkg-diff.txt", allowEmptyArchive: true
         }
 
