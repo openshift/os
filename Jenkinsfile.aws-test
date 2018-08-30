@@ -33,6 +33,8 @@ node(NODE) {
         }
     }
 
+    // Number of parallel kola tests
+    def NUM_VMS = "10"
     try {
     stage("Run Kola tests on intermediate aws image") {
             withCredentials([
@@ -43,16 +45,18 @@ node(NODE) {
                 currentBuild.description = "ami: ${ami_intermediate}"
                 sh """
                     # Do testing with intermediate aws image passed in by cloud job
-                    if ! kola -b rhcos -p aws --aws-type ${aws_type} --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} run; then
+                    if ! kola -b rhcos -p aws --aws-type ${aws_type} --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} -j ${NUM_VMS} run; then
                         exit 1
                     fi
 
                     # Tests pass, tag the json in the artifact server to a persistent location
                     # and give launch permissions to OpenShift CI
+                    export AWS_DEFAULT_REGION=${AWS_REGION}
                     if [ ! -e ${dirpath}/aws-${AWS_REGION}-smoketested.json ]; then
                         echo "Cannot find smoketested json artifact."
                         exit 1
                     fi
+
                     cp ${dirpath}/aws-${AWS_REGION}-smoketested.json ${images}/aws-${AWS_REGION}-tested.json
                     aws ec2 modify-image-attribute \
                         --image-id ${ami_intermediate} \
