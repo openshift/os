@@ -1,0 +1,18 @@
+ref: "openshift/4/x86_64/os-ootpa"
+include: host-base.yaml
+# https://github.com/projectatomic/rpm-ostree/issues/1524
+boot_location: new
+machineid-compat: false
+tmp-is-dir: true
+# end duplicates from host-base.yaml
+repos:
+  - rhcos-continuous
+  - openshift
+  - ootpa-baseos
+  - ootpa-appstream
+  - ootpa-buildroot
+  - dustymabe-ignition
+mutate-os-release: "4.0"
+packages:
+  # Dependency of iscsi
+  - hostname
