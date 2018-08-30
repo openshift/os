@@ -106,7 +106,7 @@ def rsync_file_out(server, key, file) {
 
 def rsync_file(key, from_file, to_file) {
     sh """
-        rsync -Hlpt --stats --delete --delete-after \
+        rsync -Hlpt --stats \
             -e 'ssh -i ${key} \
                     -o UserKnownHostsFile=/dev/null \
                     -o StrictHostKeyChecking=no' \
