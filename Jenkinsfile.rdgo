@@ -21,7 +21,6 @@ node(NODE) {
                 if [ ! -d ${rdgo} ]; then
                     mkdir -p ${rdgo}
                 fi
-                cp RPM-GPG-* /etc/pki/rpm-gpg/
             """
         }
 
