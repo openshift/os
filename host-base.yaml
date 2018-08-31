@@ -59,8 +59,9 @@ packages:
  # Time sync
  - chrony
  # Extra runtime
- - sssd shadow-utils
+ - coreos-metadata
  - logrotate
+ - sssd shadow-utils
  # Used by admins interactively
  - sudo coreutils less tar xz gzip bzip2 rsync tmux
  - nmap-ncat net-tools bind-utils strace

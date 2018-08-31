@@ -14,6 +14,7 @@ repos:
   - rhel-7.5-server-extras
   - rhel-7.5-atomic
   - dustymabe-ignition
+  - lucab-rhcos-coreos-metadata
 mutate-os-release: "4.0"
 packages:
  # auth legacy
