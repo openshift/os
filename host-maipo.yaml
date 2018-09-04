@@ -22,8 +22,6 @@ packages:
  # Docker legacy
  - docker docker-lvm-plugin docker-novolume-plugin
  - oci-umount
- # tuned (legacy IMO)
- - tuned tuned-profiles-atomic
  # SELinux
  - policycoreutils-python
  # Networking legacy
