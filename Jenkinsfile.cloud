@@ -125,8 +125,8 @@ node(NODE) {
     // We write this to meta.json
     def meta = [:];
     Integer image_genver;
-    if (last_build_meta != null) {
-        image_genver = last_build_meta["image-genver"] + 1;
+    if (previously_built_commit) {
+        image_genver = Integer.parseInt(last_build_meta["image-genver"]) + 1;
     } else {
         image_genver = 1;
     }
