@@ -137,7 +137,8 @@ def sh_capture(cmd) {
 // Helper function to run code inside our assembler container.
 // Takes args (string) of extra args for docker, and `fn` to execute.
 def inside_assembler_container(args, fn) {
-    def assembler = "quay.io/cgwalters/coreos-assembler"
+    // We're using the alpha tag; :latest may have breaking changes
+    def assembler = "quay.io/cgwalters/coreos-assembler:alpha"
     docker.image(assembler).pull();
     // All of our tasks currently require privileges since they use
     // nested containerization.  We also might as well provide KVM access.
