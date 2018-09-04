@@ -57,9 +57,16 @@ node(NODE) {
         if (fileExists('force-nocache-build')) {
             force_nocache = readFile('force-nocache-build').trim();
         }
-        def previous_meta_path = "${images}/cloud/latest/meta.json";
-        if (fileExists(previous_meta_path)) {
-            last_build_meta = readJSON file: previous_meta_path;
+        def previous = "${images}/cloud/latest";
+        def previous_meta_path = "${previous}/meta.json";
+        // I tried with fileExists before, but that only operates on ${WORKSPACE}
+        if (sh(script: "stat ${previous_meta_path}>/dev/null", returnStatus: true) == 0) {
+            // readJSON only operates on the ${WORKSPACE} too
+            sh "cp --reflink=auto ${previous_meta_path} ${WORKSPACE}/previous-meta.json";
+            last_build_meta = readJSON file: "previous-meta.json";
+            echo "Previous build: ${last_build_meta}";
+        } else {
+            echo "No previous build.";
         }
     }
 
