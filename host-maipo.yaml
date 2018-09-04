@@ -13,6 +13,8 @@ repos:
   - rhel-7.5-server-optional
   - rhel-7.5-server-extras
   - rhel-7.5-atomic
+  - ceph-tools-2
+  - glusterfs
   - dustymabe-ignition
   - lucab-rhcos-coreos-metadata
 mutate-os-release: "4.0"
