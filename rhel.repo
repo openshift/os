@@ -33,3 +33,9 @@ metadata_expire=1m
 gpgcheck=1
 gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
 
+[glusterfs]
+enabled=1
+baseurl=http://cdn.stage.redhat.com/content/dist/rhel/server/7/7Server/x86_64/rhs-client/os/
+metadata_expire=1m
+gpgcheck=1
+gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
