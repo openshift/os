@@ -57,7 +57,6 @@ rdgo:
 # Composes an ostree
 .PHONY: rpmostree-compose
 rpmostree-compose: ${ROOT_DIR}/openshift.repo init-ostree-repo
-	cp -n ${ROOT_DIR}/RPM-GPG-* /etc/pki/rpm-gpg/
 	mkdir -p ${REPO}
 	ostree init --repo=${REPO} --mode=archive
 	if test -d cache; then cachedir='--cachedir $(shell pwd)/cache'; fi && \
