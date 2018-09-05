@@ -1,0 +1,10 @@
+# See the OWNERS docs: https://git.k8s.io/community/contributors/guide/owners.md
+
+# Let's maintain this list *canonically* in the rhcos-apici repo.
+approvers:
+  - ashcrow
+  - dm0-
+  - sdemos
+  - cgwalters
+  - yuqi-zhang
+  - miabbott
