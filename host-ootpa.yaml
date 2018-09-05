@@ -12,6 +12,7 @@ repos:
   - ootpa-appstream
   - ootpa-buildroot
   - dustymabe-ignition
+  - lucab-rhcos-coreos-metadata
 mutate-os-release: "4.0"
 packages:
   # Dependency of iscsi
