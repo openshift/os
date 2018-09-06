@@ -17,6 +17,11 @@ syntax-check:
 		jq < $${jsonfile} . >/dev/null; \
 		echo "OK"; \
 	done
+	@set -e; for yamlfile in $$(find ${ROOT_DIR} -name '*.yaml' -o -name '*.yml'); do \
+		echo -n "Checking YAML syntax for $${yamlfile}... "; \
+		python -c "import yaml; yaml.safe_load(open('$${yamlfile}'))"; \
+		echo "OK"; \
+	done
 
 .PHONY: repo-refresh
 repo-refresh:
