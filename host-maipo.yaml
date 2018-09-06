@@ -35,3 +35,8 @@ packages:
  - ceph-common glusterfs-fuse
  # OpenShift
  - origin-node origin-hyperkube origin-clients
+
+remove-from-packages:
+  # https://github.com/openshift/os/issues/275
+  - - lua
+    - /usr/bin/.*
