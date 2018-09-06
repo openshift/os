@@ -9,12 +9,12 @@ repos:
   - atomic-centos-continuous
   - rhcos-continuous
   - openshift
-  - rhel-7.5-server
-  - rhel-7.5-server-optional
-  - rhel-7.5-server-extras
-  - rhel-7.5-atomic
-  - ceph-tools-2
-  - glusterfs
+  - maipo-server
+  - maipo-server-optional
+  - maipo-server-extras
+  - maipo-atomic
+  - maipo-ceph-tools-2
+  - maipo-glusterfs
   - dustymabe-ignition
   - lucab-rhcos-coreos-metadata
 mutate-os-release: "4.0"
