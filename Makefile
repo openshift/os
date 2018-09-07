@@ -19,7 +19,7 @@ syntax-check:
 	done
 	@set -e; for yamlfile in $$(find ${ROOT_DIR} -name '*.yaml' -o -name '*.yml'); do \
 		echo -n "Checking YAML syntax for $${yamlfile}... "; \
-		python -c "import yaml; yaml.safe_load(open('$${yamlfile}'))"; \
+		python3 -c "import yaml; yaml.safe_load(open('$${yamlfile}'))"; \
 		echo "OK"; \
 	done
 
