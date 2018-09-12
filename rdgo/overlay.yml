@@ -15,10 +15,6 @@ root:
   mock: centos-7-and-extras-$arch.cfg
 
 components:
-  - src: github:projectatomic/docker
-    override-version: "1.13.1"
-    branch: docker-1.13.1-rhel
-
   - distgit: cri-o
   - distgit: cri-tools
 
