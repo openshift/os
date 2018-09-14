@@ -1,0 +1,75 @@
+#!/usr/bin/python3 -u
+
+# The inverse of prepare-build.
+
+import os,sys,argparse,subprocess,io,time,re,multiprocessing
+import tempfile,json
+
+def fatal(msg):
+    print('error: {}'.format(msg), file=sys.stderr)
+    raise SystemExit(1)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--bucket", help="Bucket",
+                    action='store', required=True)
+parser.add_argument("--acl", help="ACL for objects",
+                    action='store', default='public-read')
+parser.add_argument("--osc-name", help="oscontainer name",
+                    action='store', required=True)
+
+args = parser.parse_args()
+
+with open('builds/builds.json') as f:
+    builds = json.load(f)['builds']
+if len(builds) == 0:
+    fatal("No builds found")
+latest_build = builds[-1]
+latest_build_path = 'builds/' + latest_build
+
+with open(latest_build_path + '/meta.json') as f:
+    meta = json.load(f)
+
+print("Preparing to upload build: {}".format(latest_build))
+print("  OSTree commit: {}".format(meta['ostree-commit']))
+
+osc_workdir = "{}/tmp/oscontainer-work".format(os.getcwd())
+
+# The build ID is the container tag
+osc_name_and_tag = "{}:{}".format(args.osc_name, latest_build)
+
+# TODO: Use labels for the build hash and avoid pulling the oscontainer
+# every time we want to poll.
+# TODO: Remove --from
+# TODO: Drop use of sudo, but today the Jenkinsfile setup does the
+# auth as root.
+inspect_out = os.getcwd()+'/oscontainer.json'
+subprocess.check_call(['coreos-assembler', 'oscontainer',
+                       '--workdir='+osc_workdir,
+                       'build', '--from=scratch',
+                       '--inspect-out='+inspect_out,
+                       '--push', './repo', meta['ostree-commit'],
+                       osc_name_and_tag])
+
+with open(inspect_out) as f:
+    osc_inspect = json.load(f)
+osc_digest = osc_inspect['Digest']
+
+# Inject the oscontainer with SHA256 into the build metadata
+meta['oscontainer'] = {'image': args.osc_name,
+                       'digest': osc_digest}
+with open(latest_build_path + '/meta.json', 'w') as f:
+    json.dump(meta, f, sort_keys=True)
+
+print("Uploading build")
+acl = '--acl={}'.format(args.acl)
+subprocess.check_call(['aws', 's3', 'sync', acl, '--no-follow-symlinks',
+                       './{}'.format(latest_build_path),
+                       's3://{}/{}'.format(args.bucket, latest_build)],
+                      stdout=subprocess.DEVNULL)
+
+print("Replacing build list")
+subprocess.check_call(['aws', 's3', 'cp', acl,
+                       'builds/builds.json',
+                       's3://{}/builds.json'.format(args.bucket)],
+                      stdout=subprocess.DEVNULL)
+

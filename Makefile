@@ -22,6 +22,7 @@ syntax-check:
 		python3 -c "import yaml; yaml.safe_load(open('$${yamlfile}'))"; \
 		echo "OK"; \
 	done
+	@set -e; for py in scripts/{prepare,upload}-build; do python3 -m py_compile $${py}; done
 
 .PHONY: repo-refresh
 repo-refresh:

@@ -1,0 +1,101 @@
+def NODE = "rhcos-jenkins"
+def OS_NAME = "ootpa";
+def BUCKET = "rhcos-ci-${OS_NAME}";
+// Since we're using unreleased content
+def BUCKET_ACL = "private";
+def OSCONTAINER_IMG = "registry.svc.ci.openshift.org/rhcos/os-${OS_NAME}"
+
+node(NODE) {
+    def par_stages = [:]
+    stage("Clean workspace") {
+       step([$class: 'WsCleanup'])
+    }
+    checkout scm
+    utils = load("pipeline-utils.groovy")
+    utils.define_properties(null)
+
+    dir("openshift-os-ootpa") {
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+                  extensions: [[$class: 'SubmoduleOption', parentCredentials: true, recursiveSubmodules: true]],
+                  userRemoteConfigs: [[url: 'https://gitlab.cee.redhat.com/walters/openshift-os-ootpa.git']]
+                 ]);
+    }
+
+    dir("cgwalters-assembler") {
+        git(url: "https://github.com/cgwalters/coreos-assembler", branch: "walters-master")
+    }
+
+    try {
+    utils.inside_coreos_assembler("latest", "") {
+        withCredentials([
+            [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
+             string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
+             string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
+            usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
+        ]) {
+
+        stage("Initialize") {
+            sh("cd cgwalters-assembler && git submodule update --init && make && make install")
+            echo("Init login")
+            utils.registry_login_builder("${OSCONTAINER_IMG}", "${CREDS}")
+            echo("Init build")
+            // Use local mirror for ISO
+            utils.sh_builder """
+            mkdir -p installer
+            (cd installer && curl -L -O http://download.devel.redhat.com/released/F-28/GOLD/Everything/x86_64/iso/Fedora-Everything-netinst-x86_64-28-1.1.iso)
+            (cd openshift-os-ootpa && make prep)
+            coreos-assembler init --force \$(pwd)/openshift-os-ootpa
+            """
+        }
+
+        def previousBuild = null;
+        if (!params.INIT) {
+            stage("Pull previous build") {
+                utils.sh_builder "./scripts/prepare-build --bucket=${BUCKET}"
+                previousBuild = [utils.sh_capture("readlink builds/latest"),
+                                 readJSON(file: "builds/latest/meta.json")];
+            }
+        }
+
+        if (!params.DRY_RUN) {
+            /// Verify our output is writable now
+            utils.sh_builder """aws s3api head-bucket --bucket=${BUCKET}"""
+        }
+
+        def changed;
+        stage("Build") {
+            def force = (params.FORCE ? "--force" : "");
+            utils.sh_builder "coreos-assembler build ${force}"
+            changed = fileExists("tmp/treecompose.stamp");
+        }
+
+        if (!changed) {
+            echo "No changes."
+            currentBuild.result = 'SUCCESS'
+            currentBuild.description = '(No changes)'
+            return
+        }
+
+        def build = [utils.sh_capture("readlink builds/latest"),
+                     readJSON(file: "builds/latest/meta.json")];
+
+        currentBuild.description = "🆕 ${build}";
+
+        if (params.DRY_RUN) {
+            echo "DRY_RUN set, skipping push"
+            currentBuild.result = 'SUCCESS'
+            currentBuild.description = '(dry run)'
+            return
+        }
+
+        stage("Upload build") {
+            utils.sh_builder """./scripts/upload-build --bucket=${BUCKET} --osc-name=${OSCONTAINER_IMG}"""
+        }
+    } }
+    } catch (Throwable e) {
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        utils.notify_status_change currentBuild
+    }
+}

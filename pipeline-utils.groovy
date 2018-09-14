@@ -48,9 +48,16 @@ def define_properties(timer) {
                     description: "OpenShift shared-secrets mirror cred as file.",
                     defaultValue: '299ad25c-f8d1-4f56-9f00-06a85490321a',
                     required: true),
+        credentials(name: 'OPENSHIFT_SSH_CREDS',
+                    credentialType: 'com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey',
+                    description: "OpenShift github ssh creds",
+                    defaultValue: 'ec603426-9cfc-47ad-9075-5aa1c6ffdd7e',
+                    required: true),
         // Past here, we're just using parameters as a way to avoid hardcoding internal values; they
         // are not actually secret.
+        booleanParam(name: 'FORCE', defaultValue: false, description: 'If true, force a build even if nothing apparently changed'),
         booleanParam(name: 'DRY_RUN', defaultValue: developmentPipeline, description: 'If true, do not push changes'),
+        booleanParam(name: 'INIT', defaultValue: false, description: 'If true, assume no previous build history'),
         credentials(name: 'ARTIFACT_SERVER',
                     credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
                     description: "(not secret) Server used to push/receive built artifacts.",
@@ -152,11 +159,26 @@ def sh_capture(cmd) {
     return sh(returnStdout: true, script: cmd).trim()
 }
 
+// Execute a shell script as "builder" user
+def sh_builder(cmd) {
+    writeFile(file: "${WORKSPACE}/sh-builder", text: "set -xeuo pipefail;\n" + cmd);
+    sh """set +x; set -euo pipefail
+    chmod a+x ${WORKSPACE}/sh-builder
+    runuser -u builder -- env XDG_RUNTIME_DIR=/run/user/1000 ${WORKSPACE}/sh-builder
+    rm -f ${WORKSPACE}/sh-builder
+    """
+}
+
 def registry_login(oscontainer_name, creds) {
     def registry = oscontainer_name.split('/')[0];
     def (username, password) = creds.split(':');
-    sh "echo podman login -u ${username} -p '<password>' ${registry}";
-    sh "set +x; podman login -u '${username}' -p '${password}' ${registry}";
+    sh("set +x; podman login -u '${username}' -p '${password}' ${registry}");
+}
+
+def registry_login_builder(oscontainer_name, creds) {
+    def registry = oscontainer_name.split('/')[0];
+    def (username, password) = creds.split(':');
+    sh_builder("set +x; podman login -u '${username}' -p '${password}' ${registry}");
 }
 
 def openshift_login(url, creds, project) {
@@ -200,14 +222,46 @@ def prepare_configuration() {
 
 // Helper function to run code inside our assembler container.
 // Takes args (string) of extra args for docker, and `fn` to execute.
-def inside_assembler_container(args, fn) {
-    // We're using the alpha tag; :latest may have breaking changes
-    def assembler = "quay.io/cgwalters/coreos-assembler:alpha"
+def inside_coreos_assembler(tag, args, fn) {
+    def assembler = "quay.io/cgwalters/coreos-assembler:${tag}"
     docker.image(assembler).pull();
+    sh "mkdir remove-entrypoint-build";
+    def tmpcontainer;
+    dir("remove-entrypoint-build") {
+      writeFile(file: "Dockerfile", text: """FROM quay.io/cgwalters/coreos-assembler:${tag}
+# https://issues.jenkins-ci.org/browse/JENKINS-33149
+ENTRYPOINT []""");
+      tmpcontainer = docker.build("localhost/coreos-assembler", ".")
+    }
+    // Remove the ENTRYPOINT, see https://issues.jenkins-ci.org/browse/JENKINS-33149
     // All of our tasks currently require privileges since they use
     // nested containerization.  We also might as well provide KVM access.
-    // The --entrypoint is a hack, see https://issues.jenkins-ci.org/browse/JENKINS-33149
     // Also it'd clearly be better if the inside() API took an array of arguments.
+    try {
+        tmpcontainer.inside("--privileged --device /dev/kvm ${args}") {
+            // We set up XDG_RUNTIME_DIR for both users, since this
+            // is where podman reads/writes auth.  Also, chown the workspace.
+            sh """
+            mkdir -p -m 0755 /run/user
+            for x in 0 1000; do 
+              mkdir -m 0700 /run/user/\$x
+              chown \$x:\$x /run/user/\$x
+            done
+            chown -R -h 1000:1000 ${WORKSPACE}
+            """
+            fn()
+        }
+    } finally {
+    //    This method doesn't exist; with Jenkins today we need
+    //    to prune images ourselves anyways.
+    //    docker.rmi(tmpcontainer.id);
+    }
+}
+
+def inside_assembler_container(args, fn) {
+    // We're using the alpha tag for this legacy API
+    def assembler = "quay.io/cgwalters/coreos-assembler:alpha"
+    docker.image(assembler).pull();
     docker.image(assembler).inside("--entrypoint \"\" --privileged --device /dev/kvm ${args}") {
       fn()
     }

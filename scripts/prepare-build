@@ -1,0 +1,62 @@
+#!/usr/bin/python3
+
+# coreos-assembler today maintains a builds/ directory
+# which we sync to/from s3, and the OSTree repo/ is an oscontainer.
+# This script pulls down the metadata from the previous build
+# and extracts the ostree repo from the oscontainer, setting
+# enough up for coreos-assembler to run.
+
+import os,sys,argparse,subprocess,io,time,re,multiprocessing
+import tempfile,json,yaml
+
+def fatal(msg):
+    print('error: {}'.format(msg), file=sys.stderr)
+    raise SystemExit(1)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--bucket", help="Bucket",
+                    action='store', required=True)
+
+args = parser.parse_args()
+
+# FIXME: Load (then later write) ref too since coreos-assembler requires it
+# right now
+with open('src/config/manifest.yaml') as f:
+    manifest = yaml.load(f)
+ref = manifest['ref']
+
+subprocess.check_call(['aws', 's3', 'cp',
+                       's3://{}/builds.json'.format(args.bucket),
+                       'builds/builds.json'])
+with open('builds/builds.json') as f:
+    builds = json.load(f)['builds']
+if len(builds) == 0:
+    fatal("No builds found")
+latest_build = builds[-1]
+print("Latest build: {} (of {})".format(latest_build, len(builds)))
+# Sanity checks to ensure it isn't a full filename
+assert not '..' in latest_build
+assert not '/' in latest_build
+latest_build_path = 'builds/' + latest_build
+os.mkdir(latest_build_path)
+# assembler uses this to find the previous build
+os.symlink(latest_build, 'builds/latest')
+
+subprocess.check_call(['aws', 's3', 'cp',
+                       's3://{}/{}/meta.json'.format(args.bucket, latest_build),
+                       './{}/meta.json'.format(latest_build_path)])
+with open(latest_build_path + '/meta.json') as f:
+    meta = json.load(f)
+
+oscontainer = meta['oscontainer']
+oscontainer_name_and_version = '{}:{}'.format(oscontainer['image'], latest_build)
+print(f"Downloading previous oscontainer: {oscontainer_name_and_version}")
+
+# TODO: Use labels for the build hash and avoid pulling the oscontainer
+# every time we want to poll.
+osc_workdir = "{}/tmp/oscontainer-work".format(os.getcwd())
+subprocess.check_call(['coreos-assembler', 'oscontainer',
+                       '--workdir='+osc_workdir, 'extract', '--ref='+ref,
+                       oscontainer_name_and_version, './repo'])
+subprocess.check_call(['ostree', '--repo=repo-build', 'pull-local', 'repo', ref])
+
