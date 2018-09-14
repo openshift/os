@@ -37,6 +37,14 @@ node(NODE) {
             }
         }
 
+        stage("Pull in creds for cri-o-tested repo") {
+            withCredentials([
+                file(credentialsId: params.OPENSHIFT_MIRROR_CREDENTIALS_FILE, variable: 'OPENSHIFT_MIRROR_CREDENTIALS_FILE'),
+            ]) {
+                sh """cp ${OPENSHIFT_MIRROR_CREDENTIALS_FILE} ${WORKSPACE}/ops-mirror.pem && sed -i -e "s~WORKSPACE~$WORKSPACE~g" ${WORKSPACE}/cri-o-tested.repo"""
+            }
+        }
+
         def last_build_version, force_nocache
         stage("Check for Changes") { sh """
             make repo-refresh

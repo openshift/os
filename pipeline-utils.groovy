@@ -43,6 +43,11 @@ def define_properties(timer) {
                     description: "Credentials for Docker registry.",
                     defaultValue: 'e3fd566b-46c1-44e4-aec9-bb59214c1926',
                     required: true),
+        credentials(name: 'OPENSHIFT_MIRROR_CREDENTIALS_FILE',
+                    credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.FileCredentialsImpl',
+                    description: "OpenShift shared-secrets mirror cred as file.",
+                    defaultValue: '299ad25c-f8d1-4f56-9f00-06a85490321a',
+                    required: true),
         // Past here, we're just using parameters as a way to avoid hardcoding internal values; they
         // are not actually secret.
         booleanParam(name: 'DRY_RUN', defaultValue: developmentPipeline, description: 'If true, do not push changes'),
