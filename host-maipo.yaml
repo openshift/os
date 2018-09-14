@@ -21,6 +21,9 @@ mutate-os-release: "4.0"
 packages:
  # auth legacy
  - authconfig
+ # Docker legacy
+ - docker docker-lvm-plugin docker-novolume-plugin
+ - oci-umount
  # SELinux
  - policycoreutils-python
  # Networking legacy
