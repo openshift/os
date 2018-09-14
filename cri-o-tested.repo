@@ -1,0 +1,10 @@
+[cri-o-tested]
+name=RHEL tested cri-o repo with dependencies
+baseurl=https://mirror.ops.rhcloud.com/enterprise/rhel/cri-o-tested/3.11/x86_64/os/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=0
+enabled=1
+sslverify=0
+sslclientkey=WORKSPACE/ops-mirror.pem
+sslclientcert=WORKSPACE/ops-mirror.pem
