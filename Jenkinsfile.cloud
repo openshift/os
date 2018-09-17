@@ -155,6 +155,7 @@ node(NODE) {
         img_prefix = "${dirpath}/rhcos-${version}"
         qcow = "${img_prefix}.qcow2"
         vmdk = "${img_prefix}.vmdk"
+        ec2 = "${img_prefix}.ami"
         vagrant_libvirt = "${img_prefix}-vagrant-libvirt.box"
         sh "mkdir -p ${dirpath}"
         sh "mv ${image} ${qcow}"
@@ -169,8 +170,6 @@ node(NODE) {
               qemu-img convert -f qcow2 -O vmdk ${vmdk}.tmp -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${vmdk}
               rm ${vmdk}.tmp"""
     } }
-    // But note that EC2 goes into workspace, we upload it directly
-    ec2 = "${WORKSPACE}/rhcos-${version}-aws.vmdk"
     par_stages["ec2"] = { -> stage("Generate EC2") {
         sh """coreos-oemid ${qcow} ${WORKSPACE}/rhcos-aws.qcow2 ec2
               qemu-img convert -f qcow2 -O vmdk ${WORKSPACE}/rhcos-aws.qcow2 -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${ec2}
@@ -234,7 +233,6 @@ node(NODE) {
                         --file ${ec2} \
                         --name "rhcos_dev_${commit[0..6]}" \
                         --delete-object | tee \${amijson}
-                    rm ${ec2}
 
                     export AWS_DEFAULT_REGION=${AWS_REGION}
 
