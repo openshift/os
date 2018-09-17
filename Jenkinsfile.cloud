@@ -22,11 +22,6 @@ node(NODE) {
     def ref = manifest_data.ref;
 
     utils.inside_assembler_container("-v /srv:/srv") {
-    stage("Clone qcow2-to-vagrant") {
-        // I tried to use git() but not sure where that went, it isn't the workspace
-        sh('git clone https://github.com/cgwalters/qcow2-to-vagrant')
-    }
-
     stage("Sync In") {
         withCredentials([
             string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
@@ -131,7 +126,7 @@ node(NODE) {
         image_genver = 1;
     }
     meta["image-genver"] = image_genver;
-    def img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
+    def img_prefix, commit, version, dirpath, qcow, vmdk, ec2
     stage("Postprocessing") {
         // just introspect after the fact to avoid race conditions
         // FIXME: Use labels like https://github.com/coreos/coreos-assembler/pull/95
@@ -155,7 +150,6 @@ node(NODE) {
         img_prefix = "${dirpath}/rhcos-${version}"
         qcow = "${img_prefix}.qcow2"
         vmdk = "${img_prefix}.vmdk"
-        vagrant_libvirt = "${img_prefix}-vagrant-libvirt.box"
         sh "mkdir -p ${dirpath}"
         sh "mv ${image} ${qcow}"
 
@@ -175,12 +169,6 @@ node(NODE) {
         sh """coreos-oemid ${qcow} ${WORKSPACE}/rhcos-aws.qcow2 ec2
               qemu-img convert -f qcow2 -O vmdk ${WORKSPACE}/rhcos-aws.qcow2 -o adapter_type=lsilogic,subformat=streamOptimized,compat6 ${ec2}
               rm ${WORKSPACE}/rhcos-aws.qcow2"""
-    } }
-    // We use direct as we hit SELinux issues otherwise
-    par_stages["vagrant-libvirt"] = { -> stage("Generate vagrant-libvirt") { sh """
-        env LIBGUESTFS_BACKEND=direct ${WORKSPACE}/qcow2-to-vagrant/qcow2-to-vagrant ${qcow} ${vagrant_libvirt}
-        ln -sr ${vagrant_libvirt} ${dirpath}/rhcos-vagrant-libvirt.box
-        """
     } }
     par_stages["openstack"] = { -> stage("Generate OpenStack") {
         def img_openstack = "${img_prefix}-openstack.qcow2"
