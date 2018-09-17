@@ -139,6 +139,21 @@ def sh_capture(cmd) {
     return sh(returnStdout: true, script: cmd).trim()
 }
 
+// Substitute secrets from credentials into files in the git repo
+def prepare_configuration() {
+    withCredentials([
+      string(credentialsId: params.OOTPA_COMPOSE, variable: 'OOTPA_COMPOSE'),
+      string(credentialsId: params.OOTPA_BUILDROOT_COMPOSE, variable: 'OOTPA_BUILDROOT_COMPOSE'),
+      file(credentialsId: params.OPENSHIFT_MIRROR_CREDENTIALS_FILE, variable: 'OPENSHIFT_MIRROR_CREDENTIALS_FILE'),
+    ]) {
+        sh """
+        make repo-refresh
+        sed -e 's,@OOTPA_COMPOSE@,${OOTPA_COMPOSE},' -e 's,@OOTPA_BUILDROOT_COMPOSE@,${OOTPA_BUILDROOT_COMPOSE},' < ootpa.repo.in > ootpa.repo
+        cp ${OPENSHIFT_MIRROR_CREDENTIALS_FILE} ${WORKSPACE}/ops-mirror.pem && sed -i -e "s~WORKSPACE~$WORKSPACE~g" ${WORKSPACE}/cri-o-tested.repo
+        """
+    }
+}
+
 // Helper function to run code inside our assembler container.
 // Takes args (string) of extra args for docker, and `fn` to execute.
 def inside_assembler_container(args, fn) {

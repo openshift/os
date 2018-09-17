@@ -29,6 +29,10 @@ node(NODE) {
         def treecompose_workdir = "${WORKSPACE}/treecompose";
         def repo = "${treecompose_workdir}/repo";
 
+        stage("Prepare configuration") {
+            utils.prepare_configuration();
+        }
+
         stage("Pull and run oscontainer") {
             withCredentials([
                 usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
@@ -37,17 +41,8 @@ node(NODE) {
             }
         }
 
-        stage("Pull in creds for cri-o-tested repo") {
-            withCredentials([
-                file(credentialsId: params.OPENSHIFT_MIRROR_CREDENTIALS_FILE, variable: 'OPENSHIFT_MIRROR_CREDENTIALS_FILE'),
-            ]) {
-                sh """cp ${OPENSHIFT_MIRROR_CREDENTIALS_FILE} ${WORKSPACE}/ops-mirror.pem && sed -i -e "s~WORKSPACE~$WORKSPACE~g" ${WORKSPACE}/cri-o-tested.repo"""
-            }
-        }
-
         def last_build_version, force_nocache
         stage("Check for Changes") { sh """
-            make repo-refresh
             rpm-ostree compose tree --dry-run --repo=${repo} --touch-if-changed=$WORKSPACE/build.stamp ${manifest}
         """
             last_build_version = utils.get_rev_version(repo, ref)
