@@ -134,8 +134,10 @@ node(NODE) {
     def img_prefix, commit, version, dirpath, qcow, vmdk, ec2, vagrant_libvirt
     stage("Postprocessing") {
         // just introspect after the fact to avoid race conditions
+        // FIXME: Use labels like https://github.com/coreos/coreos-assembler/pull/95
+        // But probably better to ditch all of this and use the assembler
         commit = utils.sh_capture("""
-            LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/coreos/root:/ \
+            LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/sda2:/ \
                 /ostree/repo/refs/remotes/rhcos/${ref}
         """)
 
