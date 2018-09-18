@@ -7,8 +7,6 @@ def COMPOSEFLAGS = "";
 
 // We write to this one for now
 def artifact_repo = "/srv/rhcos/output/repo"
-// We write pkg_diff.txt here
-def images = "/srv/rhcos/output/images"
 
 node(NODE) {
     def par_stages = [:]
