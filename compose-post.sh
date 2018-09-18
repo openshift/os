@@ -9,34 +9,36 @@ ln -sfr /usr/lib/systemd/system/{multi-user,default}.target
 # This is fixed in post-RHEL7 systemd
 ln -sf ../tmp.mount /usr/lib/systemd/system/local-fs.target.wants
 
-# The canonical copy of this is in fedora-coreos-config.  If
-# making changes, please do them there first!
-cat > /usr/libexec/coreos-growpart << 'EOF'
-#!/bin/bash
-set -euo pipefail
-path=$1
-shift
-majmin=$(findmnt -nvr -o MAJ:MIN $path)
-devpath=$(realpath /sys/dev/block/$majmin)
-partition=$(cat $devpath/partition)
-parent_path=$(dirname $devpath)
-parent_device=/dev/$(basename ${parent_path})
-# TODO: make this idempotent, and don't error out if
-# we can't resize.
-growpart ${parent_device} ${partition} || true
-touch /var/lib/coreos-growpart.stamp
-EOF
-chmod a+x /usr/libexec/coreos-growpart
+# TODO switch to fedora-coreos-config's no-LVM setup
+# https://github.com/openshift/os/issues/298
+# Since we don't really want to expose container-storage-setup,
+# rename the unit to coreos-growpart.service.
+# However, the config file must be in /etc/sysconfig/docker-storage-setup
+# because the binary explicitly reads that.
 cat > /usr/lib/systemd/system/coreos-growpart.service <<'EOF'
 [Unit]
-ConditionPathExists=!/var/lib/coreos-growpart.stamp
+Description=CoreOS growpart (container-storage-setup)
 Before=sshd.service
+
 [Service]
-ExecStart=/usr/libexec/coreos-growpart /
+Type=oneshot
+ExecStart=/usr/bin/container-storage-setup
 RemainAfterExit=yes
+
 [Install]
 WantedBy=multi-user.target
 EOF
+
+# This is hardcoded
+cat > /etc/sysconfig/docker-storage-setup <<'EOF'
+# This isn't yet the default in maipo
+STORAGE_DRIVER=overlay2
+# On Red Hat CoreOS systems, we always growpart
+GROWPART=true
+# https://pagure.io/atomic-wg/issue/343
+ROOT_SIZE=+100%FREE
+EOF
+
 cat >/usr/lib/systemd/system-preset/42-coreos-growpart.preset << EOF
 enable coreos-growpart.service
 EOF
