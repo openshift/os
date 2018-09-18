@@ -61,6 +61,9 @@ node(NODE) {
                     aws ec2 modify-image-attribute \
                         --image-id ${ami_intermediate} \
                         --launch-permission '{"Add":[{"UserId":"${AWS_CI_ACCOUNT}"}]}'
+                    aws ec2 modify-image-attribute \
+                        --image-id ${ami_intermediate} \
+                        --launch-permission '{"Add":[{"Group":"all"}]}'
                 """
             }
         }
