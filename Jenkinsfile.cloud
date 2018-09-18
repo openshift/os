@@ -85,14 +85,15 @@ node(NODE) {
     // Note this runs unprivileged to avoid the virt stack trying to use privileges
     // We run in bwrap which sets up a pid namespace +init to ensure qemu is reaped,
     // which libvirt relies on.
-    def image = "/tmp/rhcos.qcow2"
+    def imageFile = "rhcos.qcow2"
+    def imagePath = "/tmp/${imageFile}"
     try {
     withCredentials([
         string(credentialsId: params.INSTALLER_TREE_URL, variable: 'INSTALLER_TREE_URL')]) {
     stage("Running coreos-virt-install") { sh """
         chmod a+rw /dev/kvm
         setfacl -m u:builder:rwX ${WORKSPACE}
-        bwrap --bind / / --dev-bind /dev /dev --proc /proc --unshare-pid runuser -u builder -- coreos-virt-install --dest ${image} --create-disk \
+        bwrap --bind / / --dev-bind /dev /dev --proc /proc --unshare-pid runuser -u builder -- coreos-virt-install --dest ${imagePath} --create-disk \
                 --console-log-file ${WORKSPACE}/rhcos-qcow2-install.txt \
                 --wait=25 --kickstart cloud.ks --location "${INSTALLER_TREE_URL}"
         """
@@ -105,8 +106,8 @@ node(NODE) {
     try {
     stage("Kola rhcos.basic") { sh """
         kola version
-        if ! kola -b rhcos --tapfile rhcos-basic.tap --qemu-image ${image} run rhcos.basic; then
-          cp ${image} ${WORKSPACE}
+        if ! kola -b rhcos --tapfile rhcos-basic.tap --qemu-image ${imagePath} run rhcos.basic; then
+          cp ${imagePath} ${WORKSPACE}
           exit 1
         fi
     """ }
@@ -114,7 +115,7 @@ node(NODE) {
         sh 'tar -cJf _kola_temp.tar.xz _kola_temp'
         archiveArtifacts artifacts: "_kola_temp.tar.xz", allowEmptyArchive: true
         archiveArtifacts artifacts: "rhcos-basic.tap", allowEmptyArchive: true
-        archiveArtifacts artifacts: "${image}", allowEmptyArchive: true
+        archiveArtifacts artifacts: "${imageFile}", allowEmptyArchive: true
     }
 
     // We write this to meta.json
@@ -132,7 +133,7 @@ node(NODE) {
         // FIXME: Use labels like https://github.com/coreos/coreos-assembler/pull/95
         // But probably better to ditch all of this and use the assembler
         commit = utils.sh_capture("""
-            LIBGUESTFS_BACKEND=direct virt-cat -a ${image} -m /dev/sda2:/ \
+            LIBGUESTFS_BACKEND=direct virt-cat -a ${imagePath} -m /dev/sda2:/ \
                 /ostree/repo/refs/remotes/rhcos/${ref}
         """)
 
@@ -151,7 +152,7 @@ node(NODE) {
         qcow = "${img_prefix}.qcow2"
         vmdk = "${img_prefix}.vmdk"
         sh "mkdir -p ${dirpath}"
-        sh "mv ${image} ${qcow}"
+        sh "mv ${imagePath} ${qcow}"
 
         writeFile file: "meta.json", text: groovy.json.JsonOutput.toJson(meta);
         archiveArtifacts artifacts: "meta.json";
