@@ -25,7 +25,10 @@ version=$(ostree --repo=${repo} show --print-metadata-key=version ${commit} | se
 # Generate a package-level diff
 if [ -n "${previous_commit}" ]; then
     rpm-ostree --repo=${repo} db diff "${previous_commit}" "${commit}" > pkg-diff.txt
+    # strip the header, make it ready for JSON
+    pkg_diff=$(tail -n +3 pkg-diff.txt | awk '{printf "%s\\n", $0}')
 fi
+
 
 # Now do a prune (again no history in the repo)
 ostree --repo=${repo} prune --refs-only --depth=0
@@ -37,11 +40,18 @@ if [ -n "${previous_commit}" ]; then
 else
     previous_commit_json=null
 fi
+
+if [ -n "${pkg_diff}" ]; then
+    pkgdiff='"'"${pkg_diff}"'"'
+else
+    pkg_diff=null
+fi
 # This is easy to parse from Groovy
 cat > compose.json <<EOF
 {
  "previous-commit": ${previous_commit_json},
  "commit": "${commit}",
- "version": "${version}"
+ "version": "${version}",
+ "pkg-diff": ${pkg_diff}
 }
 EOF
