@@ -26,5 +26,5 @@ components:
   - src: github:openshift/redhat-release-coreos
     spec: internal
 
-  - src: github:ashcrow/pivot
+  - src: github:openshift/pivot
     spec: internal
