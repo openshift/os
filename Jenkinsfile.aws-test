@@ -60,9 +60,6 @@ node(NODE) {
                     cp ${dirpath}/aws-${AWS_REGION}-smoketested.json ${images}/aws-${AWS_REGION}-tested.json
                     aws ec2 modify-image-attribute \
                         --image-id ${ami_intermediate} \
-                        --launch-permission '{"Add":[{"UserId":"${AWS_CI_ACCOUNT}"}]}'
-                    aws ec2 modify-image-attribute \
-                        --image-id ${ami_intermediate} \
                         --launch-permission '{"Add":[{"Group":"all"}]}'
                 """
             }
