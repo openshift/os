@@ -28,7 +28,9 @@ clearpart --initlabel --all
 bootloader --timeout=1 --append="no_timer_check console=ttyS0,115200n8 console=tty0 net.ifnames=0 biosdevname=0 ip=eth0:dhcp rd.neednet=1 rw $coreos_firstboot"
 
 part /boot --size=300 --fstype="xfs" --label=boot
-part / --size=3000 --fstype="xfs" --label=root --grow
+part pv.01 --grow
+volgroup coreos pv.01
+logvol / --size=3000 --fstype="xfs" --name=root --label=root --vgname=coreos --grow
 
 ostreesetup --nogpg --osname=rhcos --remote=rhcos --url=@@OSTREE_INSTALL_URL@@ --ref=@@OSTREE_INSTALL_REF@@
 
