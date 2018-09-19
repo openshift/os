@@ -19,6 +19,7 @@ node(NODE) {
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
+    try {
     def manifest = "host-${OS_NAME}.yaml"
     def manifest_data = readYaml file: "${manifest}";
     // TODO - stop using the ref in favor of oscontainer:// pivot
@@ -127,5 +128,11 @@ node(NODE) {
 
         // Trigger downstream jobs
         build job: 'coreos-rhcos-cloud', wait: false
-  }
+    }
+    } catch (Throwable e) {
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        utils.notify_status_change currentBuild
+    }
 }

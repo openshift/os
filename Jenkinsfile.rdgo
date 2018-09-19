@@ -78,8 +78,11 @@ node(NODE) {
         build job: 'coreos-rhcos-treecompose', wait: false
     }
 
+    } catch (Throwable e) {
+        currentBuild.result = 'FAILURE'
+        throw e
     } finally {
         archiveArtifacts artifacts: "log/**", allowEmptyArchive: true
+        utils.notify_status_change currentBuild
     }
 }
-

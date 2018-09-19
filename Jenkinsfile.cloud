@@ -17,6 +17,7 @@ node(NODE) {
     utils = load("pipeline-utils.groovy")
     utils.define_properties(TIMER)
 
+    try {
     def manifest = "host-maipo.yaml"
     def manifest_data = readYaml file: "${manifest}";
     def ref = manifest_data.ref;
@@ -256,5 +257,11 @@ node(NODE) {
         string(name: 'dirpath', value: "${dirpath}"),
         string(name: 'aws_type', value: "t2.small")
     ]
+    }
+    } catch (Throwable e) {
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        utils.notify_status_change currentBuild
     }
 }
