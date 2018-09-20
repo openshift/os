@@ -169,4 +169,36 @@ def inside_assembler_container(args, fn) {
     }
 }
 
+// Send a notification when a job's status changes.
+// Treat non-SUCCESS states the same, so it does not send notifications when
+// changes go between UNSTABLE and FAILURE.
+def notify_status_change(build) {
+    def color = ''
+    def message = "<${env.BUILD_URL}|Build ${env.BUILD_NUMBER} of ${env.JOB_NAME}>"
+
+    if (build.currentResult == build.previousBuild?.result)
+        return
+
+    if (build.previousBuild?.result == null) {
+        echo 'The previous build is still running; ignoring its build state.'
+        return
+    } else if (build.currentResult == 'SUCCESS') {
+        message = ":partyparrot: ${message} is working again."
+        color = 'good'
+    } else if (build.previousBuild.result == 'SUCCESS') {
+        message = ":trashfire: ${message} has started failing."
+        color = 'danger'
+    } else {
+        echo 'This and the previous build have different non-success states.'
+        return
+    }
+
+    try {
+        slackSend channel: '#jenkins-coreos', color: color, message: message
+    } catch (NoSuchMethodError err) {
+        // Log the message in the console if the Slack plugin is not installed.
+        echo message
+    }
+}
+
 return this

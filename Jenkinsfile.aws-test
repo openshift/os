@@ -22,6 +22,7 @@ node(NODE) {
         return
     }
 
+    try {
     utils.inside_assembler_container("-v /srv:/srv") {
     stage("Sync In") {
         withCredentials([
@@ -78,5 +79,11 @@ node(NODE) {
             utils.rsync_file_out(ARTIFACT_SERVER, KEY_FILE, "${images}/aws-${AWS_REGION}-tested.json")
         }
     }
+    }
+    } catch (Throwable e) {
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        utils.notify_status_change currentBuild
     }
 }
