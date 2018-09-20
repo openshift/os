@@ -148,16 +148,15 @@ def registry_login(username, password, registry) {
 // store containers, and bind mounts it to '/var/lib/containers`
 def prep_container_storage(dirFromHost) {
     sh """
-        container_storage="/var/lib/containers"
-        dest="${dirFromHost}/containers"
-        fstype=$(df -P ${dirFromHost} | awk 'END{print $6}' | xargs findmnt -n -o FSTYPE)
-        if [ "$fstype" == "overlay" ]; then
-            echo "Must supply non-overlay location"
+        container_storage=/var/lib/containers
+        fstype=\$(df -P ${dirFromHost} | awk 'END{print \$6}' | xargs findmnt -n -o FSTYPE)
+        if [ \$fstype == 'overlay' ]; then
+            echo 'Must supply non-overlay location'
             exit 1
         fi
-        rm -rf ${container_storage} && mkdir -p ${container_storage}
-        rm -rf ${dest} && mkdir -p ${dest}
-        mount --bind ${dest} ${container_storage}
+        rm -rf \${container_storage} && mkdir -p \${container_storage}
+        rm -rf ${dirFromHost} && mkdir -p ${dirFromHost}/containers
+        mount --bind ${dirFromHost}/containers \${container_storage}
     """
 }
 
