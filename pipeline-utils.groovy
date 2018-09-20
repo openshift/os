@@ -139,6 +139,28 @@ def sh_capture(cmd) {
     return sh(returnStdout: true, script: cmd).trim()
 }
 
+def registry_login(username, password, registry) {
+    sh "podman login -u '${username}' -p '${password}' ${registry}"
+}
+
+// re-implementation of some functionality from scripts/pull-mount-oscontainer
+// takes a directory mounted in from the host, creates a new location to
+// store containers, and bind mounts it to '/var/lib/containers`
+def prep_container_storage(dirFromHost) {
+    sh """
+        container_storage="/var/lib/containers"
+        dest="${dirFromHost}/containers"
+        fstype=$(df -P ${dirFromHost} | awk 'END{print $6}' | xargs findmnt -n -o FSTYPE)
+        if [ "$fstype" == "overlay" ]; then
+            echo "Must supply non-overlay location"
+            exit 1
+        fi
+        rm -rf ${container_storage} && mkdir -p ${container_storage}
+        rm -rf ${dest} && mkdir -p ${dest}
+        mount --bind ${dest} ${container_storage}
+    """
+}
+
 // Substitute secrets from credentials into files in the git repo
 def prepare_configuration() {
     withCredentials([
