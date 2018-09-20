@@ -2,13 +2,11 @@ def TIMER = "H/30 * * * *"
 def NODE = "rhcos-jenkins"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OS_NAME = "maipo";
-def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}:latest"
+def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}"
 def COMPOSEFLAGS = "";
 
 // We write to this one for now
 def artifact_repo = "/srv/rhcos/output/repo"
-// We write pkg_diff.txt here
-def images = "/srv/rhcos/output/images"
 
 node(NODE) {
     def par_stages = [:]
@@ -90,8 +88,9 @@ node(NODE) {
         stage("Build new container") { sh """
             podman build --build-arg OS_VERSION=${composeMeta.version} \
                          --build-arg OS_COMMIT=${composeMeta.commit} \
-                         -t ${OSCONTAINER_IMG} \
+                         -t ${OSCONTAINER_IMG}:buildmaster \
                          -f ${WORKSPACE}/Dockerfile.rollup ${WORKSPACE}
+            podman tag ${OSCONTAINER_IMG}:buildmaster ${OSCONTAINER_IMG}:${composeMeta.commit}
         """ }
 
         if (params.DRY_RUN) {
@@ -102,8 +101,9 @@ node(NODE) {
         }
 
         stage("Push container") { sh """
-            podman push ${OSCONTAINER_IMG}
-            skopeo inspect docker://${OSCONTAINER_IMG} | jq '.Digest' > imgid.txt
+            podman push ${OSCONTAINER_IMG}:buildmaster
+            podman push ${OSCONTAINER_IMG}:${composeMeta.commit}
+            skopeo inspect docker://${OSCONTAINER_IMG}:buildmaster | jq '.Digest' > imgid.txt
         """
             def cid = readFile('imgid.txt').trim().replaceAll('"','');
             currentBuild.description = "🆕 ${OSCONTAINER_IMG}@${cid} (${composeMeta.version})";
@@ -119,7 +119,7 @@ node(NODE) {
                    --dest ${ARTIFACT_SERVER}:${artifact_repo} --src=${repo}/ \
                    --rsync-opt=--stats --rsync-opt=-e \
                    --rsync-opt='ssh -i ${KEY_FILE} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'
-            """ 
+            """
         } }
 
         stage("Cleanup") { sh """
