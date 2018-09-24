@@ -253,6 +253,7 @@ node(NODE) {
     def ami_intermediate = utils.sh_capture("jq -r .HVM ${dirpath}/aws-${AWS_REGION}-smoketested.json")
     build job: 'coreos-rhcos-aws-test', wait: false, parameters: [
         string(name: 'ami_intermediate', value: "${ami_intermediate}"),
+        string(name: 'version', value: "${version}"),
         string(name: 'dirpath', value: "${dirpath}"),
         string(name: 'aws_type', value: "t2.small")
     ]
