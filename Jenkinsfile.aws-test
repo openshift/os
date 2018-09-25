@@ -30,7 +30,7 @@ node(NODE) {
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
             sh "mkdir -p ${dirpath}"
-            utils.rsync_file_in(ARTIFACT_SERVER, KEY_FILE, "${dirpath}/aws-${AWS_REGION}-smoketested.json")
+            utils.rsync_file_in(ARTIFACT_SERVER, KEY_FILE, "${dirpath}/aws-${AWS_REGION}.json")
         }
     }
 
@@ -54,12 +54,12 @@ node(NODE) {
                     # Tests pass, tag the json in the artifact server to a persistent location
                     # and give launch permissions to OpenShift CI
                     export AWS_DEFAULT_REGION=${AWS_REGION}
-                    if [ ! -e ${dirpath}/aws-${AWS_REGION}-smoketested.json ]; then
-                        echo "Cannot find smoketested json artifact."
+                    if [ ! -e ${dirpath}/aws-${AWS_REGION}.json ]; then
+                        echo "Cannot find JSON artifact."
                         exit 1
                     fi
 
-                    cp ${dirpath}/aws-${AWS_REGION}-smoketested.json ${images}/aws-${AWS_REGION}-tested.json
+                    cp ${dirpath}/aws-${AWS_REGION}.json ${images}/aws-${AWS_REGION}-tested.json
                     aws ec2 create-tags \
                         --resources ${ami_intermediate} \
                         --tags rhcos_tag=alpha
