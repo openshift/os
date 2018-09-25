@@ -42,6 +42,7 @@ node(NODE) {
                 [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: params.AWS_CREDENTIALS],
                 string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
                 string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
+                string(credentialsId: params.S3_PUBLIC_BUCKET, variable: 'S3_PUBLIC_BUCKET'),
             ]) {
                 currentBuild.description = "version=${version} ami=${ami_intermediate}"
                 sh """
@@ -62,6 +63,11 @@ node(NODE) {
                     aws ec2 modify-image-attribute \
                         --image-id ${ami_intermediate} \
                         --launch-permission '{"Add":[{"Group":"all"}]}'
+
+                    # Upload the json file to a public location
+                    aws s3 cp --acl public-read \
+                        ${images}/aws-${AWS_REGION}-tested.json \
+                        s3://${S3_PUBLIC_BUCKET}/aws-${AWS_REGION}-tested.json
                 """
             }
         }
