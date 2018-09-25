@@ -43,7 +43,7 @@ node(NODE) {
                 string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
                 string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
             ]) {
-                currentBuild.description = "ami: ${ami_intermediate}"
+                currentBuild.description = "version=${version} ami=${ami_intermediate}"
                 sh """
                     # Do testing with intermediate aws image passed in by cloud job
                     if ! kola -b rhcos -p aws --aws-type ${aws_type} --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} -j ${NUM_VMS} run; then
