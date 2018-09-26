@@ -60,6 +60,9 @@ node(NODE) {
                     fi
 
                     cp ${dirpath}/aws-${AWS_REGION}-smoketested.json ${images}/aws-${AWS_REGION}-tested.json
+                    aws ec2 create-tags \
+                        --resources ${ami_intermediate} \
+                        --tags rhcos_tag=alpha
                     aws ec2 modify-image-attribute \
                         --image-id ${ami_intermediate} \
                         --launch-permission '{"Add":[{"Group":"all"}]}'
