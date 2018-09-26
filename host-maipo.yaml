@@ -1,10 +1,5 @@
 ref: "openshift/3.10/x86_64/os"
 include: host-base.yaml
-# https://github.com/projectatomic/rpm-ostree/issues/1524
-boot_location: new
-machineid-compat: false
-tmp-is-dir: true
-# end duplicates from host-base.yaml
 repos:
   # Base maipo repos
   - maipo-server
