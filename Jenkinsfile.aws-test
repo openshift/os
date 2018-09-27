@@ -69,7 +69,7 @@ node(NODE) {
 
                     # Upload the json file to a public location
                     aws s3 cp --acl public-read \
-                        ${WORKSPACE}/aws-${AWS_REGION}-tested.json \
+                        ${WORKSPACE}/aws-${AWS_REGION}.json \
                         s3://${S3_PUBLIC_BUCKET}/aws-${AWS_REGION}-tested.json
                 """
             }
