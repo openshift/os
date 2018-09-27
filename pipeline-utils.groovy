@@ -210,7 +210,7 @@ def notify_status_change(build) {
     def color = ''
     def message = "<${env.BUILD_URL}|Build ${env.BUILD_NUMBER} of ${env.JOB_NAME}>"
 
-    if (build.currentResult == build.previousBuild?.result)
+    if (build.currentResult == build.previousBuild?.result || params.DRY_RUN)
         return
 
     if (build.previousBuild?.result == null) {
