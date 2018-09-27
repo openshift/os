@@ -3,6 +3,7 @@
 set -xeuo pipefail
 
 LATEST_OPENSHIFT_REPO=`curl https://storage.googleapis.com/origin-ci-test/releases/openshift/origin/master/.latest-rpms`
+LATEST_ATOMIC_OPENSHIFT_REPO='http://download-node-02.eng.bos.redhat.com/rcm-guest/puddles/RHAOS/AtomicOpenShift/4.0/latest/puddle.repo'
 
 echo "[openshift]
 name=openshift
@@ -10,3 +11,6 @@ baseurl=${LATEST_OPENSHIFT_REPO}
 type=rpm
 enabled=1
 gpgcheck=0" > openshift.repo
+
+curl -L -s "${LATEST_ATOMIC_OPENSHIFT_REPO}" | head -n 5 > atomic-openshift.repo
+sed -i "1s|.*|[atomic-openshift]|" atomic-openshift.repo
