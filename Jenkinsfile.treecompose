@@ -103,10 +103,10 @@ node(NODE) {
 
         stage("Push container") { sh """
             podman push ${OSCONTAINER_IMG}
-            podman inspect --format='{{.Id}}' ${OSCONTAINER_IMG} > imgid.txt
+            skopeo inspect docker://${OSCONTAINER_IMG} | jq '.Digest' > imgid.txt
         """
-            def cid = readFile('imgid.txt').trim();
-            currentBuild.description = "🆕 ${OSCONTAINER_IMG}@sha256:${cid} (${composeMeta.version})";
+            def cid = readFile('imgid.txt').trim().replaceAll('"','');
+            currentBuild.description = "🆕 ${OSCONTAINER_IMG}@${cid} (${composeMeta.version})";
         }
 
         stage("rsync out") {
