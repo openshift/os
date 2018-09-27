@@ -1,8 +1,7 @@
 def NODE = "rhcos-jenkins"
 def AWS_REGION = "us-east-1"
 
-// this var conveniently refers to a location on the server as well as the
-// local dir we sync to/from
+// location on the server we'll rsync to/from our $WORKSPACE
 def images = "/srv/rhcos/output/images"
 
 node(NODE) {
@@ -22,15 +21,21 @@ node(NODE) {
         return
     }
 
+    // We're only ever triggered by the cloud job, so we know the latest build is in latest/
+    // We immediately resolve it back to the specific images/ dir
+    def version
     try {
-    utils.inside_assembler_container("-v /srv:/srv") {
+    utils.inside_assembler_container("") {
     stage("Sync In") {
         withCredentials([
             string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
-            sh "mkdir -p ${dirpath}"
-            utils.rsync_file_in(ARTIFACT_SERVER, KEY_FILE, "${dirpath}/aws-${AWS_REGION}-smoketested.json")
+            utils.rsync_file_in_dest(ARTIFACT_SERVER, KEY_FILE, "${images}/cloud/latest/meta.json", "${WORKSPACE}/meta.json")
+            version = utils.sh_capture("jq -r '.[\"ostree-version\"]' ${WORKSPACE}/meta.json")
+            // resolve to original dir to avoid races in the next rsync in
+            def imgv = utils.sh_capture("jq -r '.[\"image-version\"]' ${WORKSPACE}/meta.json")
+            utils.rsync_file_in_dest(ARTIFACT_SERVER, KEY_FILE, "${images}/cloud/${imgv}/aws-${AWS_REGION}.json", "${WORKSPACE}/aws-${AWS_REGION}.json")
         }
     }
 
@@ -44,22 +49,17 @@ node(NODE) {
                 string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
                 string(credentialsId: params.S3_PUBLIC_BUCKET, variable: 'S3_PUBLIC_BUCKET'),
             ]) {
+                def ami_intermediate = utils.sh_capture("jq -r .HVM ${WORKSPACE}/aws-${AWS_REGION}.json")
                 currentBuild.description = "version=${version} ami=${ami_intermediate}"
                 sh """
                     # Do testing with intermediate aws image passed in by cloud job
-                    if ! kola -b rhcos -p aws --aws-type ${aws_type} --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} -j ${NUM_VMS} run; then
+                    if ! kola -b rhcos -p aws --aws-type t2.small --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} -j ${NUM_VMS} run; then
                         exit 1
                     fi
 
                     # Tests pass, tag the json in the artifact server to a persistent location
                     # and give launch permissions to OpenShift CI
                     export AWS_DEFAULT_REGION=${AWS_REGION}
-                    if [ ! -e ${dirpath}/aws-${AWS_REGION}-smoketested.json ]; then
-                        echo "Cannot find smoketested json artifact."
-                        exit 1
-                    fi
-
-                    cp ${dirpath}/aws-${AWS_REGION}-smoketested.json ${images}/aws-${AWS_REGION}-tested.json
                     aws ec2 create-tags \
                         --resources ${ami_intermediate} \
                         --tags rhcos_tag=alpha
@@ -69,7 +69,7 @@ node(NODE) {
 
                     # Upload the json file to a public location
                     aws s3 cp --acl public-read \
-                        ${images}/aws-${AWS_REGION}-tested.json \
+                        ${WORKSPACE}/aws-${AWS_REGION}-tested.json \
                         s3://${S3_PUBLIC_BUCKET}/aws-${AWS_REGION}-tested.json
                 """
             }
@@ -85,7 +85,7 @@ node(NODE) {
             string(credentialsId: params.ARTIFACT_SERVER, variable: 'ARTIFACT_SERVER'),
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
-            utils.rsync_file_out(ARTIFACT_SERVER, KEY_FILE, "${images}/aws-${AWS_REGION}-tested.json")
+            utils.rsync_file_out_dest(ARTIFACT_SERVER, KEY_FILE, "${WORKSPACE}/aws-${AWS_REGION}.json", "${images}/aws-${AWS_REGION}-tested.json")
         }
     }
     }

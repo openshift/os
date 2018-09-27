@@ -120,8 +120,16 @@ def rsync_file_in(server, key, file) {
     rsync_file(key, "${server}:${file}", file)
 }
 
+def rsync_file_in_dest(server, key, srcfile, destfile) {
+    rsync_file(key, "${server}:${srcfile}", destfile)
+}
+
 def rsync_file_out(server, key, file) {
     rsync_file(key, file, "${server}:${file}")
+}
+
+def rsync_file_out_dest(server, key, srcfile, destfile) {
+    rsync_file(key, srcfile, "${server}:${destfile}")
 }
 
 def rsync_file(key, from_file, to_file) {
