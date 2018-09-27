@@ -36,7 +36,15 @@ node(NODE) {
             withCredentials([
                 usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
             ]) {
-                sh """./scripts/pull-mount-oscontainer ${API_CI_REGISTRY} ${treecompose_workdir} ${OSCONTAINER_IMG}"""
+                def (registryUser, registryPass) = "${CREDS}".split(':')
+                utils.registry_login(registryUser, registryPass, "${API_CI_REGISTRY}")
+                sh """
+                    if ! skopeo inspect docker://${OSCONTAINER_IMG}:buildmaster; then
+                        ./scripts/pull-mount-oscontainer ${API_CI_REGISTRY} ${treecompose_workdir} ${OSCONTAINER_IMG}:latest
+                    else
+                        ./scripts/pull-mount-oscontainer ${API_CI_REGISTRY} ${treecompose_workdir} ${OSCONTAINER_IMG}:buildmaster
+                    fi
+                """
             }
         }
 
