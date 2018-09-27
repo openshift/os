@@ -126,8 +126,8 @@ check-groups:
   type: "file"
   filename: "group"
 packages:
- # Kernel + systemd
- - kernel irqbalance microcode_ctl systemd
+ # Kernel + systemd + journal
+ - kernel irqbalance microcode_ctl systemd systemd-journal-gateway
  # Release package
  - redhat-release-coreos
  # rpm-ostree
