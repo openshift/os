@@ -218,11 +218,11 @@ node(NODE) {
                 sh """
                     amijson=${dirpath}/aws-${AWS_REGION}.json
                     ore aws upload --region ${AWS_REGION} \
-                        --ami-name 'rhcos_dev_${commit[0..6]}' \
+                        --ami-name 'rhcos_dev_${version}' \
                         --ami-description 'Red Hat CoreOS ${version} (${commit})' \
                         --bucket 's3://${S3_PRIVATE_BUCKET}/rhcos/cloud' \
                         --file ${ec2} \
-                        --name "rhcos_dev_${commit[0..6]}" \
+                        --name "rhcos_dev_${version}" \
                         --delete-object | tee \${amijson}
                     rm ${ec2}
 
