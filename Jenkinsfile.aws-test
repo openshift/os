@@ -1,8 +1,13 @@
 def NODE = "rhcos-jenkins"
+// Our primary
 def AWS_REGION = "us-east-1"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OS_NAME = "maipo";
 def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}"
+// We copy tested AMIs to other regions; this
+// list is hardcoded right now pending discussion
+// with ops about which regions we should target
+def OTHER_AWS_REGIONS = ["us-east-2", "us-west-1"]
 
 // location on the server we'll rsync to/from our $WORKSPACE
 def images = "/srv/rhcos/output/images"
@@ -81,11 +86,21 @@ node(NODE) {
                     aws ec2 modify-image-attribute \
                         --image-id ${ami_intermediate} \
                         --launch-permission '{"Add":[{"Group":"all"}]}'
+                    # And upload to more regions
+                    ./scripts/ami-copy-regions --source-region ${AWS_REGION} \
+                           --source-image-id ${ami_intermediate} \
+                           --name rhcos_dev_${version} \
+                           --copy-tags rhcos_tag,ostree_version,ostree_commit \
+                           --regions ${OTHER_AWS_REGIONS.join(',')} \
+                           --out ${WORKSPACE}/aws.json
 
-                    # Upload the json file to a public location
+                    # Upload the json files to a public location
                     aws s3 cp --acl public-read \
                         ${WORKSPACE}/aws-${AWS_REGION}.json \
                         s3://${S3_PUBLIC_BUCKET}/aws-${AWS_REGION}-tested.json
+                    aws s3 cp --acl public-read \
+                        ${WORKSPACE}/aws.json \
+                        s3://${S3_PUBLIC_BUCKET}/aws-tested.json
 
                     # Copy the container image to alpha, then GC the image tagged with the ostree commit
                     skopeo copy docker://${OSCONTAINER_IMG}:${ostree_commit} docker://${OSCONTAINER_IMG}:alpha
@@ -106,6 +121,7 @@ node(NODE) {
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
             utils.rsync_file_out_dest(ARTIFACT_SERVER, KEY_FILE, "${WORKSPACE}/aws-${AWS_REGION}.json", "${images}/aws-${AWS_REGION}-tested.json")
+            utils.rsync_file_out_dest(ARTIFACT_SERVER, KEY_FILE, "${WORKSPACE}/aws.json", "${images}/aws-tested.json")
         }
     }
     }
