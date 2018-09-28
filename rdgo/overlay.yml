@@ -28,3 +28,6 @@ components:
 
   - src: github:openshift/pivot
     spec: internal
+
+  - src: github:coreos/toolbox
+    spec: internal
