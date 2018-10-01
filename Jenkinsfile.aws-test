@@ -60,8 +60,7 @@ node(NODE) {
                 def ami_intermediate = aws_json["HVM"];
 
                 // login to registry and setup container storage
-                def (registryUser, registryPass) = "${CREDS}".split(':')
-                utils.registry_login(registryUser, registryPass, "${API_CI_REGISTRY}")
+                utils.registry_login("${OSCONTAINER_IMG}", "${CREDS}")
                 utils.prep_container_storage("${WORKSPACE}")
 
                 currentBuild.description = "version=${version} ami=${ami_intermediate}"

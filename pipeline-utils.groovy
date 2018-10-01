@@ -152,8 +152,10 @@ def sh_capture(cmd) {
     return sh(returnStdout: true, script: cmd).trim()
 }
 
-def registry_login(username, password, registry) {
-    sh "podman login -u '${username}' -p '${password}' ${registry}"
+def registry_login(oscontainer_name, creds) {
+    def registry = oscontainer_name.split('/')[0];
+    def (username, password) = creds.split(':');
+    sh "set +x; podman login -u '${username}' -p '${password}' ${registry}";
 }
 
 // re-implementation of some functionality from scripts/pull-mount-oscontainer
