@@ -109,7 +109,7 @@ node(NODE) {
 
         stage("Push container") { sh """
             podman push ${OSCONTAINER_IMG}:buildmaster
-            podman push ${OSCONTAINER_IMG}:${composeMeta.commit}
+            skopeo copy docker://${OSCONTAINER_IMG}:buildmaster docker://${OSCONTAINER_IMG}:${composeMeta.commit}
             skopeo inspect docker://${OSCONTAINER_IMG}:buildmaster | jq '.Digest' > imgid.txt
         """
             def cid = readFile('imgid.txt').trim().replaceAll('"','');
