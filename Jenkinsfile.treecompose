@@ -1,8 +1,7 @@
 def TIMER = "H/30 * * * *"
 def NODE = "rhcos-jenkins"
-def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OS_NAME = "maipo";
-def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}"
+def OSCONTAINER_IMG = "registry.svc.ci.openshift.org/rhcos/os-${OS_NAME}";
 def COMPOSEFLAGS = "";
 
 // We write to this one for now

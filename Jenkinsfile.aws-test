@@ -1,8 +1,7 @@
 def NODE = "rhcos-jenkins"
 def AWS_REGION = "us-east-1"
-def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OS_NAME = "maipo";
-def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}"
+def OSCONTAINER_IMG = "registry.svc.ci.openshift.org/rhcos/os-${OS_NAME}";
 
 // location on the server we'll rsync to/from our $WORKSPACE
 def images = "/srv/rhcos/output/images"
