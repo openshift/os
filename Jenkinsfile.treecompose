@@ -39,9 +39,9 @@ node(NODE) {
                 utils.registry_login("${OSCONTAINER_IMG}", "${CREDS}")
                 sh """
                     if ! skopeo inspect docker://${OSCONTAINER_IMG}:buildmaster; then
-                        ./scripts/pull-mount-oscontainer ${API_CI_REGISTRY} ${treecompose_workdir} ${OSCONTAINER_IMG}:latest
+                        ./scripts/pull-mount-oscontainer ${treecompose_workdir} ${OSCONTAINER_IMG}:latest
                     else
-                        ./scripts/pull-mount-oscontainer ${API_CI_REGISTRY} ${treecompose_workdir} ${OSCONTAINER_IMG}:buildmaster
+                        ./scripts/pull-mount-oscontainer ${treecompose_workdir} ${OSCONTAINER_IMG}:buildmaster
                     fi
                 """
             }
