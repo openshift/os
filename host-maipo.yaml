@@ -27,6 +27,8 @@ postprocess:
     # This is fixed in post-RHEL7 systemd
     ln -sf ../tmp.mount /usr/lib/systemd/system/local-fs.target.wants
 packages:
+ # Release package (in the future, there may be a separate -ootpa one)
+ - redhat-release-coreos
  # auth legacy
  - authconfig
  # SELinux
