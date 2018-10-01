@@ -5,7 +5,8 @@ FROM registry.fedoraproject.org/fedora:28
 ARG OS_VERSION=""
 ARG OS_COMMIT=""
 LABEL io.openshift.os-version="$OS_VERSION" \
-      io.openshift.os-commit="$OS_COMMIT"
+      io.openshift.os-commit="$OS_COMMIT" \
+      com.coreos.ostree-commit="$OS_COMMIT"
 RUN yum -y install ostree nginx && yum clean all
 COPY treecompose/repo /srv/repo
 # Keep this in sync with Dockerfile
