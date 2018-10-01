@@ -1,5 +1,8 @@
 def NODE = "rhcos-jenkins"
 def AWS_REGION = "us-east-1"
+def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
+def OS_NAME = "maipo";
+def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}"
 
 // location on the server we'll rsync to/from our $WORKSPACE
 def images = "/srv/rhcos/output/images"
@@ -23,7 +26,7 @@ node(NODE) {
 
     // We're only ever triggered by the cloud job, so we know the latest build is in latest/
     // We immediately resolve it back to the specific images/ dir
-    def version
+    def latest_meta, ostree_commit, version
     try {
     utils.inside_assembler_container("") {
     stage("Sync In") {
@@ -32,15 +35,18 @@ node(NODE) {
             sshUserPrivateKey(credentialsId: params.ARTIFACT_SSH_CREDS_ID, keyFileVariable: 'KEY_FILE'),
         ]) {
             utils.rsync_file_in_dest(ARTIFACT_SERVER, KEY_FILE, "${images}/cloud/latest/meta.json", "${WORKSPACE}/meta.json")
-            version = utils.sh_capture("jq -r '.[\"ostree-version\"]' ${WORKSPACE}/meta.json")
+            latest_meta = readJSON file: "meta.json";
+            ostree_commit = latest_meta["ostree-commit"];
+            version = latest_meta["ostree-version"];
             // resolve to original dir to avoid races in the next rsync in
-            def imgv = utils.sh_capture("jq -r '.[\"image-version\"]' ${WORKSPACE}/meta.json")
+            def imgv = latest_meta["image-version"]
             utils.rsync_file_in_dest(ARTIFACT_SERVER, KEY_FILE, "${images}/cloud/${imgv}/aws-${AWS_REGION}.json", "${WORKSPACE}/aws-${AWS_REGION}.json")
         }
     }
 
     // Number of parallel kola tests
     def NUM_VMS = "10"
+    def aws_json
     try {
     stage("Run Kola tests on intermediate aws image") {
             withCredentials([
@@ -48,12 +54,22 @@ node(NODE) {
                 string(credentialsId: params.S3_PRIVATE_BUCKET, variable: 'S3_PRIVATE_BUCKET'),
                 string(credentialsId: params.AWS_CI_ACCOUNT, variable: 'AWS_CI_ACCOUNT'),
                 string(credentialsId: params.S3_PUBLIC_BUCKET, variable: 'S3_PUBLIC_BUCKET'),
+                usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
             ]) {
-                def ami_intermediate = utils.sh_capture("jq -r .HVM ${WORKSPACE}/aws-${AWS_REGION}.json")
+                aws_json = readJSON file: "aws-${AWS_REGION}.json";
+                def ami_intermediate = aws_json["HVM"];
+
+                // login to registry and setup container storage
+                def (registryUser, registryPass) = "${CREDS}".split(':')
+                utils.registry_login(registryUser, registryPass, "${API_CI_REGISTRY}")
+                utils.prep_container_storage("${WORKSPACE}")
+
                 currentBuild.description = "version=${version} ami=${ami_intermediate}"
                 sh """
                     # Do testing with intermediate aws image passed in by cloud job
                     if ! kola -b rhcos -p aws --aws-type t2.small --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} -j ${NUM_VMS} run; then
+                        # if the tests fail, GC the container image tagged with the ostree commit
+                        skopeo delete docker://${OSCONTAINER_IMG}:${ostree_commit}
                         exit 1
                     fi
 
@@ -71,6 +87,10 @@ node(NODE) {
                     aws s3 cp --acl public-read \
                         ${WORKSPACE}/aws-${AWS_REGION}.json \
                         s3://${S3_PUBLIC_BUCKET}/aws-${AWS_REGION}-tested.json
+
+                    # Copy the container image to alpha, then GC the image tagged with the ostree commit
+                    skopeo copy docker://${OSCONTAINER_IMG}:${ostree_commit} docker://${OSCONTAINER_IMG}:alpha
+                    skopeo delete docker://${OSCONTAINER_IMG}:${ostree_commit}
                 """
             }
         }
@@ -78,6 +98,7 @@ node(NODE) {
         sh 'if test -e _kola_temp; then tar -cJf _kola_temp.tar.xz _kola_temp; fi'
         archiveArtifacts artifacts: "_kola_temp.tar.xz", allowEmptyArchive: true
         archiveArtifacts artifacts: "rhcos-aws.tap", allowEmptyArchive: true
+        archiveArtifacts artifacts: "*.json", allowEmptyArchive: true
     }
 
     stage("rsync out") {
