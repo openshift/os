@@ -76,16 +76,6 @@ def define_properties(timer) {
                     description: "(not secret) Local installer tree mirror to use when running imagefactory.",
                     defaultValue: '50db8fac-f9d8-44e1-af0f-be29325a2896',
                     required: true),
-        credentials(name: 'OOTPA_COMPOSE',
-                    credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
-                    description: "(not secret) URL for compose of ootpa base/appstream content",
-                    defaultValue: 'fc28db5f-62cc-4386-866d-ea69d2088410',
-                    required: true),
-        credentials(name: 'OOTPA_BUILDROOT_COMPOSE',
-                    credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
-                    description: "(not secret) URL for compose of ootpa buildroot content",
-                    defaultValue: 'aa396a81-6adc-44e8-8fbc-7ecc54bf883f',
-                    required: true),
       ])
     ])
 }
@@ -178,13 +168,10 @@ def prep_container_storage(dirFromHost) {
 // Substitute secrets from credentials into files in the git repo
 def prepare_configuration() {
     withCredentials([
-      string(credentialsId: params.OOTPA_COMPOSE, variable: 'OOTPA_COMPOSE'),
-      string(credentialsId: params.OOTPA_BUILDROOT_COMPOSE, variable: 'OOTPA_BUILDROOT_COMPOSE'),
       file(credentialsId: params.OPENSHIFT_MIRROR_CREDENTIALS_FILE, variable: 'OPENSHIFT_MIRROR_CREDENTIALS_FILE'),
     ]) {
         sh """
         make repo-refresh
-        sed -e 's,@OOTPA_COMPOSE@,${OOTPA_COMPOSE},' -e 's,@OOTPA_BUILDROOT_COMPOSE@,${OOTPA_BUILDROOT_COMPOSE},' < ootpa.repo.in > ootpa.repo
         cp ${OPENSHIFT_MIRROR_CREDENTIALS_FILE} ${WORKSPACE}/ops-mirror.pem && sed -i -e "s~WORKSPACE~$WORKSPACE~g" ${WORKSPACE}/cri-o-tested.repo
         """
     }
