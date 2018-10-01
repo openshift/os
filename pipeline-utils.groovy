@@ -168,7 +168,7 @@ def prep_container_storage(dirFromHost) {
             exit 1
         fi
         rm -rf \${container_storage} && mkdir -p \${container_storage}
-        rm -rf ${dirFromHost} && mkdir -p ${dirFromHost}/containers
+        rm -rf ${dirFromHost}/containers && mkdir -p ${dirFromHost}/containers
         mount --bind ${dirFromHost}/containers \${container_storage}
     """
 }
