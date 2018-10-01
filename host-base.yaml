@@ -127,8 +127,6 @@ check-groups:
 packages:
  # Kernel + systemd + journal
  - kernel irqbalance microcode_ctl systemd systemd-journal-gateway
- # Release package
- - redhat-release-coreos
  # rpm-ostree
  - rpm-ostree nss-altfiles
  # SELinux
