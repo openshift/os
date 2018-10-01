@@ -1,17 +1,7 @@
 #!/usr/bin/bash
 set -xeuo pipefail
 
-# First, login.  We expect a CREDS environment variable.
-registry=$1; shift
-set +x
-username=${CREDS%:*}
-password=${CREDS##*:}
-echo podman login -u "${username}" -p '<password>' ${registry}
-podman login -u "${username}" -p "${password}" ${registry}
-# Re-enable verbose mode
-set -x
-
-# Now parse arguments and mount the image.
+# Parse arguments and mount the image.
 dest=$1; shift
 img=$1; shift
 rm ${dest} -rf
