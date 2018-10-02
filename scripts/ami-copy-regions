@@ -1,0 +1,94 @@
+#!/usr/bin/python3
+# Copy an AMI to multiple regions, generating an "AMI JSON"
+# file matching the Container Linux schema:
+# https://alpha.release.core-os.net/amd64-usr/current/coreos_production_ami_all.json
+# Note this assumes the images are HVM.
+# The images are also made public.
+
+import os,sys,argparse,subprocess,io,time,re,multiprocessing
+import tempfile, json
+
+def fatal(msg):
+    print('error: {}'.format(msg), file=sys.stderr)
+    raise SystemExit(1)
+
+def csv_list(string):
+   return string.split(',')
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--source-region", help="Source region",
+                    action='store', required=True)
+parser.add_argument("--source-image-id", help="Source AMI",
+                    action='store', required=True)
+parser.add_argument("--name", help="AMI name",
+                    action='store', required=True)
+# These could be repeated args, but I find the comma-separated to be far less
+# verbose.
+parser.add_argument("--copy-tags", help="Copy the given tags (comma separated)",
+                    action='store', type=csv_list)
+parser.add_argument("--regions", help="Upload to regions (comma separated)",
+                    action='store', required=True,
+                    type=csv_list)
+parser.add_argument("--out", help="Store output in FILE",
+                    action='store', metavar='FILE',
+                    required=True)
+
+args = parser.parse_args()
+
+# So...we could use an API, but it'd (probably) add a huge new dependency, and
+# right now the low-tech aspect of this is OK.
+def runaws(args):
+    return json.loads(subprocess.check_output(['aws', '--output', 'json'] + args))
+
+# Gather tags to copy from the source AMI
+tags_to_copy = []
+if len(args.copy_tags) > 0:
+    res = runaws(['ec2', 'describe-tags', '--filters',
+                  'Name=resource-id,Values={}'.format(args.source_image_id)])
+    current_tags = {}
+    for tag in res['Tags']:
+        key = tag['Key']
+        current_tags[tag['Key']] = tag['Value']
+    tags_to_copy = []
+    for tag in args.copy_tags:
+        val = current_tags.get(tag)
+        if val is None:
+            fatal("ami-{} is missing tag: {}".format(args.source_image_id, tag))
+        tags_to_copy.append("Key={},Value={}".format(tag, val))
+    print("Tags to copy: {}".format(tags_to_copy))
+
+# Upload to all the regions
+amis = []
+for region in args.regions:
+    print("Uploading to: {}".format(region))
+    res = runaws(['ec2', 'copy-image', '--source-region', args.source_region,
+                  '--source-image-id', args.source_image_id,
+                  '--name', args.name, '--region', region])
+    iid = res['ImageId']
+    print("Complete, ImageId={}".format(iid))
+
+    print("Copying tags...")
+    subprocess.check_call(['aws', 'ec2', 'create-tags', '--region', region,
+                           '--resources', iid, '--tags'] + tags_to_copy)
+    amis.append({'name': region,
+                 'hvm': iid})
+
+print("Using modify-image-attribute to make AMIs public (may take a while)")
+for ami in amis:
+    print("Waiting on {}".format(ami))
+    region = ami['name']
+    iid = ami['hvm']
+    subprocess.check_call(['aws', 'ec2', '--region', region,
+                           'wait', 'image-available',
+                           '--image-id', iid])
+    subprocess.check_call(['aws', 'ec2', '--region', region, 'modify-image-attribute',
+                           '--image-id', iid,
+                           '--launch-permission', '{"Add":[{"Group":"all"}]}'])
+    print("AMI is now public: {}".format(ami))
+
+# Be consistent
+amis.sort(key=lambda x: x['name'])
+
+# Write our output JSON
+with open(args.out, 'w') as f:
+    json.dump({'amis': amis}, f)
