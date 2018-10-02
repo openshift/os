@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 # Copy an AMI to multiple regions, generating an "AMI JSON"
 # file matching the Container Linux schema:
 # https://alpha.release.core-os.net/amd64-usr/current/coreos_production_ami_all.json
@@ -6,7 +6,9 @@
 # The images are also made public.
 
 import os,sys,argparse,subprocess,io,time,re,multiprocessing
-import tempfile, json
+import tempfile, json, collections
+
+AMI = collections.namedtuple('AMI', ['region', 'iid'])
 
 def fatal(msg):
     print('error: {}'.format(msg), file=sys.stderr)
@@ -70,25 +72,52 @@ for region in args.regions:
     print("Copying tags...")
     subprocess.check_call(['aws', 'ec2', 'create-tags', '--region', region,
                            '--resources', iid, '--tags'] + tags_to_copy)
-    amis.append({'name': region,
-                 'hvm': iid})
+    amis.append(AMI(region, iid))
+
+def wait_image(ami, dry_run=False):
+    args = ['aws', 'ec2', '--region', ami.region,
+            'wait', 'image-available']
+    if dry_run:
+        args.append('--dry-run')
+    args.extend(['--image-id', ami.iid])
+    if dry_run:
+        output = subprocess.run(args, stderr=subprocess.PIPE)
+        # WTF, why does --dry-run exit with an error code if it would
+        # have succeeded?  And there's apparently no structured error
+        # output from the CLI.
+        if not b'Request would have succeeded' in output.stderr:
+            raise SystemExit("wait_image failed")
+    else:
+        return subprocess.call(args) == 0
 
 print("Using modify-image-attribute to make AMIs public (may take a while)")
+amis_succeeded = set()
+# Try waiting for each AMI twice; if we were close to the timeout
+# this could take a long time, but in practice EC2 parallelizes
+# so this way we avoid failing if the first image or two happens
+# to take too long.
+for _ in range(2):
+    for ami in amis:
+        # First use --dry-run to ensure that we have permissions
+        wait_image(ami, dry_run=True)
+        print("Waiting on {}".format(ami))
+        if wait_image(ami):
+            subprocess.check_call(['aws', 'ec2', '--region',
+                                   ami.region, 'modify-image-attribute',
+                                   '--image-id', ami.iid,
+                                   '--launch-permission', '{"Add":[{"Group":"all"}]}'])
+            print("AMI is now public: {}".format(ami))
+            amis_succeeded.add(ami)
 for ami in amis:
-    print("Waiting on {}".format(ami))
-    region = ami['name']
-    iid = ami['hvm']
-    subprocess.check_call(['aws', 'ec2', '--region', region,
-                           'wait', 'image-available',
-                           '--image-id', iid])
-    subprocess.check_call(['aws', 'ec2', '--region', region, 'modify-image-attribute',
-                           '--image-id', iid,
-                           '--launch-permission', '{"Add":[{"Group":"all"}]}'])
-    print("AMI is now public: {}".format(ami))
-
-# Be consistent
-amis.sort(key=lambda x: x['name'])
+    if ami not in amis_succeeded:
+        print("Failed to await: {}".format(ami))
 
 # Write our output JSON
+ami_json = []
+for ami in amis:
+    ami_json.append({'name': ami.region,
+                     'hvm': ami.iid})
+# Be consistent
+ami_json.sort(key=lambda x: x['name'])
 with open(args.out, 'w') as f:
-    json.dump({'amis': amis}, f)
+    json.dump({'amis': ami_json}, f)
