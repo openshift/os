@@ -155,7 +155,15 @@ def sh_capture(cmd) {
 def registry_login(oscontainer_name, creds) {
     def registry = oscontainer_name.split('/')[0];
     def (username, password) = creds.split(':');
+    sh "echo 'podman login -u '${username}' -p '<password>' ${registry}";
     sh "set +x; podman login -u '${username}' -p '${password}' ${registry}";
+}
+
+def openshift_login(url, creds, project) {
+    def (username, password) = creds.split(':');
+    sh "echo oc login --token '<token> ${url}";
+    sh "set +x; oc login --token '${password}' ${url}";
+    sh "oc project '${project}'";
 }
 
 // re-implementation of some functionality from scripts/pull-mount-oscontainer
