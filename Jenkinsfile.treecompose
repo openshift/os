@@ -3,6 +3,7 @@ def NODE = "rhcos-jenkins"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OS_NAME = "maipo";
 def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}"
+def OPENSHIFT_URL = "https://api.ci.openshift.org";
 def COMPOSEFLAGS = "";
 
 // We write to this one for now
@@ -36,6 +37,7 @@ node(NODE) {
             withCredentials([
                 usernameColonPassword(credentialsId: params.REGISTRY_CREDENTIALS, variable: 'CREDS'),
             ]) {
+                utils.openshift_login("${OPENSHIFT_URL}", "${CREDS}", "rhcos")
                 utils.registry_login("${OSCONTAINER_IMG}", "${CREDS}")
                 sh """
                     if ! skopeo inspect docker://${OSCONTAINER_IMG}:buildmaster; then
@@ -109,10 +111,11 @@ node(NODE) {
 
         stage("Push container") { sh """
             podman push ${OSCONTAINER_IMG}:buildmaster
-            skopeo copy docker://${OSCONTAINER_IMG}:buildmaster docker://${OSCONTAINER_IMG}:${composeMeta.commit}
             skopeo inspect docker://${OSCONTAINER_IMG}:buildmaster | jq '.Digest' > imgid.txt
         """
             def cid = readFile('imgid.txt').trim().replaceAll('"','');
+            // tag the image by SHA256 using OpenShift means
+            sh """oc tag os-${OS_NAME}@${cid} os-${OS_NAME}:${composeMeta.commit}"""
             currentBuild.description = "🆕 ${OSCONTAINER_IMG}@${cid} (${composeMeta.version})";
         }
 

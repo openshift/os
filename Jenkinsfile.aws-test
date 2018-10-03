@@ -4,6 +4,8 @@ def AWS_REGION = "us-east-1"
 def API_CI_REGISTRY = "registry.svc.ci.openshift.org"
 def OS_NAME = "maipo";
 def OSCONTAINER_IMG = API_CI_REGISTRY + "/rhcos/os-${OS_NAME}"
+def OPENSHIFT_URL = "https://api.ci.openshift.org";
+
 // We copy tested AMIs to other regions; this
 // list is hardcoded right now pending discussion
 // with ops about which regions we should target
@@ -64,14 +66,17 @@ node(NODE) {
                 aws_json = readJSON file: "aws-${AWS_REGION}.json";
                 def ami_intermediate = aws_json["HVM"];
 
-                // login to registry and setup container storage
-                utils.registry_login("${OSCONTAINER_IMG}", "${CREDS}")
-                utils.prep_container_storage("${WORKSPACE}")
+                // login to OpenShift + registry and setup container storage
+                utils.openshift_login("${OPENSHIFT_URL}", "${CREDS}", "rhcos");
+                utils.registry_login("${OSCONTAINER_IMG}", "${CREDS}");
+                utils.prep_container_storage("${WORKSPACE}");
 
-                currentBuild.description = "version=${version} ami=${ami_intermediate}"
+                currentBuild.description = "version=${version} ami=${ami_intermediate}";
                 sh """
                     # Do testing with intermediate aws image passed in by cloud job
                     if ! kola -b rhcos -p aws --aws-type t2.small --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} -j ${NUM_VMS} run; then
+                        # if the tests fail, GC the ostree commit tag
+                        oc tag -d os-${OS_NAME}:${ostree_commit}
                         exit 1
                     fi
 
@@ -100,8 +105,9 @@ node(NODE) {
                         ${WORKSPACE}/aws.json \
                         s3://${S3_PUBLIC_BUCKET}/aws-tested.json
 
-                    # Copy the container image to alpha
-                    skopeo copy docker://${OSCONTAINER_IMG}:${ostree_commit} docker://${OSCONTAINER_IMG}:alpha
+                    # Tag the image to alpha; GC the ostree commit tag
+                    oc tag os-${OS_NAME}:${ostree_commit} os-${OS_NAME}:alpha
+                    oc tag -d os-${OS_NAME}:${ostree_commit}
                 """
             }
         }
