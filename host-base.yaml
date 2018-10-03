@@ -167,7 +167,7 @@ packages:
  # Editors
  - vim-minimal nano
  # OpenShift
- - origin-node origin-hyperkube origin-clients
+ - atomic-openshift-node atomic-openshift-hyperkube atomic-openshift-clients
  # pivot/ota tools
  - pivot
  # Red Hat CA certs
