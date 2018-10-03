@@ -75,8 +75,6 @@ node(NODE) {
                 sh """
                     # Do testing with intermediate aws image passed in by cloud job
                     if ! kola -b rhcos -p aws --aws-type t2.small --tapfile rhcos-aws.tap --aws-ami ${ami_intermediate} --aws-region ${AWS_REGION} -j ${NUM_VMS} run; then
-                        # if the tests fail, GC the ostree commit tag
-                        oc tag -d os-${OS_NAME}:${ostree_commit}
                         exit 1
                     fi
 
@@ -105,9 +103,8 @@ node(NODE) {
                         ${WORKSPACE}/aws.json \
                         s3://${S3_PUBLIC_BUCKET}/aws-tested.json
 
-                    # Tag the image to alpha; GC the ostree commit tag
-                    oc tag os-${OS_NAME}:${ostree_commit} os-${OS_NAME}:alpha
-                    oc tag -d os-${OS_NAME}:${ostree_commit}
+                    # fallback to skopeo copy to tag to alpha; see openshift/os#347
+                    skopeo copy docker://${OSCONTAINER_IMG}:${ostree_commit} docker://${OSCONTAINER_IMG}:alpha
                 """
             }
         }
