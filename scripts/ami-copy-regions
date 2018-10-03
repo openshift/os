@@ -113,7 +113,8 @@ for ami in amis:
         print("Failed to await: {}".format(ami))
 
 # Write our output JSON
-ami_json = []
+ami_json = [{'name': args.source_region,
+             'hvm': args.source_image_id}]
 for ami in amis:
     ami_json.append({'name': ami.region,
                      'hvm': ami.iid})
