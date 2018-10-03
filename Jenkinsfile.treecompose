@@ -114,8 +114,9 @@ node(NODE) {
             skopeo inspect docker://${OSCONTAINER_IMG}:buildmaster | jq '.Digest' > imgid.txt
         """
             def cid = readFile('imgid.txt').trim().replaceAll('"','');
-            // tag the image by SHA256 using OpenShift means
-            sh """oc tag os-${OS_NAME}@${cid} os-${OS_NAME}:${composeMeta.commit}"""
+            // fallback to skopeo copy to tag images; see openshift/os#347
+            // we'll end up with some extra images, but should keep the train running
+            sh """skopeo copy docker://${OSCONTAINER_IMG}@${cid} docker://${OSCONTAINER_IMG}:${composeMeta.version}""";
             currentBuild.description = "🆕 ${OSCONTAINER_IMG}@${cid} (${composeMeta.version})";
         }
 
