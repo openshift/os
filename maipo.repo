@@ -1,13 +1,13 @@
 [maipo-server]
 enabled=1
-baseurl=http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel/server/7/7.5/x86_64/os/
+baseurl=http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel/server/7/7Server/x86_64/os/
 metadata_expire=1m
 gpgcheck=0
 gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
 
 [maipo-server-optional]
 enabled=1
-baseurl=http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel/server/7/7.5/x86_64/optional/os/
+baseurl=http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel/server/7/7Server/x86_64/optional/os/
 metadata_expire=1m
 gpgcheck=0
 gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat7-release
