@@ -1,5 +1,0 @@
-[rhcos-continuous]
-name=Packages built by this pipeline
-baseurl=http://aos-ostree.rhev-ci-vms.eng.rdu2.redhat.com/rhcos/rdgo/build/
-enabled=1
-gpgcheck=0
