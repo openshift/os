@@ -17,3 +17,13 @@ include them in Ignition.
 The MCO does not have good support for "per-node" configuration today, but
 in the future when it does, writing this as a MachineConfig fragment
 passed to the installer will make sense too.
+
+## Q: How does networking differ between Fedora CoreOS and RHCOS?
+
+The biggest is that Fedora CoreOS does not ship the `ifcfg` (initscripts) plugin to
+NetworkManager.  In contrast, RHEL is committed to long term support for initscripts
+to maximize compatibility.
+
+The other bit is related to the above - RHCOS has glue to propagate
+kernel commandline arguments to ifcfg files, FCOS doesn't have an equivalent
+of this for NetworkManager config files.
