@@ -24,6 +24,6 @@ The biggest is that Fedora CoreOS does not ship the `ifcfg` (initscripts) plugin
 NetworkManager.  In contrast, RHEL is committed to long term support for initscripts
 to maximize compatibility.
 
-The other bit is related to the above - RHCOS has glue to propagate
-kernel commandline arguments to ifcfg files, FCOS doesn't have an equivalent
+The other bit is related to the above - RHCOS has [code to propagate
+kernel commandline arguments](https://github.com/coreos/ignition-dracut/pull/89) to ifcfg files, FCOS doesn't have an equivalent
 of this for NetworkManager config files.
