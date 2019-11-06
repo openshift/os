@@ -27,3 +27,22 @@ to maximize compatibility.
 The other bit is related to the above - RHCOS has [code to propagate
 kernel commandline arguments](https://github.com/coreos/ignition-dracut/pull/89) to ifcfg files, FCOS doesn't have an equivalent
 of this for NetworkManager config files.
+
+## Q: How do I upgrade the OS?
+
+OS upgrades are integrated with cluster upgrades; so you `oc adm upgrade`, use
+the console etc.  See also https://github.com/openshift/machine-config-operator/blob/master/docs/OSUpgrades.md
+
+However, if you're a developer/tester and want to try something different; see
+this document https://github.com/openshift/machine-config-operator/blob/master/docs/HACKING.md#hacking-on-machine-os-content
+
+For example, to directly switch to the `machine-os-content` from a release image like
+https://openshift-release.svc.ci.openshift.org/releasestream/4.2.0-0.nightly/release/4.2.0-0.nightly-2019-11-06-011942
+You could do:
+
+```
+$ oc adm release info --image-for=machine-os-content  registry.svc.ci.openshift.org/ocp/release:4.2.0-0.nightly-2019-11-06-011942
+quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:c45597ccca7d1965442d85711561abf678a1a3f6445407f2c3dce14cac282527
+$ pivot quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:c45597ccca7d1965442d85711561abf678a1a3f6445407f2c3dce14cac282527
+```
+
