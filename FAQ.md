@@ -4,6 +4,34 @@ The goal of this file is to have a place to easily commit answers to questions
 in a way that's easily searchable, and can make its way into official
 documentation later.
 
+## Q: What is CoreOS?
+
+You may have been linked to this FAQ because you used the term "CoreOS".
+This can be a few things.
+
+There's the original Container Linux that started from http://coreos.com/ (also a company RHT acquired)
+
+More recently, there are two successors to Container Linux (original CoreOS)
+
+ - [Fedora CoreOS](https://getfedora.org/coreos/)
+ - [Red Hat Enterprise Linux CoreOS](https://docs.openshift.com/container-platform/latest/architecture/architecture-rhcos.html), a part of OpenShift 4
+
+It's generally preferred that instead of saying "CoreOS", to explicitly
+use one of the shorter forms "FCOS" (for Fedora CoreOS) or "RHCOS" for RHEL CoreOS.
+
+FCOS and RHCOS share [Ignition](https://github.com/coreos/ignition) and [rpm-ostree](https://github.com/coreos/rpm-ostree/)
+as key technologies.
+
+Fedora CoreOS also acts as one upstream for RHEL CoreOS, although
+RHEL CoreOS uses RHEL content.
+
+We use these terms because e.g. RHEL CoreOS *is* Red Hat Enterprise Linux, more than it's not.
+It inherits most of the content, such as the kernel and a number of the same certifications.
+However, it differs in how it's managed - RHEL CoreOS is managed by the
+[machine config operator](https://github.com/openshift/machine-config-operator/).
+
+Similarly, Fedora CoreOS is an "edition" of Fedora.
+
 ## Q: How do I provide static IP addresses?
 
 As of OpenShift 4.2, by default the kernel command line arguments for networking
