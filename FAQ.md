@@ -46,3 +46,17 @@ quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:c45597ccca7d1965442d857115
 $ pivot quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:c45597ccca7d1965442d85711561abf678a1a3f6445407f2c3dce14cac282527
 ```
 
+## Q: How do I debug Ignition failures?
+
+Today, when Ignition fails, it will wait in an "emergency shell" for 5 minutes.
+The intention is to avoid "partially provisioned" systems.  To debug things,
+here are a few tips and tricks.
+
+In the emergency shell, you can use `systemctl --failed` to show units which failed.
+From there, `journalctl -b -u <unit>` may help - for example, `journalctl -b -u ignition-files.service`.
+
+Usually, you'll have networking in the initramfs, so you can also use e.g. `curl` to extract data.
+See for example [this StackExchange question](https://unix.stackexchange.com/a/108495).
+
+See also https://github.com/coreos/ignition/issues/585
+
