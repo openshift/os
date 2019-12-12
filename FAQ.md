@@ -88,3 +88,11 @@ See for example [this StackExchange question](https://unix.stackexchange.com/a/1
 
 See also https://github.com/coreos/ignition/issues/585
 
+## Q: What happens when I use `rpm-ostree override replace` to replace an RPM?
+
+When a package is replaced in this fashion, it will remain in place through any subsequent upgrades.
+
+While this can be helpful for short-term fixes, it is important to remember that the package replacement
+is in place, as the cluster currently has [no mechanism for reporting](https://github.com/openshift/machine-config-operator/issues/945) that the node has been changed in this
+fashion.  This kind of package replacement can also leave your nodes exposed to potential problems
+that are fixed in newer versions of the package.
