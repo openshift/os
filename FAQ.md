@@ -96,3 +96,16 @@ While this can be helpful for short-term fixes, it is important to remember that
 is in place, as the cluster currently has [no mechanism for reporting](https://github.com/openshift/machine-config-operator/issues/945) that the node has been changed in this
 fashion.  This kind of package replacement can also leave your nodes exposed to potential problems
 that are fixed in newer versions of the package.
+
+## Q: How do I build my own version of RHCOS for testing?
+
+You need the RHCOS manifest configuration (currently hosted on an RHT internal [GitLab repo](https://url.corp.redhat.com/rhcos-repo)) and
+[coreos-assembler](https://github.com/coreos/coreos-assembler).
+
+If you want to replace particular binaries or RPMs in RHCOS, the `coreos-assembler` has
+[override mechanisms](https://github.com/coreos/coreos-assembler/blob/master/README-devel.md#using-overrides)
+to do this.
+
+Also reference the docs from the `machine-config-operator` about
+[hacking on the `machine-os-content`](https://github.com/openshift/machine-config-operator/blob/master/docs/HACKING.md#hacking-on-machine-os-content)
+which is the container image that houses the OS content that RHCOS nodes upgrade to.
