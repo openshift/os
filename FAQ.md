@@ -109,3 +109,15 @@ to do this.
 Also reference the docs from the `machine-config-operator` about
 [hacking on the `machine-os-content`](https://github.com/openshift/machine-config-operator/blob/master/docs/HACKING.md#hacking-on-machine-os-content)
 which is the container image that houses the OS content that RHCOS nodes upgrade to.
+
+## Q: How do I get RHCOS in a private EC2 region?
+
+I am using a non-default AWS region such as GovCloud or AWS China, and when I try to import the AMI I see:
+
+`EFI partition detected. UEFI booting is not supported in EC2.`
+
+As of OpenShift 4.3, RHCOS has a unified BIOS/UEFI partition layout.
+
+To work around this, use `aws ec2 import-snapshot` combined with `aws ec2 register-image` (instead of `aws ec2 import-image`).
+
+In the future the OpenShift installer will likely have support for this.
