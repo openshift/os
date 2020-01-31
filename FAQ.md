@@ -116,8 +116,8 @@ I am using a non-default AWS region such as GovCloud or AWS China, and when I tr
 
 `EFI partition detected. UEFI booting is not supported in EC2.`
 
-As of OpenShift 4.3, RHCOS has a unified BIOS/UEFI partition layout.
+As of OpenShift 4.3, RHCOS has a unified BIOS/UEFI partition layout. As such, it is not compatible with the default `aws ec2 import-image` API (for more information, see discussions in https://github.com/openshift/os/pull/396).
 
-To work around this, use `aws ec2 import-snapshot` combined with `aws ec2 register-image` (instead of `aws ec2 import-image`).
+Instead, you must use `aws ec2 import-snapshot` combined with `aws ec2 register-image`. To learn more about these APIs, see the AWS documentation for [importing snapshots](https://docs.aws.amazon.com/vm-import/latest/userguide/vmimport-import-snapshot.html) and [creating EBS-backed AMIs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-ebs.html#creating-launching-ami-from-snapshot).
 
 In the future the OpenShift installer will likely have support for this.
