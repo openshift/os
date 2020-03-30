@@ -69,10 +69,23 @@ https://openshift-release.svc.ci.openshift.org/releasestream/4.2.0-0.nightly/rel
 You could do:
 
 ```
-$ oc adm release info --image-for=machine-os-content  registry.svc.ci.openshift.org/ocp/release:4.2.0-0.nightly-2019-11-06-011942
-quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:c45597ccca7d1965442d85711561abf678a1a3f6445407f2c3dce14cac282527
-$ pivot quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:c45597ccca7d1965442d85711561abf678a1a3f6445407f2c3dce14cac282527
+$ oc adm release info --image-for=machine-os-content  quay.io/openshift-release-dev/ocp-release:4.2.10
+quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:02d810d3eb284e684bd20d342af3a800e955cccf0bb55e23ee0b434956221bdd
+$ pivot quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:02d810d3eb284e684bd20d342af3a800e955cccf0bb55e23ee0b434956221bdd
 ```
+
+## Q: How do I see which RHEL and RHCOS version is in a release?
+
+Like above, but add `oc image info`:
+
+```
+$ oc image info $(oc adm release info --image-for=machine-os-content quay.io/openshift-release-dev/ocp-release:4.2.10)
+...
+Labels:     com.coreos.ostree-commit=33dd81479490fbb61a58af8525a71934e7545b9ed72d846d3e32a3f33f6fac9d
+            version=42.81.20191203.0
+```
+
+Here the `81` means it's using RHEL 8.1.
 
 ## Q: How do I debug Ignition failures?
 
