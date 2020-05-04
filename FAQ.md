@@ -87,6 +87,10 @@ Labels:     com.coreos.ostree-commit=33dd81479490fbb61a58af8525a71934e7545b9ed72
 
 Here the `81` means it's using RHEL 8.1.
 
+## Q: How do I know which RHEL will be in the next release?
+
+RHEL CoreOS ships RHEL updates after they're released.  Usually, RHEL 8.X updates will land in all OpenShift streams (e.g. `4.3`, `4.4`) at around the same time, and usually first in the development builds.  To see this, inspect the versions per above.
+
 ## Q: How do I debug Ignition failures?
 
 Today, when Ignition fails, it will wait in an "emergency shell" for 5 minutes.
