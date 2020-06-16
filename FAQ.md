@@ -138,3 +138,8 @@ As of OpenShift 4.3, RHCOS has a unified BIOS/UEFI partition layout. As such, it
 Instead, you must use `aws ec2 import-snapshot` combined with `aws ec2 register-image`. To learn more about these APIs, see the AWS documentation for [importing snapshots](https://docs.aws.amazon.com/vm-import/latest/userguide/vmimport-import-snapshot.html) and [creating EBS-backed AMIs](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/creating-an-ami-ebs.html#creating-launching-ami-from-snapshot).
 
 In the future the OpenShift installer will likely have support for this.
+
+## Q: Can I use Driver Update Program disks with RHCOS?
+
+No, there is no supported mechanism for non-default kernel modules at this time, which includes [driver disks](https://access.redhat.com/articles/64322).
+
