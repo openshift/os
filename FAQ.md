@@ -91,6 +91,23 @@ Here the `81` means it's using RHEL 8.1.
 
 RHEL CoreOS ships RHEL updates after they're released.  Usually, RHEL 8.X updates will land in all OpenShift streams (e.g. `4.3`, `4.4`) at around the same time, and usually first in the development builds.  To see this, inspect the versions per above.
 
+## Q: How do I determine what version of an RPM is included in an RHCOS release?
+
+The contents of each RHCOS release are visible in the [release browser](https://releases-rhcos-art.cloud.privileged.psi.redhat.com/) via the "OS contents" link next to each build.
+
+Alternately, you can query the metadata directly:
+
+```
+$ curl -Ls https://releases-rhcos-art.cloud.privileged.psi.redhat.com/storage/releases/rhcos-4.5/45.82.202007140205-0/x86_64/commitmeta.json | jq '.["rpmostree.rpmdb.pkglist"][] | select(.[0] == "cri-o")'
+[
+  "cri-o",
+  "0",
+  "1.18.2",
+  "18.rhaos4.5.git754d46b.el8",
+  "x86_64"
+]
+```
+
 ## Q: How do I debug Ignition failures?
 
 Today, when Ignition fails, it will wait in an "emergency shell" for 5 minutes.
