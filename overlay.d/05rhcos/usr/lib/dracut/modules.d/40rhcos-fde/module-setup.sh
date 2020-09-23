@@ -91,4 +91,15 @@ install() {
     # The generator enables the opening service.
     inst_simple "$moddir/coreos-luks-generator" \
         "$systemdutildir/system-generators/coreos-luks-generator"
+
+    # Gate all the rootfs replacement stuff for now behind a development flag
+    # since it conflicts with this module. Soon, we'll nuke this module entirely
+    # anyway in its place.
+    for x in ignition-ostree-rootfs-{detect,save,restore} coreos-inject-rootmap; do
+        mkdir -p $initdir/$systemdsystemunitdir/${x}.service.d/
+        cat > $initdir/$systemdsystemunitdir/${x}.service.d/neuter.conf <<EOF
+[Unit]
+ConditionKernelCommandLine=coreos.rootfs-replace.exp
+EOF
+    done
 }
