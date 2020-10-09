@@ -1,0 +1,18 @@
+# Note we should rip this out once it's fixed upstream:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1493296
+# We have a time bomb for that in manifest.yaml.
+[Unit]
+Description=CoreOS Generate iSCSI Initiator Name
+Documentation=https://bugzilla.redhat.com/show_bug.cgi?id=1493296
+Documentation=https://bugzilla.redhat.com/show_bug.cgi?id=1687722
+ConditionFirstBoot=true
+# But only if not already written by Ignition
+# https://bugzilla.redhat.com/show_bug.cgi?id=1868174
+ConditionPathExists=!/etc/iscsi/initiatorname.iscsi
+Before=iscsid.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh -c 'echo "InitiatorName=`/usr/sbin/iscsi-iname`" > /etc/iscsi/initiatorname.iscsi'
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target

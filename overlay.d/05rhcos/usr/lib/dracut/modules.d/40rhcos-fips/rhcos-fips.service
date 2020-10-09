@@ -1,0 +1,35 @@
+[Unit]
+Description=Check for FIPS mode
+DefaultDependencies=false
+ConditionKernelCommandLine=ignition.firstboot
+
+# Any services looking at mounts should generally order after the
+# GPT regenerator.
+# This is technically already guaranteed by After=ignition-fetch.service
+# but just as a sanity-check let's add it here too.
+After=coreos-gpt-setup@dev-disk-by\x2dlabel-root.service
+# we need to be able to mount /boot
+After=dev-disk-by\x2dlabel-boot.device
+Requires=dev-disk-by\x2dlabel-boot.device
+
+# we need the fetched Ignition config, but before disks start
+After=ignition-fetch.service
+Before=ignition-disks.service
+
+# We want to run to completion before check-in: if we immediately reboot for
+# FIPS, it'd be more appropriate to say we're up on that second boot. Also on
+# some platforms (like Azure), check-in "ejects" the user-data drive, so
+# Ignition can't fetch the config again.
+Before=rhcos-afterburn-checkin.service
+
+# See comment about this in ignition-complete.target.
+OnFailure=emergency.target
+OnFailureJobMode=isolate
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/run/ignition.env
+ExecStart=/usr/sbin/rhcos-fips firstboot
+TemporaryFileSystem=/run/rhcos-fips /usr/lib/ignition
+MountFlags=slave

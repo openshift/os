@@ -1,0 +1,48 @@
+#!/bin/bash
+# Download RPMs to act as extensions.
+# See https://github.com/openshift/enhancements/pull/317
+# and https://github.com/coreos/fedora-coreos-tracker/issues/401
+# In the future this might live in rpm-ostree, see https://github.com/coreos/rpm-ostree/issues/2055
+set -euo pipefail
+destdir=$1
+shift
+reposdir=$(pwd)/src/config
+cd $destdir
+
+# The "v2" format here is that there's an extensions/ directory, with subdirectories
+# for each extension - except you should ignore "repodata/".
+mkdir extensions
+cd extensions
+
+# Stuff that's not part of the extension
+mkdir dependencies
+
+yumdownload() {
+    yum --setopt=reposdir=${reposdir} --disablerepo='*' --arch=$(cosa basearch) "$@"
+}
+
+if [ "$(arch)" = x86_64 ]; then
+    # https://github.com/openshift/machine-config-operator/pull/1330
+    # https://github.com/openshift/enhancements/blob/master/enhancements/support-for-realtime-kernel.md
+    mkdir kernel-rt
+    # TODO: remove the rhaos-art-4.6 repo  once the 8.2.z kernel is in the RHEL repo
+    (cd kernel-rt && yumdownload --enablerepo=rhel8-nfv --enablerepo=art-rhaos-4.6 download kernel-rt-{core,modules,modules-extra,kvm})
+    # For backwards compatibility with existing MCO code, keep the kernel-rt RPMs at the toplevel too
+    for x in kernel-rt/*.rpm; do ln $x ..; done
+fi
+
+# https://github.com/kmods-via-containers/kmods-via-containers/issues/3
+# https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/866
+mkdir kernel-devel
+# TODO: remove the rhaos-art-4.6 repo  once the 8.2.z kernel is in the RHEL repo
+(cd kernel-devel && yumdownload --enablerepo=rhel8-baseos --enablerepo=art-rhaos-4.6 download kernel-{core,devel,headers,modules,modules-extra})
+# For backwards compatibility with ISVs that may be trying to use kernel-devel in
+# its old location.
+for x in kernel-devel/*.rpm; do ln $x ..; done
+
+# usbguard: https://github.com/coreos/fedora-coreos-tracker/issues/326
+(cd dependencies && yumdownload --enablerepo=rhel8-baseos --enablerepo=rhel8-appstream download libqb protobuf)
+mkdir usbguard
+(cd usbguard && yumdownload --enablerepo=rhel8-baseos --enablerepo=rhel8-appstream download usbguard)
+
+createrepo_c --no-database .

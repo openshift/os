@@ -1,0 +1,20 @@
+[Unit]
+Description=Finish FIPS mode setup
+DefaultDependencies=false
+# we run in the second boot after the one where we set fips=1
+ConditionKernelCommandLine=ignition.firstboot
+ConditionKernelCommandLine=fips
+Before=initrd.target
+
+# we want to run after Ignition drops its files
+After=ignition-files.service
+
+# See comment about this in ignition-complete.target.
+OnFailure=emergency.target
+OnFailureJobMode=isolate
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/rhcos-fips finish
+MountFlags=slave

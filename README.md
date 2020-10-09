@@ -1,11 +1,9 @@
-Please see https://github.com/openshift/installer to install
-an OpenShift cluster which uses Red Hat CoreOS.
+This repository is the "config" repository used to build
+RHEL CoreOS using [coreos-assembler](https://github.com/coreos/coreos-assembler/).
 
-This repository provides a place to report issues about Red Hat CoreOS, in
-addition to [the Bugzilla product](https://bugzilla.redhat.com/enter_bug.cgi?product=OpenShift%20Container%20Platform&component=RHCOS).
+There was a previous git repository inside the Red Hat
+firewall never published.  The history of that repository
+is entangled with various private things and is omitted.
 
-For more information (RHT internal): https://url.corp.redhat.com/redhat-coreos
-
-You may also be interested in [Fedora CoreOS](https://coreos.fedoraproject.org/)
-and the [coreos-assembler](https://github.com/coreos/coreos-assembler/) project
-for example.
+Going forward, this repository will be canonical; more
+to come.

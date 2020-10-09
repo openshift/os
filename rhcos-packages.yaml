@@ -1,0 +1,20 @@
+# RHCOS maintained packages
+# Yes, there are duplicates but this helps keep an eye on RPMs we need to keep
+# updated in dist-git, etc
+packages:
+  ## Delivered via RHAOS puddles
+  # Extra runtime
+  - afterburn
+  # User experience
+  - console-login-helper-messages-issuegen console-login-helper-messages-profile
+  # installer iso packages
+  - coreos-installer coreos-installer-bootinfra
+  - ignition
+  - redhat-release-coreos
+  ## Delivered via RHEL Base/Appstream (usually)
+  # needed by rpm-ostree for managing users
+  - nss-altfiles
+  - ostree
+  - rpm-ostree
+  # part of container-tools module
+  - toolbox

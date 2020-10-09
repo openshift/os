@@ -1,0 +1,30 @@
+#!/bin/bash
+# Helper library for getting the key and Clevis token for a network-bounded disk.
+KEY=""
+TOKEN=""
+DEV="${1:?device must be the first argument}"; shift;
+
+clevis_info() {
+    local coreos_id="$(cryptsetup luksDump ${DEV} | sed -rn 's|^\s+([0-9]+): clevis|\1|p')"
+    if [ -z "${coreos_id}" ]; then
+        TOKEN="NODATA";
+        KEY="NODATA";
+    else
+        TOKEN=$(cryptsetup token export --token-id "${coreos_id}" "${DEV}" || "NODATA");
+        KEY=$(echo ${TOKEN} \
+            | jose fmt -j- -Og jwe -o- \
+            | jose jwe fmt -i- -c \
+            | tr -d '\n' \
+            | clevis decrypt)
+    fi
+}
+
+clevis_token() {
+    echo "${TOKEN}"
+}
+
+clevis_key() {
+    echo "${KEY}"
+}
+
+clevis_info
