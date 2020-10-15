@@ -15,16 +15,13 @@ arch-include:
   ppc64le: fedora-coreos-config/manifests/grub2-removals.yaml
   aarch64: fedora-coreos-config/manifests/grub2-removals.yaml
 
+# See README.md
+# and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
 repos:
-  # Base RHEL
-  - rhel8-baseos
-  - rhel8-appstream
-  - rhel8-fast-datapath
-  # ART RHAOS repos
-  - art-rhaos-4.4
-  - art-rhaos-4.5
-  - art-rhaos-4.6
-  - art-rhaos-4.7
+  - rhel-8-baseos
+  - rhel-8-appstream
+  - rhel-8-fast-datapath
+  - rhel-8-server-ose
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "47.82.<date:%Y%m%d%H%M>"
