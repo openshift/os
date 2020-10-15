@@ -18,7 +18,8 @@ cd extensions
 mkdir dependencies
 
 yumdownload() {
-    yum --setopt=reposdir=${reposdir} --disablerepo='*' --arch=$(cosa basearch) "$@"
+    # FIXME eventually use rpm-ostree for this
+    yum --setopt=reposdir=${reposdir} --disablerepo='*' --arch=$(cosa basearch) --enablerepo=rhel8-baseos --enablerepo=rhel8-appstream --enablerepo=art-rhaos-4.6 --enablerepo=rhel8-nfv download "$@"
 }
 
 if [ "$(arch)" = x86_64 ]; then
@@ -26,7 +27,7 @@ if [ "$(arch)" = x86_64 ]; then
     # https://github.com/openshift/enhancements/blob/master/enhancements/support-for-realtime-kernel.md
     mkdir kernel-rt
     # TODO: remove the rhaos-art-4.6 repo  once the 8.2.z kernel is in the RHEL repo
-    (cd kernel-rt && yumdownload --enablerepo=rhel8-nfv --enablerepo=art-rhaos-4.6 download kernel-rt-{core,modules,modules-extra,kvm})
+    (cd kernel-rt && yumdownload kernel-rt-{core,modules,modules-extra,kvm})
     # For backwards compatibility with existing MCO code, keep the kernel-rt RPMs at the toplevel too
     for x in kernel-rt/*.rpm; do ln $x ..; done
 fi
@@ -35,14 +36,14 @@ fi
 # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/866
 mkdir kernel-devel
 # TODO: remove the rhaos-art-4.6 repo  once the 8.2.z kernel is in the RHEL repo
-(cd kernel-devel && yumdownload --enablerepo=rhel8-baseos --enablerepo=art-rhaos-4.6 download kernel-{core,devel,headers,modules,modules-extra})
+(cd kernel-devel && yumdownload kernel-{core,devel,headers,modules,modules-extra})
 # For backwards compatibility with ISVs that may be trying to use kernel-devel in
 # its old location.
 for x in kernel-devel/*.rpm; do ln $x ..; done
 
 # usbguard: https://github.com/coreos/fedora-coreos-tracker/issues/326
-(cd dependencies && yumdownload --enablerepo=rhel8-baseos --enablerepo=rhel8-appstream download libqb protobuf)
+(cd dependencies && yumdownload libqb protobuf)
 mkdir usbguard
-(cd usbguard && yumdownload --enablerepo=rhel8-baseos --enablerepo=rhel8-appstream download usbguard)
+(cd usbguard && yumdownload usbguard)
 
 createrepo_c --no-database .
