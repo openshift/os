@@ -1,0 +1,13 @@
+[Unit]
+Description=Afterburn (Check In - from the initramfs)
+ConditionKernelCommandLine=ignition.platform.id=azure
+
+# Since we don't care about the actual success of the boot
+# from the OS perspective, check in as soon as we are able.
+After=network.target
+
+[Service]
+Environment=AFTERBURN_OPT_PROVIDER=--cmdline
+ExecStart=/usr/bin/afterburn ${AFTERBURN_OPT_PROVIDER} --check-in
+Type=oneshot
+RemainAfterExit=yes

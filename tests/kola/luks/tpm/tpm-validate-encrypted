@@ -1,0 +1,38 @@
+#!/bin/bash
+set -xeuo pipefail
+
+# Validate that the root filesystem is encrypted if we request
+# binding to the TPM.
+
+boot=$(journalctl --list-boots | wc -l)
+cd $(mktemp -d)
+case "${AUTOPKGTEST_REBOOT_MARK:-}" in
+  "") 
+    cryptsetup luksDump /dev/disk/by-partlabel/luks_root > luks.dump
+    # Yes, some hacky regexps.  There is luksDump --debug-json but we'd have to massage the JSON
+    # out of other debug output and it's not clear to me it's going to be more stable.
+    # We're just going for a basic sanity check here.
+    grep -qE -e 'Cipher: *aes' luks.dump
+    if grep -q "Cipher: *cipher_null-ecb" luks.dump; then
+        echo "found null cipher" 1>&2
+        exit 1
+    fi
+    grep -qE -e '0: *clevis' luks.dump
+
+    if grep -q '9: *coreos' luks.dump; then
+        echo "found default token" 1>&2
+        exit 1
+    fi
+    journalctl -q -b -u coreos-encrypt --grep=pin=tpm2 > journal.dump
+    grep -q pin=tpm2 journal.dump
+    /tmp/autopkgtest-reboot validate-encrypted
+  ;;
+  validate-encrypted)
+    cryptsetup luksDump /dev/disk/by-partlabel/luks_root > luks-rebooted.dump
+    grep -qE -e 'Cipher: *aes' luks-rebooted.dump
+    echo "OK"
+  ;;
+  *) echo "Unexpected reboot state"
+     exit 1
+  ;;
+esac

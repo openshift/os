@@ -1,0 +1,28 @@
+#!/usr/bin/python3
+import os,subprocess,json,sys
+
+with open(sys.argv[1]) as f:
+   meta = json.load(f)
+
+for ami in meta['amis']:
+   subprocess.check_call(['aws', 'ec2', f'--region={ami["name"]}', 'modify-image-attribute', '--image-id', ami['hvm'], '--launch-permission', 'Remove=[{Group=all}]'])
+   try:
+       output = subprocess.check_output(['aws', '--output=json', 'ec2', "--region", ami['name'], 'describe-images', '--image-id', ami['hvm']])
+   except subprocess.CalledProcessError as e:
+       print("Failed to describe image {}".format(e))
+       sys.exit(1)
+   image_description = json.loads(output)
+   snapshot = None
+   for image in image_description['Images']:
+       for block_device_mapping in image['BlockDeviceMappings']:
+           if block_device_mapping['Ebs']:
+               snapshot = block_device_mapping['Ebs']['SnapshotId']
+               break
+
+   if snapshot is None:
+       print("Failed to find SnapshotId associated with ami")
+       sys.exit(1)
+   subprocess.check_call(['aws', 'ec2', '--region', ami['name'], 'modify-snapshot-attribute',
+                           '--snapshot-id', snapshot, '--attribute', 'createVolumePermission',
+                           '--operation-type', 'remove', '--group-names', 'all'])
+   print(f"Done {ami} with snapshot ID {snapshot}")

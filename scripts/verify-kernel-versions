@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""
+Checks to ensure the composed kernel versions and the kernel-rt extension
+all have the same version.
+
+We want to ensure we are shipping the same feature set, kmods/drivers,
+and errata are applied for those customers who chose to switch between
+kernels.
+"""
+
+import json
+import os
+import subprocess
+import sys
+
+#: When set to 1, doesn't stop builds when errors are found
+IGNORE_KERNEL_MISMATCH = int(os.getenv('IGNORE_KERNEL_MISMATCH', 0))
+try:
+    #: Jenkins provided workspace
+    WORKSPACE = sys.argv[1]
+except Exception as ex:
+    print('Missing workspace path')
+    raise ex
+
+#: Path to latest builds
+LATEST_BUILDS = os.path.join(WORKSPACE, 'builds/latest/')
+
+
+def exit_on_error(errors: list, title: str):
+    """
+    Prints errors and exists.
+
+    :param errors: List of errors.
+    :raises: SystemExit
+    """
+    if len(errors) > 0:
+        print(f'{title} - {len(errors)} error(s):')
+        for err in errors:
+            print(f'- {err}')
+
+        if not IGNORE_KERNEL_MISMATCH:
+            raise SystemExit(1)
+
+
+def get_nevr_from_rpm(rpm_path: str) -> list:
+    """
+    Uses the rpm command to parse Name, Epoch, Version, and Release
+    from the local package.
+
+    :param rpm_path: Path to the local rpm package
+    :raises: CalledProcessError, FileNotFoundError
+    """
+    # Create a command that makes it easy to parse (-'s are deceiving)
+    cmd = [
+        'rpm', '-qp', '--qf',
+        "%{NAME}|%{EPOCH}|%{VERSION}|%{RELEASE}|%{ARCH}", rpm_path]
+    parts = subprocess.check_output(cmd).decode('utf8').split('|')
+    # If rpm says there is no epoch, it's 0
+    if parts[1] == '(none)':
+        parts[1] = '0'
+    return parts
+
+
+def get_rt_evr() -> list:
+    """
+    Goes through the kernel-rt extensions path, verifies the kernel-rt
+    packages all have the same version, then returns a list of the
+    epoch, version, release.
+
+    .. note::
+       If the kernel-rt versions don't match eachother an error
+       prints and the script exits.
+
+    :raises: SystemExit, CalledProcessError, FileNotFoundError
+    """
+    evr = []
+    errors = []
+    rt_ext_path = os.path.join(WORKSPACE, 'extensions/extensions/kernel-rt/')
+    if not os.path.isdir(rt_ext_path):
+        exit_on_error([
+            f'{rt_ext_path} is not a directory or does not exist'],
+            'verify rt extensions directory')
+    for p, d, f in os.walk(rt_ext_path):
+        for fname in f:
+            if fname.endswith('.rpm'):
+                pkg = os.path.join(p, fname)
+                nevr = get_nevr_from_rpm(pkg)
+                # Remove the rt specific string
+                nevr[3] = nevr[3].replace(
+                    nevr[3][nevr[3].index('.rt'):nevr[3].index('.el')], '')
+                if evr:
+                    if evr != nevr[1:]:
+                        errors.append(
+                            f'{pkg} version differs from other rt packages:'
+                            f' {evr} != {nevr[1:]}')
+                evr = nevr[1:]
+
+    exit_on_error(errors, 'rt kernel version check')
+    if not IGNORE_KERNEL_MISMATCH:
+        print('rt packages have consistent versions...')
+    return evr
+
+
+def main():
+    """
+    Main entry point.
+
+    :raises: FileNotFoundError, SystemExit
+    """
+    # kernel-rt is only available on x86_64. Exit early on any
+    # other architecture
+    arch = subprocess.check_output('arch')[:-1].decode()
+    if arch != 'x86_64':
+        print(
+            f'Skipping kernel/kernel-rt check on non x86_64 platform: {arch}')
+        return SystemExit()
+
+    print('Verifying kernel versions are inline with each other ...')
+    rt_evr = get_rt_evr()
+
+    # Since all the versioning should be consistent we can
+    # check that the kernel packages match the single kernel-rt version
+    errors = []
+    cmj = os.path.join(LATEST_BUILDS, 'x86_64', 'commitmeta.json')
+    with open(cmj, 'r') as f:
+        commitmeta = json.load(f)
+        for i in commitmeta['rpmostree.rpmdb.pkglist']:
+            if i[0].startswith('kernel'):
+                if i[1:] != rt_evr:
+                    # version-release.arch.epoch
+                    kernel_pkg = '-'.join(i[2:-1]) + "." + i[1]
+                    rt_kernel_pkg = '-'.join(rt_evr[1:-1]) + "." + rt_evr[0]
+                    errors.append(
+                        f'kernel-rt and {i[0]} version mismatch: '
+                        f'{kernel_pkg} != {rt_kernel_pkg}')
+    exit_on_error(errors, 'default kernel and rt version check')
+    print('<3 Kernel versions match <3')
+
+
+if __name__ == '__main__':
+    main()

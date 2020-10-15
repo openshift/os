@@ -1,0 +1,5 @@
+# Disable bits primarily from fedora-coreos-config
+
+# https://github.com/coreos/afterburn/issues/405
+# When we changed to inherit from FCOS we started enabling this service
+disable afterburn-sshkeys@.service

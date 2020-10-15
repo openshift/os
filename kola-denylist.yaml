@@ -1,0 +1,19 @@
+# This file documents currently known-to-fail kola tests. It is consumed by
+# coreos-assembler to automatically skip some tests. For more information,
+# see: https://github.com/coreos/coreos-assembler/pull/866.
+- pattern: fips.enable*
+  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1782026
+  arches:
+   - s390x
+- pattern: crio.base
+  tracker: https://github.com/kubernetes/kubernetes/issues/87325
+  arches:
+   - s390x
+   - ppc64le
+# for s390x by-partlabel can't be used and even if that is avoided by using part-uuid, still depends on the cpi fix below
+- pattern: ext.config.var-mount
+  tracker: https://github.com/ibm-s390-tools/s390-tools/pull/82
+  arches:
+   - s390x
+- pattern: coreos.ignition.journald-log
+  tracker: https://github.com/coreos/coreos-assembler/issues/1173

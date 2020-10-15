@@ -1,0 +1,22 @@
+[Unit]
+Description=CoreOS Firstboot Check If Encryption Requires Networking
+DefaultDependencies=false
+
+# We need to fetch Ignition first
+After=ignition-fetch-offline.service
+
+# But before we request networking
+Before=coreos-enable-network.service
+
+# Make sure if ExecStart= fails, the boot fails
+OnFailure=emergency.target
+OnFailureJobMode=isolate
+
+[Service]
+Type=oneshot
+EnvironmentFile=/run/ignition.env
+ExecStartPre=/bin/mkdir -p /run/coreos
+ExecStart=/usr/libexec/coreos-cryptfs check-needsnet
+# If changing this, please also change coreos-encrypt.service
+TemporaryFileSystem=/run/coreos-cryptfs-tmp /usr/lib/ignition
+RemainAfterExit=yes
