@@ -19,7 +19,7 @@ mkdir dependencies
 
 yumdownload() {
     # FIXME eventually use rpm-ostree for this
-    yum --setopt=reposdir=${reposdir} --disablerepo='*' --arch=$(cosa basearch) --enablerepo=rhel8-baseos --enablerepo=rhel8-appstream --enablerepo=art-rhaos-4.6 --enablerepo=rhel8-nfv download "$@"
+    yum --setopt=reposdir=${reposdir} --disablerepo='*' --arch=$(cosa basearch) --enablerepo=rhel-8-baseos --enablerepo=rhel-8-appstream --enablerepo=rhel-8-server-ose --enablerepo=rhel-8-nfv download "$@"
 }
 
 if [ "$(arch)" = x86_64 ]; then
