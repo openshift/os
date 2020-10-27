@@ -3,3 +3,7 @@
 # https://github.com/coreos/afterburn/issues/405
 # When we changed to inherit from FCOS we started enabling this service
 disable afterburn-sshkeys@.service
+
+# Explicitly disable: it's enabled by default otherwise but will fail because
+# we don't ship with the kargs needed for enablement.
+disable kdump.service

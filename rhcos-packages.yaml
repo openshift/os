@@ -18,3 +18,6 @@ packages:
   - rpm-ostree
   # part of container-tools module
   - toolbox
+  # for kdump:
+  # https://github.com/coreos/fedora-coreos-tracker/issues/622
+  - kexec-tools
