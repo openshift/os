@@ -50,6 +50,13 @@ if [ "$(systemctl is-enabled afterburn-sshkeys@.service)" = enabled ]; then
 fi
 echo "ok afterburn-sshkeys@ is disabled"
 
+# Make sure that kdump didn't start (it's either disabled, or enabled but
+# conditional on crashkernel= karg, which we don't bake).
+if ! systemctl show -p ActiveState kdump.service | grep -q ActiveState=inactive; then
+    fatal "Unit kdump.service shouldn't be active"
+fi
+echo "ok kdump.service not active"
+
 test -d /etc/yum.repos.d
 echo "ok have /etc/yum.repos.d"
 
