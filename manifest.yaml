@@ -7,6 +7,7 @@ rojig:
 include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
+  - fedora-coreos-config/manifests/bootupd.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
 
