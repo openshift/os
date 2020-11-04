@@ -32,6 +32,12 @@ However, it differs in how it's managed - RHEL CoreOS is managed by the
 
 Similarly, Fedora CoreOS is an "edition" of Fedora.
 
+## Q: Where should I report issues with OpenShift Container Platform or Red Hat CoreOS?
+
+OpenShift Container Platform (OCP) and Red Hat CoreOS (RHCOS) are products from Red Hat that customers can receive support for. If you encounter an issue with either OCP or RHCOS, you can use the [official support options](https://access.redhat.com/support) or [file a Bugzilla report](https://bugzilla.redhat.com/enter_bug.cgi?product=OpenShift%20Container%20Platform) about your issue.
+
+[OKD](https://www.okd.io/) is the community distribution of Kubernetes that powers OpenShift. If you have issues with OKD, you should report the issue on the [upstream issue tracker](https://github.com/openshift/okd).  (Please note that using RHCOS with OKD is not supported.)
+
 ## Q: How do I provide static IP addresses?
 
 As of OpenShift 4.2, by default the kernel command line arguments for networking
@@ -161,9 +167,3 @@ In the future the OpenShift installer will likely have support for this.
 ## Q: Can I use Driver Update Program disks with RHCOS?
 
 No, there is no supported mechanism for non-default kernel modules at this time, which includes [driver disks](https://access.redhat.com/articles/64322).
-
-## Q: Where should I report issues with OpenShift Container Platform or Red Hat CoreOS?
-
-OpenShift Container Platform (OCP) and Red Hat CoreOS (RHCOS) are products from Red Hat that customers can receive support for. If you encounter an issue with either OCP or RHCOS, you can use the [official support options](https://access.redhat.com/support) or [file a Bugzilla report](https://bugzilla.redhat.com/enter_bug.cgi?product=OpenShift%20Container%20Platform) about your issue.
-
-[OKD](https://www.okd.io/) is the community distribution of Kubernetes that powers OpenShift. If you have issues with OKD, you should report the issue on the [upstream issue tracker](https://github.com/openshift/okd).  (Please note that using RHCOS with OKD is not supported.)
