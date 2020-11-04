@@ -13,6 +13,9 @@ After=coreos-encrypt.service
 # table, udev, etc..
 After=ignition-disks.service
 
+# Need to open device before we can restamp it
+Before=ignition-ostree-uuid-root.service
+
 # This is our luks root label
 Requires=dev-disk-by\x2dlabel-crypt_rootfs.device
 After=dev-disk-by\x2dlabel-crypt_rootfs.device
