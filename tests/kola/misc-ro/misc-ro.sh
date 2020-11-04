@@ -4,6 +4,10 @@ set -xeuo pipefail
 
 cd $(mktemp -d)
 
+ok() {
+    echo "ok" "$@"
+}
+
 fatal() {
   echo "$@"
   exit 1
@@ -100,3 +104,17 @@ elif [[ $nm_ts -gt $switchroot_ts ]] && on_platform aws; then
     fatal "NetworkManager not started in initramfs!"
 fi
 echo ok conditional initrd networking
+
+case "$(arch)" in
+    x86_64|aarch64)
+        if runuser -u core -- ls /boot/efi &>/dev/null; then
+            fatal "Was able to access /boot/efi as non-root"
+        fi
+        # This is just a basic sanity check; at some point we
+        # will implement "project-owned tests run in the pipeline"
+        # and be able to run the existing bootupd tests:
+        # https://github.com/coreos/fedora-coreos-config/pull/677
+        bootupctl status
+        ok bootupctl
+        ;;
+esac
