@@ -7,7 +7,7 @@ set -euo pipefail
 destdir=$1
 shift
 reposdir=$(pwd)/src/config
-cd $destdir
+cd "${destdir}"
 
 # The "v2" format here is that there's an extensions/ directory, with subdirectories
 # for each extension - except you should ignore "repodata/".
@@ -20,13 +20,14 @@ mkdir dependencies
 # Downloads packages from specified repos
 yumdownload() {
     # FIXME eventually use rpm-ostree for this
-    yum --setopt=reposdir=${reposdir} --disablerepo='*' --arch=$(cosa basearch) --enablerepo=rhel-8-baseos --enablerepo=rhel-8-appstream --enablerepo=rhel-8-server-ose --enablerepo=rhel-8-nfv download $@
+    # shellcheck disable=SC2068
+    yum --setopt=reposdir="${reposdir}" --disablerepo='*' --arch="$(cosa basearch)" --enablerepo=rhel-8-baseos --enablerepo=rhel-8-appstream --enablerepo=rhel-8-server-ose --enablerepo=rhel-8-nfv download $@
 }
 
 # Simple info output function
 # 1 = message to show
 info() {
-    echo "++ $(basename $0): $1"
+    echo "++ $(basename "$0"): $1"
 }
 
 # Reuseable function for setting up an extension
@@ -35,17 +36,17 @@ info() {
 # 3 = OPTIONAL: dependencies string/glob
 createext() {
     extname=$1
-    packages="$2"
+    packages=$2
 
-    info "Creating extension $extname"
-    mkdir ${extname}
-    (cd ${extname} && yumdownload "$packages")
+    info "Creating extension ${extname}"
+    mkdir "${extname}"
+    (cd "${extname}" && yumdownload "${packages}")
     # For backwards compatibility with existing MCO code, keep the RPMs at the toplevel too
-    for x in ${extname}/*.rpm; do ln $x ..; done
+    for x in "${extname}"/*.rpm; do ln "${x}" ..; done
     # Grab dependencies if any are required
     if [ $# -eq 3 ]; then
-	info "Downloading dependencies for ${extname}"
-        (cd dependencies && echo ${3} && yumdownload "${3}" && echo "done")
+        info "Downloading dependencies for ${extname}"
+        (cd dependencies && echo "${3}" && yumdownload "${3}" && echo "done")
     fi
 }
 
