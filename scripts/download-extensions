@@ -49,13 +49,32 @@ createext() {
     fi
 }
 
+# In the event that kernel-rt is out of sync with vanilla kernel, determine
+# the right version of kernel-headers to use.  Assumes that `createext()`
+# has successfully created/downloaded the kernel-rt extension
+get_rtheaders() {
+    pushd kernel-rt
+    rtrpm=$(ls kernel-rt-core*)
+    rtver=$(rpm -qp --queryformat="%{VERSION}" "${rtrpm}")
+    # kernel-rt-core includes some RT specific data in the RELEASE of the RPM, which needs
+    # to be stripped to match kernel-headers (i.e. kernel-rt-core-4.18.0-193.28.1.rt13.77.el8_2.x86_64.rpm)
+    rtrel=$(rpm -qp --queryformat="%{RELEASE}" "${rtrpm}" | sed 's/\.rt[0-9]\+\.[0-9]\+//')
+    headers="kernel-headers-${rtver}-${rtrel}"
+    info "Retrieving ${headers} for ${rtrpm}"
+    yumdownload "${headers}"
+    headersrpm=$(ls kernel-headers*)
+    ln "${headersrpm}" ../..
+    popd
+}
+
 # kernel-rt/kernel-rt-devel
 if [ "$(cosa basearch)" = x86_64 ]; then
     # GRPA-2822
     # https://github.com/openshift/machine-config-operator/pull/1330
     # https://github.com/openshift/enhancements/blob/master/enhancements/support-for-realtime-kernel.md
     # TODO: remove the rhaos-art-4.6 repo once the 8.2.z kernel is in the RHEL repo
-    createext "kernel-rt" "kernel-rt-core kernel-rt-kvm kernel-rt-modules kernel-rt-modules-extra" "kernel-rt-devel kernel-headers"
+    createext "kernel-rt" "kernel-rt-core kernel-rt-kvm kernel-rt-modules kernel-rt-modules-extra kernel-rt-devel"
+    get_rtheaders
 fi
 
 # kernel-devel
