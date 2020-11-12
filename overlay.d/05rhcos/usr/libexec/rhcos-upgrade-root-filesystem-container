@@ -1,0 +1,71 @@
+#!/bin/bash
+set -euxo pipefail
+
+if [ -f /run/device_mod ]; then
+    exit
+fi
+
+# check for the existence of the dm-linear mapping
+if [ -h "/dev/mapper/coreos-luks-root-nocrypt" ]; then
+    dm_device=$(readlink /dev/mapper/coreos-luks-root-nocrypt -f)
+    dm_device_name=$(basename $dm_device)
+    partition=$(ls /sys/block/$dm_device_name/slaves/)
+    parent=$(basename "$(lsblk --noheadings --output PKNAME --paths /dev/$partition | head -n1)")
+    partnum=$(cat /sys/block/$parent/$partition/partition)
+    # hard-code the label to root
+    label="root"
+    guid=$(lsblk "/dev/$partition" -no PARTUUID)
+    # move the start sector 32768 to move past the LUKS header
+    startsector="$(($(cat /sys/block/$parent/$partition/start)+32768))"
+    # the dm device is already the correct size
+    size=$(cat /sys/block/$dm_device_name/size)
+
+    # check / handle 4k sector size devices
+    sector_size=$(cat /sys/block/$parent/queue/logical_block_size)
+    if [ "$sector_size" == "4096" ]; then
+        startsector=$((startsector / 8))
+        size=$((size / 8))
+    fi
+
+    # validate that the new partition will start at the xfs super block
+    skipcount=$(($startsector * $sector_size))
+    if [ $(dd if=/dev/$parent bs=1 count=4 status=none skip=$skipcount) != XFSB ]; then
+        echo "couldn't detect XFS superblock at expected partition start"
+        exit
+    fi
+
+    # recreate the partition offset after the LUKS header
+    # we don't want to copy the typeguid because that's pointing to crypt_luks
+    sgdisk -d $partnum -n $partnum:$startsector:+$size -c $partnum:$label /dev/$parent -u $partnum:$guid
+    # delete the rhcos.root karg to prevent unlocking attempts
+    rpm-ostree kargs --delete rhcos.root
+
+    > /run/device_mod
+    exit
+fi
+
+# pre-4.7 root LUKS devices are always named luks-00000000-0000-4000-a000-000000000002
+if [ -h /dev/mapper/luks-00000000-0000-4000-a000-000000000002 ]; then
+    # check if the rhcos.root karg exists; if it does not then this script has already
+    # modified the kargs and can exit early
+    if [[ ! "$(rpm-ostree kargs)" =~ .*"rhcos.root".* ]]; then
+        exit
+    fi
+    dm_device=$(readlink /dev/mapper/luks-00000000-0000-4000-a000-000000000002 -f)
+    dm_device_name=$(basename $dm_device)
+    partition=$(ls /sys/block/$dm_device_name/slaves/)
+    luksuuid=$(cryptsetup luksUUID /dev/$partition)
+    fsuuid=$(blkid -s UUID -o value /dev/mapper/luks-00000000-0000-4000-a000-000000000002)
+    clevis_id="$(cryptsetup luksDump /dev/$partition | sed -rn 's|^\s+([0-9]+): clevis|\1|p')"
+    pin=$(cryptsetup token export --token-id "${clevis_id}" "/dev/$partition" \
+            | jq -rM '.jwe.protected' | base64 -d | jq -rM '.clevis.pin')
+
+    set -- --delete rhcos.root --delete rd.luks.options --append root=UUID=$fsuuid --append rw --append rd.luks.name=$luksuuid=luks-$luksuuid
+    if [[ "$pin" != "tpm2" ]]; then
+        set -- "$@" --append rd.neednet=1 --append rd.luks.options=_netdev
+    fi
+    rpm-ostree kargs "$@"
+
+    > /run/device_mod
+    exit
+fi

@@ -1,0 +1,14 @@
+# Fixes the partition table / kargs from machines upgrading from
+# older releases before Ignition LUKS was available
+[Unit]
+Description=CoreOS Upgrade Root Filesystem Encryption Container
+ConditionKernelCommandLine=rhcos.root=crypt_rootfs
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rhcos-upgrade-root-filesystem-container
+RemainAfterExit=yes
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target
