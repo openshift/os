@@ -139,6 +139,25 @@ is in place, as the cluster currently has [no mechanism for reporting](https://g
 fashion.  This kind of package replacement can also leave your nodes exposed to potential problems
 that are fixed in newer versions of the package.
 
+## Q: Why are there no yum (rpm-md) repositories in /etc/yum.repos.d?
+
+First, a core part of the design is that the OS upgrades are controlled
+by and integrated with the cluster.  See [OSUpgrades.md](https://github.com/openshift/machine-config-operator/blob/master/docs/OSUpgrades.md).
+
+A key part of the idea here with OpenShift 4 is that everything around
+our continuous integration and delivery pipeline revolves around the release image.
+The state of the installed system can be derived by that checksum; there
+aren't other external inputs that need to be mirrored or managed.
+
+Further, you only need a regular container pull secret to be able to
+download and mirror OpenShift 4, including the operating system updates.
+There is no `subscription-manager` step required.
+
+Conceptually, RPMs are an implementation detail.
+
+For these reasons, RHCOS does not include any rpm-md (yum) repository
+configuration in `/etc/yum.repos.d`.
+
 ## Q: How do I build my own version of RHCOS for testing?
 
 You need the RHCOS manifest configuration (currently hosted on an RHT internal [GitLab repo](https://url.corp.redhat.com/rhcos-repo)) and
