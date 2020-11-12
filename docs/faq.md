@@ -141,12 +141,7 @@ that are fixed in newer versions of the package.
 
 ## Q: How do I build my own version of RHCOS for testing?
 
-You need the RHCOS manifest configuration (currently hosted on an RHT internal [GitLab repo](https://url.corp.redhat.com/rhcos-repo)) and
-[coreos-assembler](https://github.com/coreos/coreos-assembler).
-
-If you want to replace particular binaries or RPMs in RHCOS, the `coreos-assembler` has
-[override mechanisms](https://github.com/coreos/coreos-assembler/blob/master/README-devel.md#using-overrides)
-to do this.
+See [building.md](building.md).
 
 Also reference the docs from the `machine-config-operator` about
 [hacking on the `machine-os-content`](https://github.com/openshift/machine-config-operator/blob/master/docs/HACKING.md#hacking-on-machine-os-content)
