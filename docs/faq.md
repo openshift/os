@@ -95,7 +95,7 @@ Here the `81` means it's using RHEL 8.1.
 
 ## Q: How do I know which RHEL will be in the next release?
 
-RHEL CoreOS ships RHEL updates after they're released.  At the time of this writing, OpenShift 4.6 and below will stay on RHEL 8.2, and OpenShift 4.7 will (soon) start tracking RHEL 8.3.
+RHEL CoreOS ships RHEL updates after they're released.  At the time of this writing, OpenShift 4.6 and below will stay on RHEL 8.2 EUS, and OpenShift 4.7 will (soon) start tracking RHEL 8.3.
 
 ## Q: How do I determine what version of an RPM is included in an RHCOS release?
 
