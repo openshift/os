@@ -7,7 +7,7 @@ set -euo pipefail
 destdir=$1
 shift
 reposdir=$(pwd)/src/config
-cd $destdir
+cd "${destdir}"
 
 # The "v2" format here is that there's an extensions/ directory, with subdirectories
 # for each extension - except you should ignore "repodata/".
@@ -17,33 +17,76 @@ cd extensions
 # Stuff that's not part of the extension
 mkdir dependencies
 
+# Downloads packages from specified repos
 yumdownload() {
     # FIXME eventually use rpm-ostree for this
-    yum --setopt=reposdir=${reposdir} --disablerepo='*' --arch=$(cosa basearch) --enablerepo=rhel-8-baseos --enablerepo=rhel-8-appstream --enablerepo=rhel-8-server-ose --enablerepo=rhel-8-nfv download "$@"
+    # shellcheck disable=SC2068
+    yum --setopt=reposdir="${reposdir}" --disablerepo='*' --arch="$(cosa basearch)" --enablerepo=rhel-8-baseos --enablerepo=rhel-8-appstream --enablerepo=rhel-8-server-ose --enablerepo=rhel-8-nfv download $@
 }
 
-if [ "$(arch)" = x86_64 ]; then
+# Simple info output function
+# 1 = message to show
+info() {
+    echo "++ $(basename "$0"): $1"
+}
+
+# Reuseable function for setting up an extension
+# 1 = extension name
+# 2 = package string/glob
+# 3 = OPTIONAL: dependencies string/glob
+createext() {
+    extname=$1
+    packages=$2
+
+    info "Creating extension ${extname}"
+    mkdir "${extname}"
+    (cd "${extname}" && yumdownload "${packages}")
+    # For backwards compatibility with existing MCO code, keep the RPMs at the toplevel too
+    for x in "${extname}"/*.rpm; do ln "${x}" ..; done
+    # Grab dependencies if any are required
+    if [ $# -eq 3 ]; then
+        info "Downloading dependencies for ${extname}"
+        (cd dependencies && echo "${3}" && yumdownload "${3}" && echo "done")
+    fi
+}
+
+# In the event that kernel-rt is out of sync with vanilla kernel, determine
+# the right version of kernel-headers to use.  Assumes that `createext()`
+# has successfully created/downloaded the kernel-rt extension
+get_rtheaders() {
+    pushd kernel-rt
+    rtrpm=$(ls kernel-rt-core*)
+    rtver=$(rpm -qp --queryformat="%{VERSION}" "${rtrpm}")
+    # kernel-rt-core includes some RT specific data in the RELEASE of the RPM, which needs
+    # to be stripped to match kernel-headers (i.e. kernel-rt-core-4.18.0-193.28.1.rt13.77.el8_2.x86_64.rpm)
+    rtrel=$(rpm -qp --queryformat="%{RELEASE}" "${rtrpm}" | sed 's/\.rt[0-9]\+\.[0-9]\+//')
+    headers="kernel-headers-${rtver}-${rtrel}"
+    info "Retrieving ${headers} for ${rtrpm}"
+    yumdownload "${headers}"
+    headersrpm=$(ls kernel-headers*)
+    ln "${headersrpm}" ../..
+    popd
+}
+
+# kernel-rt/kernel-rt-devel
+if [ "$(cosa basearch)" = x86_64 ]; then
+    # GRPA-2822
     # https://github.com/openshift/machine-config-operator/pull/1330
     # https://github.com/openshift/enhancements/blob/master/enhancements/support-for-realtime-kernel.md
-    mkdir kernel-rt
-    # TODO: remove the rhaos-art-4.6 repo  once the 8.2.z kernel is in the RHEL repo
-    (cd kernel-rt && yumdownload kernel-rt-{core,modules,modules-extra,kvm})
-    # For backwards compatibility with existing MCO code, keep the kernel-rt RPMs at the toplevel too
-    for x in kernel-rt/*.rpm; do ln $x ..; done
+    # TODO: remove the rhaos-art-4.6 repo once the 8.2.z kernel is in the RHEL repo
+    createext "kernel-rt" "kernel-rt-core kernel-rt-kvm kernel-rt-modules kernel-rt-modules-extra kernel-rt-devel"
+    get_rtheaders
 fi
 
+# kernel-devel
 # https://github.com/kmods-via-containers/kmods-via-containers/issues/3
 # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/866
-mkdir kernel-devel
-# TODO: remove the rhaos-art-4.6 repo  once the 8.2.z kernel is in the RHEL repo
-(cd kernel-devel && yumdownload kernel-{core,devel,headers,modules,modules-extra})
-# For backwards compatibility with ISVs that may be trying to use kernel-devel in
-# its old location.
-for x in kernel-devel/*.rpm; do ln $x ..; done
+createext "kernel-devel" "kernel-core kernel-devel kernel-headers kernel-modules kernel-modules-extra"
 
-# usbguard: https://github.com/coreos/fedora-coreos-tracker/issues/326
-(cd dependencies && yumdownload libqb protobuf)
-mkdir usbguard
-(cd usbguard && yumdownload usbguard)
+# usbguard
+# https://github.com/coreos/fedora-coreos-tracker/issues/326
+#(cd dependencies && yumdownload libqb protobuf)
+createext "usbguard" "usbguard" "libqb protobuf"
 
+# Create the yum/dnf repo
 createrepo_c --no-database .
