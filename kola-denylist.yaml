@@ -17,3 +17,9 @@
    - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
+# Disable all LUKS related tests for RHEL 8.3 cryptsetup until they are updated
+# for the new Ignition based support
+- pattern: rhcos.luks.*
+  tracker: https://issues.redhat.com/browse/GRPA-2887
+- pattern: ext.config.luks.*
+  tracker: https://issues.redhat.com/browse/GRPA-2887
