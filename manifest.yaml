@@ -118,11 +118,6 @@ postprocess:
     semanage boolean --modify --on container_use_cephfs      # RHBZ#1694045
     semanage boolean --modify --on virt_use_samba            # RHBZ#1754825
 
-  # https://bugzilla.redhat.com/show_bug.cgi?id=1762509
-  - |
-    #!/usr/bin/env bash
-    sed -i -e 's,echo "rd.neednet=1",true,' /usr/lib/dracut/modules.d/60clevis/module-setup.sh
-
   # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/812
   # https://bugzilla.redhat.com/show_bug.cgi?id=1796537
   - |
