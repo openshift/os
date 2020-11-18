@@ -26,7 +26,6 @@ repos:
   - rhel-8-appstream
   - rhel-8-fast-datapath
   - rhel-8-server-ose
-  - jlebon-dracut-tmp
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "47.83.<date:%Y%m%d%H%M>"

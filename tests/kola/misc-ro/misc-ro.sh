@@ -118,8 +118,3 @@ case "$(arch)" in
         ok bootupctl
         ;;
 esac
-
-# This is a time bomb to make sure we delete temporary repos once the official
-# builds are in. See https://github.com/openshift/os/pull/444.
-rpm -q dracut-049-95.jl.git20200804.el8_3
-echo ok dracut temporary override
