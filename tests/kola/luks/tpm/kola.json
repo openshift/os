@@ -1,4 +1,0 @@
-{
-    "architectures": "!s390x ppc64le aarch64",
-    "platforms": "qemu-unpriv"
-}
