@@ -4,7 +4,7 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 # In the future this might live in rpm-ostree, see https://github.com/coreos/rpm-ostree/issues/2055
 set -euo pipefail
-destdir=$1
+destdir=$(realpath "${1}")
 shift
 reposdir=$(pwd)/src/config
 cd "${destdir}"
@@ -31,6 +31,7 @@ info() {
 }
 
 # Reuseable function for setting up an extension
+# Assumes it is running in "${destdir}/extensions"
 # 1 = extension name
 # 2 = package string/glob
 # 3 = OPTIONAL: dependencies string/glob
@@ -42,7 +43,14 @@ createext() {
     mkdir "${extname}"
     (cd "${extname}" && yumdownload "${packages}")
     # For backwards compatibility with existing MCO code, keep the RPMs at the toplevel too
-    for x in "${extname}"/*.rpm; do ln "${x}" ..; done
+    pushd "${extname}"
+    for x in *.rpm; do
+        if [ ! -f "${destdir}/extensions/${x}" ]; then
+            ln "${x}" "${destdir}/extensions/"
+        fi
+    done
+    popd
+
     # Grab dependencies if any are required
     if [ $# -eq 3 ]; then
         info "Downloading dependencies for ${extname}"
@@ -52,7 +60,8 @@ createext() {
 
 # In the event that kernel-rt is out of sync with vanilla kernel, determine
 # the right version of kernel-headers to use.  Assumes that `createext()`
-# has successfully created/downloaded the kernel-rt extension
+# has successfully created/downloaded the kernel-rt extension. Also assumes
+# it is running in "${destdir}/extensions"
 get_rtheaders() {
     pushd kernel-rt
     rtrpm=$(ls kernel-rt-core*)
@@ -64,7 +73,9 @@ get_rtheaders() {
     info "Retrieving ${headers} for ${rtrpm}"
     yumdownload "${headers}"
     headersrpm=$(ls kernel-headers*)
-    ln "${headersrpm}" ../..
+    if [ ! -f "${destdir}/extensions/${headersrpm}" ]; then
+        ln "${headersrpm}" "${destdir}/extensions/"
+    fi
     popd
 }
 
