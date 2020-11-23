@@ -254,6 +254,8 @@ packages:
  - authselect
  # Dracut module dependencies
  - bsdtar
+ # https://bugzilla.redhat.com/show_bug.cgi?id=1900759
+ - qemu-guest-agent
  # BELOW HERE ARE PACKAGES NOT IN RHEL
  # OpenShift OKD
  #- origin-node origin-hyperkube origin-clients
