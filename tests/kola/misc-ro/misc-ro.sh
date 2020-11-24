@@ -118,3 +118,11 @@ case "$(arch)" in
         ok bootupctl
         ;;
 esac
+
+if ! systemctl show -p ActiveState coreos-generate-iscsi-initiatorname.service | grep -q ActiveState=active; then
+    fatal "coreos-generate-iscsi-initiatorname.service not active"
+fi
+if ! test -f /etc/iscsi/initiatorname.iscsi; then
+    fatal "Missing /etc/iscsi/initiatorname.iscsi"
+fi
+echo "ok iSCSI initiator name"

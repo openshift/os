@@ -4,7 +4,7 @@
 # package.
 
 # Enable the iscsi workaround
-enable coreos-regenerate-iscsi-initiatorname.service
+enable coreos-generate-iscsi-initiatorname.service
 # Enable GCP routes
 enable gcp-routes.service
 # Enable auditd. See https://jira.coreos.com/browse/RHCOS-536
