@@ -279,6 +279,9 @@ packages-x86_64:
 
 packages-ppc64le:
   - irqbalance
+  - librtas
+  - powerpc-utils-core
+  - ppc64-diag-rtas
 
 remove-from-packages:
   - - filesystem
