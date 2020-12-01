@@ -105,6 +105,12 @@ elif [[ $nm_ts -gt $switchroot_ts ]] && on_platform aws; then
 fi
 echo ok conditional initrd networking
 
+# Verify this is shipped
+if ! test -f /usr/bin/qemu-ga; then
+  fatal "missing qemu guest agent"
+fi
+echo ok qemu guest agent
+
 case "$(arch)" in
     x86_64|aarch64)
         if runuser -u core -- ls /boot/efi &>/dev/null; then
