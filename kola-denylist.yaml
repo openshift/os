@@ -17,6 +17,3 @@
    - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
-# Disable Tang tests until we have the necessary dracut patches in RHCOS
-- pattern: luks.*
-  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1897384
