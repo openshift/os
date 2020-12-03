@@ -1,0 +1,2 @@
+# Configuration for oscontainer uploads; this is the base image.
+base: registry.access.redhat.com/ubi8/ubi:latest
