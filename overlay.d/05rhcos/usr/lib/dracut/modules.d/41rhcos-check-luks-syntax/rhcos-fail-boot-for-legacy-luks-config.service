@@ -1,0 +1,16 @@
+# Fail the boot if the user tries to use the legacy 
+# LUKS configuration in an Ignition config to enable 
+# LUKS in RHCOS, so they don't accidentally end up 
+# with an unencrypted system.
+[Unit]
+Description=RHCOS Check For Legacy LUKS Configuration
+Documentation=https://github.com/openshift/openshift-docs/pull/27661
+After=ignition-fetch.service
+Before=ignition-disks.service
+OnFailure=emergency.target
+OnFailureJobMode=isolate
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/rhcos-fail-boot-for-legacy-luks-config
+RemainAfterExit=yes
