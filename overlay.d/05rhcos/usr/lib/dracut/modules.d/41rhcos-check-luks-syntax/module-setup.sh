@@ -10,7 +10,7 @@ install_unit() {
 }
 
 install() {
-    inst_script "$moddir/rhcos-fail-boot-for-legacy-luks-config" \ 
+    inst_script "$moddir/rhcos-fail-boot-for-legacy-luks-config" \
         "/usr/libexec/rhcos-fail-boot-for-legacy-luks-config"
     
     install_unit rhcos-fail-boot-for-legacy-luks-config.service
