@@ -3,6 +3,8 @@
 [Unit]
 Description=CoreOS Upgrade Root Filesystem Encryption Container
 ConditionKernelCommandLine=rhcos.root=crypt_rootfs
+# Ensure we run before the MCD
+Before=kubelet.service
 
 [Service]
 Type=oneshot
