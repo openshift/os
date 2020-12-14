@@ -18,7 +18,6 @@ check() {
 
 install() {
     local unit=rhcos-afterburn-checkin.service
-    mkdir -p "$initdir/$systemdsystemunitdir/ignition-files.service.requires"
     inst_simple "$moddir/$unit" "$systemdsystemunitdir/$unit"
-    ln_r "../$unit" "$systemdsystemunitdir/ignition-files.service.requires/$unit"
+    systemctl -q --root="$initdir" add-requires ignition-files.service "$unit"
 }
