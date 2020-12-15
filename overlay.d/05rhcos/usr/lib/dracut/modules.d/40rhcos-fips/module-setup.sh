@@ -32,10 +32,7 @@ install() {
     echo "# RHCOS FIPS mode installation complete" > "$initdir/etc/system-fips"
 
     # We don't support FIPS in diskless cases currently
-    target=ignition-diskful
-    mkdir -p "$initdir/$systemdsystemunitdir/${target}.target.requires"
-    ln_r "$moddir/rhcos-fips.service" \
-        "$systemdsystemunitdir/${target}.target.requires/rhcos-fips.service"
-    ln_r "$moddir/rhcos-fips-finish.service" \
-        "$systemdsystemunitdir/${target}.target.requires/rhcos-fips-finish.service"
+    target=ignition-diskful.target
+    systemctl -q --root="$initdir" add-requires "$target" rhcos-fips.service
+    systemctl -q --root="$initdir" add-requires "$target" rhcos-fips-finish.service
 }

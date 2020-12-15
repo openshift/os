@@ -8,9 +8,7 @@ install_unit() {
     local unit=$1; shift
     local target=${1:-ignition-complete.target}
     inst_simple "$moddir/$unit" "$systemdsystemunitdir/$unit"
-    local targetpath="$systemdsystemunitdir/${target}.requires/"
-    mkdir -p "${initdir}/${targetpath}"
-    ln_r "../$unit" "${targetpath}/${unit}"
+    systemctl -q --root="$initdir" add-requires "$target" "$unit"
 }
 
 depends() {
