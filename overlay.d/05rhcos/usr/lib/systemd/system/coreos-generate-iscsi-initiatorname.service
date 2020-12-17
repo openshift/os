@@ -5,7 +5,6 @@
 Description=CoreOS Generate iSCSI Initiator Name
 Documentation=https://bugzilla.redhat.com/show_bug.cgi?id=1493296
 Documentation=https://bugzilla.redhat.com/show_bug.cgi?id=1687722
-ConditionFirstBoot=true
 # But only if not already written by Ignition
 # https://bugzilla.redhat.com/show_bug.cgi?id=1868174
 ConditionPathExists=!/etc/iscsi/initiatorname.iscsi
