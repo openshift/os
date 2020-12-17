@@ -132,10 +132,3 @@ if ! test -f /etc/iscsi/initiatorname.iscsi; then
     fatal "Missing /etc/iscsi/initiatorname.iscsi"
 fi
 echo "ok iSCSI initiator name"
-
-# Check whether the fixed version of kexec-tools has landed.
-# xref: https://bugzilla.redhat.com/show_bug.cgi?id=1907253
-if grep "add-wants" /usr/lib/dracut/modules.d/99kdumpbase/module-setup.sh; then
-  echo "kexec-tools has been updated; remove workaround from https://github.com/openshift/os/pull/469"
-  sleep 2
-fi
