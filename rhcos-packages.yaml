@@ -15,7 +15,7 @@ packages:
   # needed by rpm-ostree for managing users
   - nss-altfiles
   - ostree
-  - rpm-ostree-2020.4-1.el8  # Pinned for a bit due to incorrect tagging in ART's 4.7 repo
+  - rpm-ostree
   # part of container-tools module
   - toolbox
   # for kdump:
