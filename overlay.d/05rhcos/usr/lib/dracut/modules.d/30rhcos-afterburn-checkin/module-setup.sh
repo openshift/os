@@ -19,5 +19,7 @@ check() {
 install() {
     local unit=rhcos-afterburn-checkin.service
     inst_simple "$moddir/$unit" "$systemdsystemunitdir/$unit"
-    systemctl -q --root="$initdir" add-requires ignition-files.service "$unit"
+    # note we `|| exit 1` here so we error out if e.g. the units are missing
+    # see https://github.com/coreos/fedora-coreos-config/issues/799
+    systemctl -q --root="$initdir" add-requires ignition-files.service "$unit" || exit 1
 }

@@ -33,6 +33,8 @@ install() {
 
     # We don't support FIPS in diskless cases currently
     target=ignition-diskful.target
-    systemctl -q --root="$initdir" add-requires "$target" rhcos-fips.service
-    systemctl -q --root="$initdir" add-requires "$target" rhcos-fips-finish.service
+    # note we `|| exit 1` here so we error out if e.g. the units are missing
+    # see https://github.com/coreos/fedora-coreos-config/issues/799
+    systemctl -q --root="$initdir" add-requires "$target" rhcos-fips.service || exit 1
+    systemctl -q --root="$initdir" add-requires "$target" rhcos-fips-finish.service || exit 1
 }
