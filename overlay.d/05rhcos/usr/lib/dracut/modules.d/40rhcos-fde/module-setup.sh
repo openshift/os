@@ -81,7 +81,6 @@ install() {
     inst_libdir_file "libtss2-tcti-device.so*"
 
     inst_script /usr/libexec/coreos-cryptfs
-    inst_script /usr/libexec/coreos-growpart
     inst_script /usr/libexec/coreos-cryptlib
 
     # Service for first-boot encryption.
