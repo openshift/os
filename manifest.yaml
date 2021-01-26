@@ -294,13 +294,9 @@ remove-from-packages:
     - "/"
   # In newer dracut-network dhclient isn't required if you have NM 1.20
   # https://github.com/dracutdevs/dracut/commit/e863807
-  # Let's go ahead and get rid of it now.
+  # Let's keep only the binaries so users still relying on them can continue
+  # to use them in the real root as long as they provide the configuration themselves.
   - - dhcp-client
-    # we want to delete all files ("/") but can't because
-    # `remove-from-packages` is being overzealous:
-    # https://github.com/coreos/rpm-ostree/issues/2068
     - "/etc/dhcp/dhclient.conf"
     - "/etc/NetworkManager/dispatcher.d/11-dhclient"
     - "/usr/lib64/pm-utils/sleep.d/56dhclient"
-    - "/usr/sbin/dhclient"
-    - "/usr/sbin/dhclient-script"
