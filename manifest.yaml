@@ -28,7 +28,7 @@ repos:
   - rhel-8-server-ose
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "47.83.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "47.84.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 mutate-os-release: "4.7"
