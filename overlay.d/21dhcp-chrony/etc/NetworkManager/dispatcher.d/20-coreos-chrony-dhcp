@@ -25,7 +25,7 @@ export LC_ALL=C
 # In RHCOS, 11-dhclient is excluded and not shipped with base image.
 [ -e /usr/sbin/dhclient ] && \
     [ -e /etc/dhcp/dhclient.d/chrony.sh ] && \
-    [ -e /etc/NetworkManager/dispatcher.d/11-dhclient ] && \
+    [ -e /etc/NetworkManager/dispatcher.d/11-dhclient -o -e /usr/lib/NetworkManager/dispatcher.d/11-dhclient ] && \
     exit 0
 
 interface=$1
