@@ -9,8 +9,8 @@ export COSA_SKIP_OVERLAY=1
 gitdir=$(pwd)
 cd $(mktemp -d)
 cosa init ${gitdir}
-# TODO query the 4-7 bits from manifest.yaml or so
-curl -L http://base-4-7-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
+# TODO query the 4-8 bits from manifest.yaml or so
+curl -L http://base-4-8-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
 cosa fetch
 cosa build
 cosa kola --basic-qemu-scenarios
