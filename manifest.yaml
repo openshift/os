@@ -299,4 +299,5 @@ remove-from-packages:
   - - dhcp-client
     - "/etc/dhcp/dhclient.conf"
     - "/etc/NetworkManager/dispatcher.d/11-dhclient"
+    - "/usr/lib/NetworkManager/dispatcher.d/11-dhclient"
     - "/usr/lib64/pm-utils/sleep.d/56dhclient"
