@@ -56,5 +56,5 @@ See https://github.com/openshift/release/blob/master/core-services/release-contr
 Use this:
 ```
 $ cosa init https://github.com/openshift/os
-$ curl -L http://base-4-7-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
+$ curl -L http://base-4-8-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
 ```
