@@ -185,3 +185,7 @@ No, there is no supported mechanism for non-default kernel modules at this time,
 It's possible to write the serial console data directly to the VMFS volume.  You can do this by changing the Virtual Hardware settings of the VM to include a serial port that writes to a file (see [screenshot](https://raw.githubusercontent.com/openshift/os/master/docs/vsphere-settings.png)).  The [official documetation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-C6FBCF66-5796-4EE6-BF47-4DCAA9DCD1E3.html) from VMware has additional details.
 
 Alternatively, you can try the [OpenStack VMWare Virtual Serial Port Concentrator container](https://github.com/jcpowermac/vmware-vspc-container).
+
+## Q: Does RHCOS support multipath?
+
+Yes. If the default multipath configurations work fine, you can simply add the kargs `rd.multipath=default root=/dev/disk/by-label/dm-mpath-root`. This can be done using day-1 MachineConfig objects as described in https://github.com/openshift/openshift-docs/pull/28972. You may change the configuration settings in `/etc/multipath.conf` just like on traditional RHEL (see docs [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_device_mapper_multipath/index)). If you need customized settings to take effect from the initrd, then you will need to enable initramfs regeneration via `rpm-ostree initramfs --enable` and remove the `rd.multipath=default` kernel argument.
