@@ -189,3 +189,7 @@ Alternatively, you can try the [OpenStack VMWare Virtual Serial Port Concentrato
 ## Q: Does RHCOS support multipath?
 
 Yes. If the default multipath configurations work fine, you can simply add the kargs `rd.multipath=default root=/dev/disk/by-label/dm-mpath-root`. This can be done using day-1 MachineConfig objects as described in https://github.com/openshift/openshift-docs/pull/28972. You may change the configuration settings in `/etc/multipath.conf` just like on traditional RHEL (see docs [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_device_mapper_multipath/index)). If you need customized settings to take effect from the initrd, then you will need to enable initramfs regeneration via `rpm-ostree initramfs --enable` and remove the `rd.multipath=default` kernel argument.
+
+## Q: Does RHCOS support the use of `NetworkManager` keyfiles?  Does RHCOS support the use of `ifcfg` files?
+
+Starting with RHCOS 4.6, it is possible to use either `NetworkManager` keyfiles or `ifcfg` files for configuring host networking.  It is strongly preferred to use `NetworkManager` keyfiles.
