@@ -130,6 +130,9 @@ if ! test -f /etc/iscsi/initiatorname.iscsi; then
 fi
 echo "ok iSCSI initiator name"
 
+rpm -q conntrack-tools
+test ! -f /usr/lib/systemd/system/conntrackd.service
+echo "ok conntrack tools without daemon"
 
 # Let's make sure the NetworkManager we use is one of the one-off
 # rebuilds while we're following RHEL 8.3.
