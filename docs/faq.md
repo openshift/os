@@ -158,7 +158,7 @@ configuration in `/etc/yum.repos.d`.
 
 ## Q: How do I build my own version of RHCOS for testing?
 
-See [building.md](building.md).
+See the [development doc](docs/development.md).
 
 Also reference the docs from the `machine-config-operator` about
 [hacking on the `machine-os-content`](https://github.com/openshift/machine-config-operator/blob/master/docs/HACKING.md#hacking-on-machine-os-content)

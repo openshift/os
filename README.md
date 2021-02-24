@@ -21,6 +21,6 @@ Please see this [FAQ entry for Red Hat support](docs/faq.md#q-where-should-i-rep
 
 A lot of common questions are answered in the [FAQ](docs/faq.md).
 
-## Building RHEL CoreOS
+## Building and developing RHEL CoreOS
 
-See the [building doc](docs/building.md).
+See the [development doc](docs/development.md).
