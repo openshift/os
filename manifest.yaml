@@ -7,6 +7,7 @@ rojig:
 include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
+  - fedora-coreos-config/manifests/networking-tools.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
 
@@ -186,8 +187,6 @@ exclude-packages:
 # To verify, disable all repos except the ootpa ones and then comment
 # out the bottom and run `coreos-assembler build`.
 packages:
- # Dependency of iscsi
- - hostname
  # For growing root partition
  - cloud-utils-growpart
  # Contains SCTP (https://bugzilla.redhat.com/show_bug.cgi?id=1718049)
@@ -213,16 +212,13 @@ packages:
  # Networking
  - nfs-utils
  - openvswitch2.13
- - NetworkManager dnsmasq
+ - dnsmasq
  - NetworkManager-ovs
- - NetworkManager-team teamd
  - lvm2 iscsi-initiator-utils sg3_utils
  - device-mapper-multipath
  - xfsprogs e2fsprogs mdadm
  - cryptsetup
  - cifs-utils
- # Interactive Networking configuration during coreos-install
- - NetworkManager-tui
  # Time sync
  - chrony
  # Extra runtime
@@ -230,7 +226,7 @@ packages:
  - sssd shadow-utils
  # Common tools used by scripts and admins interactively
  - sudo coreutils less tar xz gzip bzip2 rsync tmux jq
- - nmap-ncat net-tools bind-utils strace
+ - nmap-ncat strace
  - bash-completion
  # Editors
  - vim-minimal nano
