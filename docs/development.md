@@ -58,3 +58,18 @@ Use this:
 $ cosa init https://github.com/openshift/os
 $ curl -L http://base-4-8-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
 ```
+
+## Updating FCOS
+
+As noted above, RHCOS uses FCOS as an upstream.  This is implemented
+by inheriting from the [fedora-coreos-config](https://github.com/coreos/fedora-coreos-config/)
+repository as a git submodule; the RHCOS manifests and overlays include parts (though not all)
+of FCOS.
+
+After a change is landed in FCOS, it's often OK to also immediately update RHCOS' master
+branch to the latest FCOS.  We try to keep things compatible.
+
+```
+$ (cd fedora-coreos-config && git fetch origin && git reset --hard origin/testing-devel)
+$ git commit -a -m 'Update FCOS'
+```
