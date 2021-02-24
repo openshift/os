@@ -1,26 +1,35 @@
 # RPMs as operating system extensions, distinct from the base ostree commit/image
 # https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
-# We currently explicitly list dependencies for each extension; see
-# https://github.com/coreos/rpm-ostree/issues/2055
+
+repos:
+  - rhel-8-nfv
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
     packages:
       - usbguard
-      - libqb
-      - protobuf
-  # kernel-devel
   # https://github.com/kmods-via-containers/kmods-via-containers/issues/3
   # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/866
+  # These are currently overlaid onto the host so that they can be bind-mounted
+  # into build containers... in the future they should be a `development`
+  # extension: https://github.com/openshift/machine-config-operator/pull/2143.
   kernel-devel:
     packages:
       - kernel-devel
-      - kernel-core
       - kernel-headers
+    match-base-evr: kernel
+  # These are already in the base, so they're not OS extensions, but they're
+  # useful to have in RPM form to install in kmod build containers.
+  kernel:
+    kind: development
+    packages:
+      - kernel
+      - kernel-core
       - kernel-modules
       - kernel-modules-extra
+    match-base-evr: kernel
   # GRPA-2822
   # https://github.com/openshift/machine-config-operator/pull/1330
   # https://github.com/openshift/enhancements/blob/master/enhancements/support-for-realtime-kernel.md
