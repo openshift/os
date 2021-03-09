@@ -8,6 +8,7 @@ include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
   - fedora-coreos-config/manifests/networking-tools.yaml
+  - fedora-coreos-config/manifests/system-configuration.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
 
@@ -187,18 +188,12 @@ exclude-packages:
 # To verify, disable all repos except the ootpa ones and then comment
 # out the bottom and run `coreos-assembler build`.
 packages:
- # For growing root partition
- - cloud-utils-growpart
  # Contains SCTP (https://bugzilla.redhat.com/show_bug.cgi?id=1718049)
  # and it's not really going to be worth playing the "where's my kernel module"
  # game long term.  If we ship it we support it, etc.
  - kernel-modules-extra
  # Audit
  - audit
- # SELinux
- - selinux-policy-targeted
- # System setup
- - passwd
  # SSH
  - openssh-server openssh-clients
  # Containers
@@ -214,16 +209,8 @@ packages:
  - openvswitch2.13
  - dnsmasq
  - NetworkManager-ovs
- - lvm2 iscsi-initiator-utils sg3_utils
- - device-mapper-multipath
- - xfsprogs e2fsprogs mdadm
- - cryptsetup
- - cifs-utils
- # Time sync
- - chrony
  # Extra runtime
- - logrotate
- - sssd shadow-utils
+ - sssd
  # Common tools used by scripts and admins interactively
  - sudo coreutils less tar xz gzip bzip2 rsync tmux jq
  - nmap-ncat strace
