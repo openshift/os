@@ -64,7 +64,7 @@ install() {
         tpm2_createpolicy
         tpm2_createprimary
         tpm2_load
-        tpm2_pcrlist
+        tpm2_pcrread
         tpm2_unseal
         tr
         umount
