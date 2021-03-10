@@ -9,6 +9,7 @@ include:
   - fedora-coreos-config/manifests/file-transfer.yaml
   - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/system-configuration.yaml
+  - fedora-coreos-config/manifests/user-experience.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
 
@@ -187,6 +188,7 @@ exclude-packages:
 # Try to maintain this list ordering by "in RHEL, then not in RHEL".
 # To verify, disable all repos except the ootpa ones and then comment
 # out the bottom and run `coreos-assembler build`.
+# A lof of packages are inherited by the manifests included at the top.
 packages:
  # Contains SCTP (https://bugzilla.redhat.com/show_bug.cgi?id=1718049)
  # and it's not really going to be worth playing the "where's my kernel module"
@@ -194,13 +196,8 @@ packages:
  - kernel-modules-extra
  # Audit
  - audit
- # SSH
- - openssh-server openssh-clients
  # Containers
- - podman
  - containernetworking-plugins
- - runc
- - skopeo
  # Pinned due to cosa on Fedora not honoring RHEL 8 modules as expected
  - container-selinux
  - cri-o cri-tools
@@ -212,11 +209,10 @@ packages:
  # Extra runtime
  - sssd
  # Common tools used by scripts and admins interactively
- - sudo coreutils less tar xz gzip bzip2 rsync tmux jq
+ - rsync tmux
  - nmap-ncat strace
- - bash-completion
  # Editors
- - vim-minimal nano
+ - nano
  # Red Hat CA certs
  - subscription-manager-rhsm-certificates
  # rdma-core cleanly covers some key bare metal use cases
@@ -235,8 +231,6 @@ packages:
  # Used to update PAM configuration to work with SSSD
  # https://bugzilla.redhat.com/show_bug.cgi?id=1774154
  - authselect
- # Dracut module dependencies
- - bsdtar
  # https://bugzilla.redhat.com/show_bug.cgi?id=1900759
  - qemu-guest-agent
  # BELOW HERE ARE PACKAGES NOT IN RHEL
