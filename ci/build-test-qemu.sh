@@ -18,6 +18,7 @@ cosa init ${tmpsrc}/src
 curl -L http://base-4-8-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
 cosa fetch
 cosa build
+cosa buildextend-extensions
 cosa kola --basic-qemu-scenarios
 cosa kola run 'ext.*'
 # TODO: all tests in the future, but there are a lot
