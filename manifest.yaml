@@ -266,6 +266,10 @@ packages:
  # https://bugzilla.redhat.com/show_bug.cgi?id=1877905
  # https://bugzilla.redhat.com/show_bug.cgi?id=1886201
  - perl-interpreter
+ # https://github.com/coreos/fedora-coreos-tracker/issues/404
+ # https://bugzilla.redhat.com/show_bug.cgi?id=1925698
+ # https://github.com/openshift/machine-config-operator/pull/2421
+ - conntrack-tools
 
 packages-x86_64:
   # Temporary add of open-vm-tools. Should be removed when containerized
@@ -297,3 +301,7 @@ remove-from-packages:
     - "/etc/NetworkManager/dispatcher.d/11-dhclient"
     - "/usr/lib/NetworkManager/dispatcher.d/11-dhclient"
     - "/usr/lib64/pm-utils/sleep.d/56dhclient"
+  # Remove the systemd unit; we only want the binary to be used
+  # by MCD or kubelet.  See above.
+  - - conntrack-tools
+    - /usr/lib/systemd/system
