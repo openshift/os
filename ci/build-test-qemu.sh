@@ -10,12 +10,14 @@ export COSA_SKIP_OVERLAY=1
 # it or clone it.  Or we could write our .repo files to a separate
 # place.
 tmpsrc=$(mktemp -d)
-cp -a /src ${tmpsrc}/src
+cp -a /src "${tmpsrc}"/src
 # Create a temporary cosa workdir
-cd $(mktemp -d)
-cosa init ${tmpsrc}/src
-# TODO query the 4-8 bits from manifest.yaml or so
-curl -L http://base-4-8-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
+cd "$(mktemp -d)"
+cosa init "${tmpsrc}"/src
+# Grab the raw value of `mutate-os-release` and use sed to convert the value
+# to X-Y format
+ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
+curl -L http://base-"${ocpver}"-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
 cosa fetch
 cosa build
 cosa kola --basic-qemu-scenarios
