@@ -1,0 +1,5 @@
+# Preset files for extensions
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1941342
+# enable sandboxed-containers specific services
+enable kata-osbuilder-generate.service
