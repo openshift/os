@@ -10,7 +10,7 @@ packages:
   # installer iso packages
   - coreos-installer coreos-installer-bootinfra
   - ignition
-  - redhat-release-coreos
+  - redhat-release-coreos-47.84 # Pinned for 8.4 switch
   ## Delivered via RHEL Base/Appstream (usually)
   # needed by rpm-ostree for managing users
   - nss-altfiles
