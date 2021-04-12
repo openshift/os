@@ -17,11 +17,16 @@ cosa init "${tmpsrc}"/src
 # Grab the raw value of `mutate-os-release` and use sed to convert the value
 # to X-Y format
 ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-curl -L http://base-"${ocpver}"-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
+curl -L http://base-"${ocpver}"-rhel84.ocp.svc.cluster.local > src/config/ocp.repo
 cosa fetch
 cosa build
 cosa buildextend-extensions
-cosa kola --basic-qemu-scenarios
+# Manually exclude Secure Boot testing for pre-release RHEL content.
+# This will be removed once RHEL 8.4 is GA.
+# See https://github.com/openshift/os/pull/527
+# cosa kola --basic-qemu-scenarios
+cosa kola run --qemu-nvme=true basic
+cosa kola run --qemu-firmware=uefi basic
 cosa kola run 'ext.*'
 # TODO: all tests in the future, but there are a lot
 # and we want multiple tiers, and we need to split them
