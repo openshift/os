@@ -130,6 +130,9 @@ if ! test -f /etc/iscsi/initiatorname.iscsi; then
 fi
 echo "ok iSCSI initiator name"
 
+systemctl is-enabled logrotate.timer
+echo "ok logrotate"
+
 rpm -q conntrack-tools
 test ! -f /usr/lib/systemd/system/conntrackd.service
 echo "ok conntrack tools without daemon"
