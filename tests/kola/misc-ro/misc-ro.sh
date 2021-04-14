@@ -134,3 +134,8 @@ echo "ok iSCSI initiator name"
 if ! journalctl -b 0 -u NetworkManager --grep=dhcp | grep -q "Using DHCP client 'internal'"; then
   fatal "NetworkManager's internal DHCP client is not running"
 fi
+# Ensure that dhclient is available on the host
+if ! test -f /usr/sbin/dhclient; then
+    fatal "Missing dhclient binary"
+fi
+echo "ok dhclient binary present" 
