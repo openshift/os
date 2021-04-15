@@ -236,8 +236,6 @@ packages:
  - vim-minimal nano
  # Red Hat CA certs
  - subscription-manager-rhsm-certificates
- # rdma-core cleanly covers some key bare metal use cases
- - rdma-core
  # Used on the bootstrap node
  - systemd-journal-remote
  # Extras
@@ -278,12 +276,17 @@ packages-x86_64:
   # Until we sort out 4.2 -> 4.3 upgrades, we need to carry this.
   # See also https://github.com/ostreedev/ostree/pull/1929
   - ostree-grub2
+  # rdma-core cleanly covers some key bare metal use cases
+  - rdma-core
+
 
 packages-ppc64le:
   - irqbalance
   - librtas
   - powerpc-utils-core
   - ppc64-diag-rtas
+  - rdma-core
+
 
 remove-from-packages:
   - - filesystem
