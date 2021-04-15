@@ -203,7 +203,7 @@ packages:
  - cri-o cri-tools
  # Networking
  - nfs-utils
- - openvswitch2.13
+ - openvswitch2.15
  - dnsmasq
  - NetworkManager-ovs
  # Need to keep providing dhclient binary
