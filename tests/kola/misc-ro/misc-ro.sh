@@ -146,3 +146,15 @@ if ! test -f /usr/sbin/dhclient; then
     fatal "Missing dhclient binary"
 fi
 echo "ok dhclient binary present" 
+
+# Check that we have the proper presets for console-login-helper-messages in RHCOS.
+# Versions of CLHM prior to v0.21 have `issuegen`-related systemd units.
+if test -f /usr/lib/systemd/system/console-login-helper-messages-issuegen.service; then
+  if ! systemctl is-enabled console-login-helper-messages-issuegen.path; then
+    fatal "console-login-helper-messages-issuegen.path required but not enabled"
+  fi
+  if ! systemctl is-enabled console-login-helper-messages-issuegen.service; then
+    fatal "console-login-helper-messages-issuegen.service required but not enabled"
+  fi
+fi
+echo "ok console-login-helper-messages presets present"
