@@ -1,0 +1,37 @@
+job:
+  strict: true
+recipe:
+  git_ref: master
+  git_url: https://github.com/openshift/os
+  repos:
+  - url: http://base-4-8-rhel84.ocp.svc.cluster.local
+stages:
+# Execution Orders are groupings of pods. All pods in each execution order
+# will be run at the same time as soon as their depdencies are ready.
+- id: Base build
+  execution_order: 1
+  build_artifacts:
+   - base
+   - extensions
+
+# These tests will be executed in parallel in seperate pods
+- id: Test Basic
+  execution_order: 2
+  commands:
+  - cosa kola run --qemu-nvme=true basic
+  require_artifacts:
+  - qemu
+
+- id: Test UEFI Basi
+  execution_order: 2
+  commands:
+  - cosa kola run --qemu-firmware=uefi basic
+  require_artifacts:
+  - qemu
+
+- id: Test Koal External
+  execution_order: 2
+  commands:
+  - cosa kola run 'ext.*'
+  require_artifacts:
+  - qemu
