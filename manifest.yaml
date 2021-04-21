@@ -28,6 +28,7 @@ repos:
   - rhel-8-baseos
   - rhel-8-appstream
   - rhel-8-fast-datapath
+  - rhel-8-fast-datapath-aarch64
   - rhel-8-server-ose
 
 # We include hours/minutes to avoid version number reuse
