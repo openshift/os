@@ -185,6 +185,8 @@ exclude-packages:
   # https://github.com/coreos/rpm-ostree/pull/1789/files/a0cd999a8acd5b40ec1024a794a642916fbc8ff8#diff-fc2076dc46933204a7a798f544ce3734
   # People need to use `rpm-ostree kargs` instead.
   - grubby
+  # udisks2 is a fwupd recommends only need for encrypted swap checks
+  - udisks2
 
 # Try to maintain this list ordering by "in RHEL, then not in RHEL".
 # To verify, disable all repos except the ootpa ones and then comment
