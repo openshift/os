@@ -5,15 +5,11 @@
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1782026
   arches:
    - s390x
-# making two entries for crio.base because they are separate issues
 - pattern: crio.base
   tracker: https://github.com/kubernetes/kubernetes/issues/87325
   arches:
    - s390x
    - ppc64le
-- pattern: crio.base
-  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1917470
-   - x86_64
 # for s390x by-partlabel can't be used and even if that is avoided by using part-uuid, still depends on the cpi fix below
 - pattern: ext.config.var-mount
   tracker: https://github.com/ibm-s390-tools/s390-tools/pull/82
