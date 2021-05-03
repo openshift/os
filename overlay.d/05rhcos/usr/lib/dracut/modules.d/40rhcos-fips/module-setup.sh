@@ -17,6 +17,12 @@ install() {
         bwrap \
         env
 
+    local _arch=${DRACUT_ARCH:-$(uname -m)}
+    if [[ "$_arch" == "s390x" ]]; then
+        inst_multiple zipl
+        inst /lib/s390-tools/stage3.bin
+    fi
+
     inst_script "$moddir/rhcos-fips.sh" \
         "/usr/sbin/rhcos-fips"
     inst_script "$moddir/coreos-dummy-ignition-files-run.sh" \
