@@ -76,7 +76,9 @@ firstboot() {
               echo $(grep $line $f) >> $tmpfile
           done
       done
-      grep options $tmpfile | cut -d ' ' -f2- > $optfile
+      echo "Appending 'ignition.firstboot' to ${optfile}"
+      options="$(grep options $tmpfile | cut -d ' ' -f2-) ignition.firstboot"
+      echo $options > "$optfile"
       zipl --verbose \
            --target "${tmpsysroot}/boot" \
            --image $tmpsysroot/boot/"$(grep linux $tmpfile | cut -d' ' -f2)" \
