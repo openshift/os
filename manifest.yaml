@@ -13,6 +13,11 @@ include:
   # RHCOS owned packages
   - rhcos-packages.yaml
 
+# The Fedora default is sqlite now, but we want to stick with bdb.
+# XXX: set back to `bdb` once rpm-ostree is fixed:
+# https://github.com/coreos/rpm-ostree/pull/2808
+rpmdb: b-d-b
+
 arch-include:
   x86_64:
     - fedora-coreos-config/manifests/grub2-removals.yaml
