@@ -117,6 +117,7 @@ case "$(arch)" in
         # will implement "project-owned tests run in the pipeline"
         # and be able to run the existing bootupd tests:
         # https://github.com/coreos/fedora-coreos-config/pull/677
+        # dummy change for testing
         bootupctl status
         ok bootupctl
         ;;
