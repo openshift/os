@@ -66,7 +66,7 @@ by inheriting from the [fedora-coreos-config](https://github.com/coreos/fedora-c
 repository as a git submodule; the RHCOS manifests and overlays include parts (though not all)
 of FCOS.
 
-After a change is landed in FCOS, it's often OK to also immediately update RHCOS' master
+After a change is landed in FCOS, it's often OK to also immediately update RHCOS' main
 branch to the latest FCOS.  We try to keep things compatible.
 
 ```
