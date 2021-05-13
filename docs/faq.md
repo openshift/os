@@ -186,6 +186,11 @@ It's possible to write the serial console data directly to the VMFS volume.  You
 
 Alternatively, you can try the [OpenStack VMWare Virtual Serial Port Concentrator container](https://github.com/jcpowermac/vmware-vspc-container).
 
+## Q: How do I log into a node via console?
+
+There is no default password, and OpenShift does not by default expose the ability to set node passwords.
+See https://docs.fedoraproject.org/en-US/fedora-coreos/access-recovery/ for some documentation on using the `single` kernel argument.
+
 ## Q: Does RHCOS support multipath?
 
 Yes. If the default multipath configurations work fine, you can simply add the kargs `rd.multipath=default root=/dev/disk/by-label/dm-mpath-root`. This can be done using day-1 MachineConfig objects as described in https://github.com/openshift/openshift-docs/pull/28972. You may change the configuration settings in `/etc/multipath.conf` just like on traditional RHEL (see docs [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_device_mapper_multipath/index)). If you need customized settings to take effect from the initrd, then you will need to enable initramfs regeneration via `rpm-ostree initramfs --enable` and remove the `rd.multipath=default` kernel argument.
