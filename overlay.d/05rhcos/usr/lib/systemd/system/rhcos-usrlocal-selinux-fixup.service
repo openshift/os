@@ -1,0 +1,19 @@
+[Unit]
+Description=RHCOS Fix SELinux Labeling For /usr/local/sbin
+Documentation=https://bugzilla.redhat.com/1956836
+DefaultDependencies=false
+After=systemd-tmpfiles-setup.service local-fs.target
+Before=sysinit.target
+ConditionPathExists=/var/usrlocal/sbin
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Run every time because systemd-tmpfiles will reset it to the incorrect
+# context on each boot.
+ExecStart=chcon -v --reference=/usr/sbin /usr/local/sbin
+# Only do this recursive relabeling once.
+ExecStart=/bin/sh -c 'if ! test -f /var/lib/.coreos-usrlocal-fixup.stamp; then find /var/usrlocal/sbin -executable -mount -exec chcon -v --reference=/usr/sbin {} \; && touch /var/lib/.coreos-usrlocal-fixup.stamp; fi'
+
+[Install]
+WantedBy=sysinit.target

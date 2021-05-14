@@ -133,6 +133,14 @@ echo "ok iSCSI initiator name"
 systemctl is-enabled logrotate.timer
 echo "ok logrotate"
 
+bin_ctx=$(stat -c %C /usr/sbin)
+usrlocal_sbin_ctx=$(stat -c %C /var/usrlocal/sbin)
+if test "${bin_ctx}" != "${usrlocal_sbin_ctx}"; then
+  fatal "/usr/sbin is ${bin_ctx} but /var/usrlocal/sbin is ${usrlocal_sbin_ctx}"
+fi
+test -f /var/lib/.coreos-usrlocal-fixup.stamp
+echo "ok usr/local/sbin fixup"
+
 rpm -q conntrack-tools
 test ! -f /usr/lib/systemd/system/conntrackd.service
 echo "ok conntrack tools without daemon"

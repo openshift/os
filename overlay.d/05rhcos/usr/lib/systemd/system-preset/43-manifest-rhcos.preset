@@ -3,6 +3,8 @@
 # live in the manifest and some of them from the redhat-release-coreos
 # package.
 
+# Upgrade fixes
+enable rhcos-usrlocal-selinux-fixup.service
 # Enable the iscsi workaround
 enable coreos-generate-iscsi-initiatorname.service
 # Enable GCP routes
