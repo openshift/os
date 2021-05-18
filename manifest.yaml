@@ -270,6 +270,8 @@ packages:
  # https://bugzilla.redhat.com/show_bug.cgi?id=1877905
  # https://bugzilla.redhat.com/show_bug.cgi?id=1886201
  - perl-interpreter
+ # DO NOT MERGE THIS
+ - strace
 
 packages-x86_64:
   # Temporary add of open-vm-tools. Should be removed when containerized
