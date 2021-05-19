@@ -21,12 +21,7 @@ curl -L http://base-"${ocpver}"-rhel8.ocp.svc.cluster.local > src/config/ocp.rep
 cosa fetch
 cosa build
 cosa buildextend-extensions
-# Manually exclude Secure Boot testing for pre-release RHEL content.
-# This will be removed once RHEL 8.4 is GA.
-# See https://github.com/openshift/os/pull/527
-# cosa kola --basic-qemu-scenarios
-cosa kola run --qemu-nvme=true basic
-cosa kola run --qemu-firmware=uefi basic
+cosa kola --basic-qemu-scenarios
 cosa kola run 'ext.*'
 # TODO: all tests in the future, but there are a lot
 # and we want multiple tiers, and we need to split them
