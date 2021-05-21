@@ -17,7 +17,7 @@ cosa init "${tmpsrc}"/src
 # Grab the raw value of `mutate-os-release` and use sed to convert the value
 # to X-Y format
 ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-curl -L http://base-"${ocpver}"-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
+curl -L http://base-"${ocpver}"-rhel83.ocp.svc.cluster.local > src/config/ocp.repo
 cosa fetch
 cosa build
 cosa kola --basic-qemu-scenarios
