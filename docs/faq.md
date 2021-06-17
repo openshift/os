@@ -190,9 +190,18 @@ Alternatively, you can try the [OpenStack VMWare Virtual Serial Port Concentrato
 
 See https://access.redhat.com/solutions/5500131
 The FCOS equivalent is https://docs.fedoraproject.org/en-US/fedora-coreos/access-recovery/
+
 ## Q: Does RHCOS support multipath?
 
-Yes. If the default multipath configurations work fine, you can simply add the kargs `rd.multipath=default root=/dev/disk/by-label/dm-mpath-root`. This can be done using day-1 MachineConfig objects as described in https://github.com/openshift/openshift-docs/pull/28972. You may change the configuration settings in `/etc/multipath.conf` just like on traditional RHEL (see docs [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_device_mapper_multipath/index)). If you need customized settings to take effect from the initrd, then you will need to enable initramfs regeneration via `rpm-ostree initramfs --enable` and remove the `rd.multipath=default` kernel argument.
+Yes. Multipath is turned on at installation time by using:
+
+```
+coreos-installer install --append-karg rd.multipath=default --append-karg root=/dev/disk/by-label/dm-mpath-root ...
+```
+
+If your environment permits it, it's also possible to turn on multipath as a day-2 operation using a MachineConfig object which appends the same kernel arguments. Note however that in some setups, any I/O to non-optimized paths will result in I/O errors. And since there is no guarantee which path the host may select prior to turning on multipath, this may break the system. In these cases, you must enable multipathing at installation time.
+
+Currently, non-default multipath configurations cannot be set at installation time. After booting with the default configuration, you may change the settings in `/etc/multipath.conf` just like on traditional RHEL (see docs [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_device_mapper_multipath/index)). If you need these customized settings to take effect from the initrd, then you will need to enable initramfs regeneration via `rpm-ostree initramfs --enable` and remove the `rd.multipath=default` kernel argument (e.g. `rpm-ostree kargs --delete rd.multipath=default`).
 
 ## Q: Does RHCOS support the use of `NetworkManager` keyfiles?  Does RHCOS support the use of `ifcfg` files?
 
