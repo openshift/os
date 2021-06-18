@@ -76,6 +76,10 @@ firstboot() {
               echo $(grep $line $f) >> $tmpfile
           done
       done
+      # This is needed to finish all ignition stages
+      echo "Appending 'ignition.firstboot' to ${tmpfile}"
+      sed -e "/^options / s/$/ ignition.firstboot/" -i "$tmpfile"
+
       grep options $tmpfile | cut -c 9- > $optfile
       zipl --verbose \
            --target "${tmpsysroot}/boot" \
