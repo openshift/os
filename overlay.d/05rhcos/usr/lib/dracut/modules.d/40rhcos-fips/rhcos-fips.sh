@@ -70,16 +70,18 @@ firstboot() {
       # We need to call zipl with the kernel image and ramdisk as running it without these options would require a zipl.conf and chroot
       # into rootfs
       tmpfile=$(mktemp)
+      optfile=$(mktemp)
       for f in "${tmpsysroot}"/boot/loader/entries/*.conf; do
           for line in title version linux initrd options; do
               echo $(grep $line $f) >> $tmpfile
           done
       done
+      grep options $tmpfile | cut -d ' ' -f2- > $optfile
       zipl --verbose \
            --target "${tmpsysroot}/boot" \
            --image $tmpsysroot/boot/"$(grep linux $tmpfile | cut -d' ' -f2)" \
            --ramdisk $tmpsysroot/boot/"$(grep initrd $tmpfile | cut -d' ' -f2)" \
-           --parmfile $tmpfile
+           --parmfile $optfile
     fi
 
     echo "Rebooting"
