@@ -7,8 +7,6 @@
 enable rhcos-usrlocal-selinux-fixup.service
 # Enable the iscsi workaround
 enable coreos-generate-iscsi-initiatorname.service
-# Enable GCP routes
-enable gcp-routes.service
 # Enable auditd. See https://jira.coreos.com/browse/RHCOS-536
 enable auditd.service
 # Disable these services by default. See https://jira.coreos.com/browse/RHCOS-92
