@@ -161,6 +161,13 @@ postprocess:
      # NB: we don't use -f here so we break when this is no longer needed
      rm -v /etc/iscsi/initiatorname.iscsi
 
+  # Make security scanners happy
+  # https://bugzilla.redhat.com/show_bug.cgi?id=1981979
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    chmod 600 /etc/sudoers.d/*
+
 etc-group-members:
   - wheel
   - sudo
