@@ -4,7 +4,17 @@ ConditionKernelCommandLine=ignition.platform.id=azure
 
 # Since we don't care about the actual success of the boot
 # from the OS perspective, check in as soon as we are able.
-After=network.target
+#
+# On Azure, checkin causes removal of the virtual CD with the
+# userdata, so we need to wait until after Ignition fetch.
+# (Waiting for fetch-offline is not sufficient if the config
+# references network resources, which it usually does in RHCOS.)
+#
+# In addition, the kargs stage might reboot the machine, after
+# which we need to be able to fetch the config again.  Removal
+# of the virtual CD persists across reboots, so we need to defer
+# it until after the kargs reboot.
+After=ignition-fetch.service ignition-kargs.service
 
 [Service]
 Environment=AFTERBURN_OPT_PROVIDER=--cmdline
