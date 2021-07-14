@@ -86,8 +86,9 @@ firstboot() {
            --parmfile $optfile
     fi
 
-    echo "Rebooting"
-    systemctl --force reboot
+    # Write to /run/fips-modified to inform the reboot service so we can apply both kernel arguments & FIPS
+    # without multiple reboots
+    echo "modified" > /run/fips-modified
 }
 
 finish() {
