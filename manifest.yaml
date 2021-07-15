@@ -32,7 +32,7 @@ repos:
   - rhel-8-server-ose
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1938928
-rpmdb: b-d-b
+rpmdb: bdb
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "49.84.<date:%Y%m%d%H%M>"
