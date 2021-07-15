@@ -2,6 +2,9 @@
 set -xeuo pipefail
 # Prow jobs don't support adding emptydir today
 export COSA_SKIP_OVERLAY=1
+# record information about cosa + rpm-ostree
+jq . < /cosa/coreos-assembler-git.json
+rpm-ostree --version
 # We generate .repo files which write to the source, but
 # we captured the source as part of the Docker build.
 # In OpenShift default SCC we'll run as non-root, so we need
