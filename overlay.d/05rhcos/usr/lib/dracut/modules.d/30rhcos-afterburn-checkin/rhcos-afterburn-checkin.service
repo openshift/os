@@ -2,9 +2,27 @@
 Description=Afterburn (Check In - from the initramfs)
 ConditionKernelCommandLine=ignition.platform.id=azure
 
+# The history of this file dates to:
+# commit 008db31a69405f68f8927cfdb41666af7bdc8351
+# Commit:     Yu Qi Zhang <jerzhang@redhat.com>
+# CommitDate: Tue Aug 13 13:38:01 2019 -0400
+# Add an RHCOS specific initramfs checkin for Azure. Also disable
+# the checkin from the real root as that is redundant.
+# Context: this is for installer UX considerations. The provision
+# success check masks issues with Ignition configs because it runs
+# after Ignition (which may never conclude). Terraform will also
+# report that nothing is progressing (as it is waiting for the checkin
+# even though things are. Kube will do the actual health handling
+# for the machine.
+
 # Since we don't care about the actual success of the boot
 # from the OS perspective, check in as soon as we are able.
-After=network.target
+#
+# On Azure, checkin causes removal of the virtual CD with the
+# userdata, so we need to wait until after Ignition fetch.
+# (Waiting for fetch-offline is not sufficient if the config
+# references network resources, which it usually does in RHCOS.)
+After=ignition-fetch.service
 
 [Service]
 Environment=AFTERBURN_OPT_PROVIDER=--cmdline
