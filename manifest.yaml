@@ -146,6 +146,13 @@ postprocess:
     done
     rm -f $(which authselect)
 
+  # FIXME: Force enable dbus-broker to get the dbus.service → dbus-broker.service
+  - |
+     #!/usr/bin/env bash
+     set -xeuo pipefail
+
+     systemctl enable dbus-broker
+
 etc-group-members:
   - wheel
   - sudo
