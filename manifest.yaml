@@ -216,7 +216,8 @@ packages:
  # and has a few other patches we need.
  # https://bugzilla.redhat.com/show_bug.cgi?id=1853651
  - clevis clevis-luks clevis-dracut
- - cryptsetup-reencrypt tpm2-tools
+ # - cryptsetup-reencrypt
+ - tpm2-tools
  # Used to update PAM configuration to work with SSSD
  # https://bugzilla.redhat.com/show_bug.cgi?id=1774154
  - authselect
