@@ -95,6 +95,8 @@ postprocess:
 
      # We're not using resolved yet
      rm -f /usr/lib/systemd/system/systemd-resolved.service
+     # C9S FIXME why is this only broken here?  NM isn't removing the link?
+     sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
 
      # Let's have a non-boring motd, just like CL (although theirs is more subdued
      # nowadays compared to early versions with ASCII art).  One thing we do here
