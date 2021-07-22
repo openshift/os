@@ -9,3 +9,13 @@ name=UNSIGNED CentOS Stream 9 AppStream
 baseurl=https://composes.stream.centos.org/development/latest-CentOS-Stream/compose/AppStream/$basearch/os
 gpgcheck=0
 enabled=1
+
+[c9s-rt]
+baseurl=https://odcs.stream.centos.org/test/latest-CentOS-Stream/compose/RT/$basearch/os/
+gpgcheck=0
+enabled=1
+
+[c9s-nfv]
+baseurl=https://odcs.stream.centos.org/test/latest-CentOS-Stream/compose/NFV/$basearch/os/
+gpgcheck=0
+enabled=1

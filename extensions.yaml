@@ -3,8 +3,8 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - rhel-8-advanced-virt
-  - rhel-8-nfv
+  - c9s-rt
+  - c9s-nfv
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
@@ -48,8 +48,8 @@ extensions:
   # GRPA-3123
   # - kata-containers (RHAOS)
   #   - qemu-kiwi (advanced-virt)
-  sandboxed-containers:
-    architectures:
-      - x86_64
-    packages:
-      - kata-containers
+  # sandboxed-containers:
+  #   architectures:
+  #     - x86_64
+  #   packages:
+  #     - kata-containers

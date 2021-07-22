@@ -1,0 +1,10 @@
+[walters-coreos-centos-stuff]
+name=Copr repo for coreos-centos-stuff owned by walters
+baseurl=https://download.copr.fedorainfracloud.org/results/walters/coreos-centos-stuff/fedora-34-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/walters/coreos-centos-stuff/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1
