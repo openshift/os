@@ -94,13 +94,6 @@ postprocess:
      # We're not using resolved yet
      rm -f /usr/lib/systemd/system/systemd-resolved.service
 
-     # Enable tmp-on-tmpfs by default because we don't want to have things
-     # leak across reboots, it increases alignment with FCOS, and also fixes
-     # the Live ISO.  First, verify that RHEL is still disabling.
-     grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
-     echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
-     echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
-
      # Let's have a non-boring motd, just like CL (although theirs is more subdued
      # nowadays compared to early versions with ASCII art).  One thing we do here
      # is add --- as a "separator"; the idea is that any "dynamic" information should
