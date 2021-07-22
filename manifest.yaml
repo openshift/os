@@ -25,10 +25,10 @@ arch-include:
 # See README.md
 # and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
 repos:
-  - rhel-8-baseos
-  - rhel-8-appstream
-  - rhel-8-fast-datapath
-  - rhel-8-fast-datapath-aarch64
+  - baseos
+  - appstream
+  # - rhel-8-fast-datapath
+  # - rhel-8-fast-datapath-aarch64
   - rhel-8-server-ose
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1938928
