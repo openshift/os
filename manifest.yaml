@@ -193,6 +193,8 @@ packages:
  - kernel-modules-extra
  # Audit
  - audit
+ # Currently required by rpm-ostree, though honestly it shouldn't be
+ - polkit
  # Containers
  - containernetworking-plugins
  # Pinned due to cosa on Fedora not honoring RHEL 8 modules as expected
