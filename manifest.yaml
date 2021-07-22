@@ -150,12 +150,18 @@ postprocess:
     done
     rm -f $(which authselect)
 
-  # FIXME: Force enable dbus-broker to get the dbus.service → dbus-broker.service
+  # Misc C9S bodges
   - |
      #!/usr/bin/env bash
      set -xeuo pipefail
 
+     # FIXME - hmm I bet this is because we have an old redhat-release-coreos
+     # package that doesn't enable the preset
      systemctl enable dbus-broker
+     # crio should stop hardcoding things in their config file!
+     # We are apparently somehow pulling in a conmon override in RHCOS
+     # that contains /usr/libexec/crio/conmon - WHY?
+     sed -i '/conmon.*=/d' /etc/crio/crio.conf
 
 etc-group-members:
   - wheel
