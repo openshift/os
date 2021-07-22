@@ -153,17 +153,6 @@ postprocess:
     done
     rm -f $(which authselect)
 
-  # Stop shipping a baked initiator name in the image; this should be generated
-  # at runtime. We have a service which does this
-  # (coreos-generate-iscsi-initiatorname.service) until it's done properly
-  # upstream (see https://bugzilla.redhat.com/show_bug.cgi?id=1493296).
-  - |
-     #!/usr/bin/env bash
-     set -xeuo pipefail
-
-     # NB: we don't use -f here so we break when this is no longer needed
-     rm -v /etc/iscsi/initiatorname.iscsi
-
 etc-group-members:
   - wheel
   - sudo
