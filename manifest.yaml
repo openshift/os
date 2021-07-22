@@ -35,7 +35,7 @@ repos:
 rpmdb: bdb
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "49.84.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "49.90.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 mutate-os-release: "4.9"
