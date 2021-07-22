@@ -229,7 +229,7 @@ packages:
  - openshift-hyperkube openshift-clients
  # Gluster - Used for Openshift e2e gluster testcases
  # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
- - glusterfs-fuse
+ # - glusterfs-fuse
  # Needed for kernel-devel extension: https://bugzilla.redhat.com/show_bug.cgi?id=1885408
  # x86_64 and s390x have these packages installed as dependencies of other packages, ppc64le does not
  # FIXME: once the below BZs have been resolved to remove perl dependencies, this can be done in the extensions script
