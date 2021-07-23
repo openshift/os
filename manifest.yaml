@@ -161,7 +161,10 @@ postprocess:
      # crio should stop hardcoding things in their config file!
      # We are apparently somehow pulling in a conmon override in RHCOS
      # that contains /usr/libexec/crio/conmon - WHY?
-     sed -i '/conmon.*=/d' /etc/crio/crio.conf
+     # sed -i '/conmon.*=/d' /etc/crio/crio.conf
+     # Oh right but the MCO overrides that too so...
+     mkdir -p /usr/libexec/crio
+     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
 
 etc-group-members:
   - wheel
