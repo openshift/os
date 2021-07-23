@@ -165,6 +165,8 @@ postprocess:
      # Oh right but the MCO overrides that too so...
      mkdir -p /usr/libexec/crio
      ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
+     # Use crun by default
+     sed -i '/crio.runtime/a default_runtime="crun"' /etc/crio/crio.conf
 
 etc-group-members:
   - wheel
