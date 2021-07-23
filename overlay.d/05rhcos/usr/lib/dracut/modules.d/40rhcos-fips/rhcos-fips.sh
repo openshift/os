@@ -28,7 +28,6 @@ firstboot() {
     ign_usercfg_msg=$(journalctl -q MESSAGE_ID=57124006b5c94805b77ce473e92a8aeb IGNITION_CONFIG_TYPE=user)
     if [ -z "${ign_usercfg_msg}" ]; then
         noop "No Ignition config provided."
-        exit 0
     fi
     if [ ! -f "${IGNITION_CONFIG}" ]; then
         fatal "Missing ${IGNITION_CONFIG}"
