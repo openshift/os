@@ -86,8 +86,10 @@ firstboot() {
            --parmfile $optfile
     fi
 
-    echo "Rebooting"
-    systemctl --force reboot
+    echo "Scheduling reboot"
+    # Write to /run/coreos-kargs-reboot to inform the reboot service so we
+    # can apply both kernel arguments & FIPS without multiple reboots
+    > /run/coreos-kargs-reboot
 }
 
 finish() {
