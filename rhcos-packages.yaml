@@ -5,6 +5,8 @@ packages:
   ## Delivered via RHAOS puddles
   # Extra runtime
   - afterburn
+  # Bootloader updater
+  - bootupd
   # User experience
   - console-login-helper-messages-issuegen console-login-helper-messages-profile
   # installer iso packages
