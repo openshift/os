@@ -53,16 +53,10 @@ firstboot() {
             ;;
     esac
 
-    echo "FIPS mode required; updating BLS entries"
+    echo "FIPS mode required; updating BLS entry"
 
-    mkdir -p "${tmpsysroot}/boot"
-    mount /dev/disk/by-label/boot "${tmpsysroot}/boot"
-
-    for f in "${tmpsysroot}"/boot/loader/entries/*.conf; do
-        echo "Appending 'fips=1 boot=LABEL=boot' to ${f}"
-        sed -e "/^options / s/$/ fips=1 boot=LABEL=boot/" -i "$f"
-    done
-    sync -f "${tmpsysroot}/boot"
+    rdcore kargs --boot-device /dev/disk/by-label/boot \
+        --append fips=1 --append boot=LABEL=boot
 
     if [[ $(uname -m) = s390x ]]; then
       # Similar to https://github.com/coreos/coreos-assembler/commit/100c2e512ecb89786a53bfb1c81abc003776090d in the coreos-assembler
