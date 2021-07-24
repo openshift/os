@@ -16,11 +16,15 @@ Requires=dev-disk-by\x2dlabel-boot.device
 After=ignition-fetch.service
 Before=ignition-disks.service
 
-# We want to run to completion before check-in: if we immediately reboot for
-# FIPS, it'd be more appropriate to say we're up on that second boot. Also on
-# some platforms (like Azure), check-in "ejects" the user-data drive, so
-# Ignition can't fetch the config again.
-Before=rhcos-afterburn-checkin.service
+# We need to run either before or after the Ignition kargs stage to avoid
+# racing over the /boot mount and BLS changes.  The kargs stage uses
+# rdcore kargs --create-if-changed, which currently insists that the flag
+# file doesn't already exist, so we're currently constrained to run after
+# kargs: https://github.com/coreos/coreos-installer/pull/577
+After=ignition-kargs.service
+
+# We may signal the reboot service to reboot the machine
+Before=coreos-kargs-reboot.service
 
 # See comment about this in ignition-complete.target.
 OnFailure=emergency.target
