@@ -182,7 +182,7 @@ No, there is no supported mechanism for non-default kernel modules at this time,
 
 ## Q: How do I capture console logs from an RHCOS node running on vSphere?
 
-It's possible to write the serial console data directly to the VMFS volume.  You can do this by changing the Virtual Hardware settings of the VM to include a serial port that writes to a file (see [screenshot](https://raw.githubusercontent.com/openshift/os/main/docs/vsphere-settings.png)).  The [official documetation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-C6FBCF66-5796-4EE6-BF47-4DCAA9DCD1E3.html) from VMware has additional details.
+It's possible to write the serial console data directly to the VMFS volume.  You can do this by changing the Virtual Hardware settings of the VM to include a serial port that writes to a file (see [screenshot](https://raw.githubusercontent.com/openshift/os/master/docs/vsphere-settings.png)).  The [official documetation](https://docs.vmware.com/en/VMware-vSphere/7.0/com.vmware.vsphere.vm_admin.doc/GUID-C6FBCF66-5796-4EE6-BF47-4DCAA9DCD1E3.html) from VMware has additional details.
 
 Alternatively, you can try the [OpenStack VMWare Virtual Serial Port Concentrator container](https://github.com/jcpowermac/vmware-vspc-container).
 
