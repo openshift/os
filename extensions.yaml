@@ -11,6 +11,11 @@ extensions:
   usbguard:
     packages:
       - usbguard
+  # https://github.com/coreos/fedora-coreos-tracker/issues/887
+  # CMP-927
+  oci-seccomp-bpf-hook:
+    packages:
+      - oci-seccomp-bpf-hook
   # https://github.com/kmods-via-containers/kmods-via-containers/issues/3
   # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/866
   # These are currently overlaid onto the host so that they can be bind-mounted
