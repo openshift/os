@@ -48,8 +48,9 @@ extensions:
   # GRPA-3123
   # - kata-containers (RHAOS)
   #   - qemu-kiwi (advanced-virt)
-  sandboxed-containers:
-    architectures:
-      - x86_64
-    packages:
-      - kata-containers
+  # FIXME temporarily removed due to https://github.com/openshift/os/issues/597
+  # sandboxed-containers:
+  #   architectures:
+  #     - x86_64
+  #   packages:
+  #     - kata-containers
