@@ -1,0 +1,12 @@
+# When removing this, also remove the preset
+[Unit]
+Description=setenforce 0 for now
+Before=openvswitch.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/setenforce 0
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

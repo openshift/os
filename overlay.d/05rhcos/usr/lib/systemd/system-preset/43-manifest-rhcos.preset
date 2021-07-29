@@ -21,3 +21,6 @@ enable logrotate.timer
 # removed once RHCOS catches up to CLHM v0.21+.
 enable console-login-helper-messages-issuegen.service
 enable console-login-helper-messages-issuegen.path
+
+# FIXME remove
+enable rhcos-setenforce0.service
