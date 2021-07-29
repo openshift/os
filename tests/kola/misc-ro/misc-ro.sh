@@ -130,15 +130,12 @@ if ! test -f /etc/iscsi/initiatorname.iscsi; then
 fi
 echo "ok iSCSI initiator name"
 
-
-# Let's make sure the NetworkManager we use is one of the one-off
-# rebuilds while we're following RHEL 8.3.
-if [[ ! $(rpm -q NetworkManager) =~ 'rhaos4.7' ]]; then
-    fatal "NetworkManager package changed from rhaos4.7 branch. Needs investigation."
-fi
-echo "ok NetworkManager package comes from rhaos4.7 branch."
-
 # Ensure NM's internal DHCP client runs by default
 if ! journalctl -b 0 -u NetworkManager --grep=dhcp | grep -q "Using DHCP client 'internal'"; then
   fatal "NetworkManager's internal DHCP client is not running"
 fi
+# Ensure that dhclient is available on the host
+if ! test -f /usr/sbin/dhclient; then
+    fatal "Missing dhclient binary"
+fi
+echo "ok dhclient binary present" 
