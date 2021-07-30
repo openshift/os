@@ -212,9 +212,6 @@ packages:
  - openvswitch2.15
  - dnsmasq
  - NetworkManager-ovs
- # Need to keep providing dhclient binary
- # See: https://bugzilla.redhat.com/show_bug.cgi?id=1908462
- - dhcp-client
  # Extra runtime
  - sssd
  # Common tools used by scripts and admins interactively
