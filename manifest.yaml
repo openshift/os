@@ -190,6 +190,11 @@ exclude-packages:
   - grubby
   # udisks2 is a fwupd recommends only need for encrypted swap checks
   - udisks2
+  # dhcp-client is recommended by chrony for handling NTP servers given out via
+  # DHCP, but we have a NM dispatcher script that is doing that
+  # See: https://bugzilla.redhat.com/show_bug.cgi?id=1930468
+  # See: https://bugzilla.redhat.com/show_bug.cgi?id=1800901
+  - dhcp-client
 
 # Try to maintain this list ordering by "in RHEL, then not in RHEL".
 # To verify, disable all repos except the ootpa ones and then comment
