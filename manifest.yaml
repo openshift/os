@@ -261,6 +261,28 @@ packages:
  # https://github.com/openshift/machine-config-operator/pull/2421
  - conntrack-tools
 
+repo-packages:
+  # we always want the kernel from BaseOS
+  - repo: rhel-8-baseos
+    packages:
+      - kernel
+  # we want the one shipping in RHEL, not the equivalently versioned one in RHAOS
+  - repo: rhel-8-appstream
+    packages:
+      - nss-altfiles
+  - repo: rhel-8-server-ose
+    packages:
+      # eventually, we want the one from the container-tools module, but we're
+      # not there yet
+      - toolbox
+
+modules:
+  enable:
+    # podman stack
+    - container-tools:rhel8
+    # qemu-guest-agent
+    - virt:rhel
+
 packages-x86_64:
   # Temporary add of open-vm-tools. Should be removed when containerized
   - open-vm-tools

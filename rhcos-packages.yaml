@@ -16,7 +16,6 @@ packages:
   - nss-altfiles
   - ostree
   - rpm-ostree
-  # part of container-tools module
   - toolbox
   # for kdump:
   # https://github.com/coreos/fedora-coreos-tracker/issues/622
