@@ -149,11 +149,6 @@ echo "ok conntrack tools without daemon"
 if ! journalctl -b 0 -u NetworkManager --grep=dhcp | grep -q "Using DHCP client 'internal'"; then
   fatal "NetworkManager's internal DHCP client is not running"
 fi
-# Ensure that dhclient is available on the host
-if ! test -f /usr/sbin/dhclient; then
-    fatal "Missing dhclient binary"
-fi
-echo "ok dhclient binary present" 
 
 # Check that we have the proper presets for console-login-helper-messages in RHCOS.
 # Versions of CLHM prior to v0.21 have `issuegen`-related systemd units.
