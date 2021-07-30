@@ -285,15 +285,6 @@ remove-from-packages:
   # https://bugzilla.redhat.com/show_bug.cgi?id=1727058
   - - initscripts
     - "/"
-  # In newer dracut-network dhclient isn't required if you have NM 1.20
-  # https://github.com/dracutdevs/dracut/commit/e863807
-  # Let's keep only the binaries so users still relying on them can continue
-  # to use them in the real root as long as they provide the configuration themselves.
-  - - dhcp-client
-    - "/etc/dhcp/dhclient.conf"
-    - "/etc/NetworkManager/dispatcher.d/11-dhclient"
-    - "/usr/lib/NetworkManager/dispatcher.d/11-dhclient"
-    - "/usr/lib64/pm-utils/sleep.d/56dhclient"
   # Remove the systemd unit; we only want the binary to be used
   # by MCD or kubelet.  See above.
   - - conntrack-tools
