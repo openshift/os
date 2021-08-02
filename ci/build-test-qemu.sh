@@ -24,7 +24,8 @@ curl -L http://base-"${ocpver}"-rhel8.ocp.svc.cluster.local > src/config/ocp.rep
 cosa fetch
 cosa build
 cosa buildextend-extensions
-cosa kola --basic-qemu-scenarios
+# FIXME C9S no secure boot
+cosa kola run basic
 cosa kola run 'ext.*'
 # TODO: all tests in the future, but there are a lot
 # and we want multiple tiers, and we need to split them
