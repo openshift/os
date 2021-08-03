@@ -190,6 +190,11 @@ exclude-packages:
   - grubby
   # udisks2 is a fwupd recommends only need for encrypted swap checks
   - udisks2
+  # dhcp-client is recommended by chrony for handling NTP servers given out via
+  # DHCP, but we have a NM dispatcher script that is doing that
+  # See: https://bugzilla.redhat.com/show_bug.cgi?id=1930468
+  # See: https://bugzilla.redhat.com/show_bug.cgi?id=1800901
+  - dhcp-client
 
 # Try to maintain this list ordering by "in RHEL, then not in RHEL".
 # To verify, disable all repos except the ootpa ones and then comment
@@ -212,9 +217,6 @@ packages:
  - openvswitch2.15
  - dnsmasq
  - NetworkManager-ovs
- # Need to keep providing dhclient binary
- # See: https://bugzilla.redhat.com/show_bug.cgi?id=1908462
- - dhcp-client
  # Extra runtime
  - sssd
  # Common tools used by scripts and admins interactively
@@ -285,15 +287,6 @@ remove-from-packages:
   # https://bugzilla.redhat.com/show_bug.cgi?id=1727058
   - - initscripts
     - "/"
-  # In newer dracut-network dhclient isn't required if you have NM 1.20
-  # https://github.com/dracutdevs/dracut/commit/e863807
-  # Let's keep only the binaries so users still relying on them can continue
-  # to use them in the real root as long as they provide the configuration themselves.
-  - - dhcp-client
-    - "/etc/dhcp/dhclient.conf"
-    - "/etc/NetworkManager/dispatcher.d/11-dhclient"
-    - "/usr/lib/NetworkManager/dispatcher.d/11-dhclient"
-    - "/usr/lib64/pm-utils/sleep.d/56dhclient"
   # Remove the systemd unit; we only want the binary to be used
   # by MCD or kubelet.  See above.
   - - conntrack-tools
