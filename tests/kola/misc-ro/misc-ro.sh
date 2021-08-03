@@ -21,11 +21,11 @@ fi
 echo "ok tmpfs"
 
 # SELinux should be on
-  enforce=$(getenforce)
-if [ "${enforce}" != "Enforcing" ]; then
-  fatal "Expected SELinux Enforcing, found ${enforce}"
-fi
-echo "ok selinux"
+#  enforce=$(getenforce)
+# if [ "${enforce}" != "Enforcing" ]; then
+#   fatal "Expected SELinux Enforcing, found ${enforce}"
+# fi
+# echo "ok selinux"
 
 # We have forgotten to chmod a+x the chrony generator, and accidentally
 # omitted it entirely.
@@ -154,7 +154,7 @@ fi
 if ! test -f /usr/sbin/dhclient; then
     fatal "Missing dhclient binary"
 fi
-echo "ok dhclient binary present" 
+echo "ok dhclient binary present"
 
 # Check that we have the proper presets for console-login-helper-messages in RHCOS.
 # Versions of CLHM prior to v0.21 have `issuegen`-related systemd units.
