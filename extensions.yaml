@@ -6,6 +6,11 @@ repos:
   - rhel-8-advanced-virt
   - rhel-8-nfv
 
+modules:
+  enable:
+    # for qemu-kiwi
+    - virt:av
+
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
