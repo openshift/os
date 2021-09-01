@@ -31,7 +31,6 @@ cosa fetch
 cosa build
 cosa buildextend-extensions
 cosa kola --basic-qemu-scenarios
-cosa kola run 'ext.*'
-# TODO: all tests in the future, but there are a lot
-# and we want multiple tiers, and we need to split them
-# into multiple pods and stuff.
+kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
+cosa kola run --parallel 2
+
