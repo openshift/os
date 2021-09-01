@@ -11,5 +11,3 @@ squashfs-compression: gzip
 # Disable networking by default on firstboot. We can drop this once cosa stops
 # defaulting to `ip=dhcp,dhcp6 rd.neednet=1` when it doesn't see this key.
 ignition-network-kcmdline: []
-
-ostree-format: "oci"
