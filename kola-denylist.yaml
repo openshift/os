@@ -12,3 +12,7 @@
    - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
+- pattern: multipath.day1
+  tracker: https://src.osci.redhat.com/rpms/coreos-installer/pull-request/28 
+  arches:
+   - s390x
