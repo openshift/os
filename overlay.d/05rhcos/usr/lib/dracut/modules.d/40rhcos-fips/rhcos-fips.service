@@ -17,10 +17,7 @@ After=ignition-fetch.service
 Before=ignition-disks.service
 
 # We need to run either before or after the Ignition kargs stage to avoid
-# racing over the /boot mount and BLS changes.  The kargs stage uses
-# rdcore kargs --create-if-changed, which currently insists that the flag
-# file doesn't already exist, so we're currently constrained to run after
-# kargs: https://github.com/coreos/coreos-installer/pull/577
+# racing over the /boot mount and BLS changes.
 After=ignition-kargs.service
 
 # We may signal the reboot service to reboot the machine
