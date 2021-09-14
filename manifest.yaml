@@ -3,6 +3,8 @@ rojig:
   name: rhcos
   summary: OpenShift 4
 
+# dummy change
+
 # We inherit from Fedora CoreOS' base configuration
 include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
