@@ -58,27 +58,6 @@ firstboot() {
     rdcore kargs --boot-device /dev/disk/by-label/boot \
         --append fips=1 --append boot=LABEL=boot
 
-    if [[ $(uname -m) = s390x ]]; then
-      # Similar to https://github.com/coreos/coreos-assembler/commit/100c2e512ecb89786a53bfb1c81abc003776090d in the coreos-assembler
-      # We need to call zipl with the kernel image and ramdisk as running it without these options would require a zipl.conf and chroot
-      # into rootfs
-      tmpfile=$(mktemp)
-      optfile=$(mktemp)
-      for f in "${tmpsysroot}"/boot/loader/entries/*.conf; do
-          for line in title version linux initrd options; do
-              echo $(grep $line $f) >> $tmpfile
-          done
-      done
-      echo "Appending 'ignition.firstboot' to ${optfile}"
-      options="$(grep options $tmpfile | cut -d ' ' -f2-) ignition.firstboot"
-      echo $options > "$optfile"
-      zipl --verbose \
-           --target "${tmpsysroot}/boot" \
-           --image $tmpsysroot/boot/"$(grep linux $tmpfile | cut -d' ' -f2)" \
-           --ramdisk $tmpsysroot/boot/"$(grep initrd $tmpfile | cut -d' ' -f2)" \
-           --parmfile $optfile
-    fi
-
     echo "Scheduling reboot"
     # Write to /run/coreos-kargs-reboot to inform the reboot service so we
     # can apply both kernel arguments & FIPS without multiple reboots
