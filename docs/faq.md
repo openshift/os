@@ -99,9 +99,25 @@ RHEL CoreOS ships RHEL updates after they're released.  At the time of this writ
 
 ## Q: How do I determine what version of an RPM is included in an RHCOS release?
 
-The contents of each RHCOS release are visible in the [release browser](https://releases-rhcos-art.cloud.privileged.psi.redhat.com/) via the "OS contents" link next to each build.
+Key packages such as the kernel are exposed as metadata properties:
 
-Alternately, you can query the metadata directly:
+```
+$ oc image info (oc adm release info --image-for=machine-os-content quay.io/openshift-release-dev/ocp-release:4.9.0-rc.1-x86_64) | grep com.coreos.rpm
+             com.coreos.rpm.cri-o=1.22.0-68.rhaos4.9.git011c10a.el8.x86_64
+             com.coreos.rpm.ignition=2.12.0-1.rhaos4.9.el8.x86_64
+             com.coreos.rpm.kernel=4.18.0-305.17.1.el8_4.x86_64
+             com.coreos.rpm.kernel-rt-core=4.18.0-305.17.1.rt7.89.el8_4.x86_64
+             com.coreos.rpm.ostree=2020.7-5.el8_4.x86_64
+             com.coreos.rpm.rpm-ostree=2020.7-3.el8.x86_64
+             com.coreos.rpm.runc=1.0.0-74.rc95.module+el8.4.0+11822+6cc1e7d7.x86_64
+             com.coreos.rpm.systemd=239-45.el8_4.3.x86_64
+$
+```
+
+The full contents of each RHCOS release are visible in the [release browser](https://releases-rhcos-art.cloud.privileged.psi.redhat.com/) via the "OS contents" link next to each build.
+It's a known issue (bug) that this web page is only accessible inside the private RHT network.
+
+Alternately, you can query the metadata directly (but note that this URL is subject to change).
 
 ```
 $ curl -Ls https://releases-rhcos-art.cloud.privileged.psi.redhat.com/storage/releases/rhcos-4.5/45.82.202007140205-0/x86_64/commitmeta.json | jq '.["rpmostree.rpmdb.pkglist"][] | select(.[0] == "cri-o")'
