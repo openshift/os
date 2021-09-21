@@ -1,0 +1,9 @@
+# This contains x86_64 specific configuration for the RHCOS initramfs.
+
+# It appears the VMWare paravirtualized SCSI driver is only available on
+# x86_64, so trying to install it as a dracut module in the initramfs fails
+# on other platforms.
+initramfs-args:
+  - "--add-drivers"
+  - "vmw_pvscsi"
+
