@@ -43,8 +43,6 @@ mutate-os-release: "4.10"
 documentation: false
 initramfs-args:
   - "--no-hostonly"
-  - "--add-drivers"
-  - "mptspi vmw_pvscsi"
   - "--omit-drivers"
   - "nouveau"
   - "--omit"
