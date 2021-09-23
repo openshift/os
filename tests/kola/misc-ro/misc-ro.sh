@@ -166,3 +166,9 @@ if test -f /usr/lib/systemd/system/console-login-helper-messages-issuegen.servic
   fi
 fi
 echo "ok console-login-helper-messages presets present"
+
+# Check that rhaos packages do not match the OpenShift version
+if [[ $(rpm -qa | grep rhaos | grep -v $OPENSHIFT_VERSION) ]]; then
+  fatal "Error: rhaos packages do not match OpenShift version"
+fi
+
