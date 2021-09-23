@@ -139,3 +139,8 @@ if ! test -f /usr/sbin/dhclient; then
     fatal "Missing dhclient binary"
 fi
 echo "ok dhclient binary present" 
+
+# Check that rhaos packages do not match the OpenShift version
+if [[ $(rpm -qa | grep rhaos | grep -v $OPENSHIFT_VERSION) ]]; then
+  fatal "Error: rhaos packages do not match OpenShift version"
+fi
