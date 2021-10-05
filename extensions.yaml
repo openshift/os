@@ -3,13 +3,7 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - rhel-8-advanced-virt
   - rhel-8-nfv
-
-modules:
-  enable:
-    # for qemu-kiwi
-    - virt:av
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
@@ -56,5 +50,11 @@ extensions:
   sandboxed-containers:
     architectures:
       - x86_64
+    modules:
+      enable:
+        # for qemu-kiwi
+        - virt:av
+    repos:
+      - rhel-8-advanced-virt
     packages:
       - kata-containers
