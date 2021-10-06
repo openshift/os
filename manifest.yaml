@@ -275,10 +275,6 @@ repo-packages:
       # eventually, we want the one from the container-tools module, but we're
       # not there yet
       - toolbox
-      # we tagged a new version of container-selinux so that we can include the fix
-      # for RHBZ#1999245 in RHCOS 4.9
-      # TODO: this should be dropped when the next RHEL 8.4.z release happens
-      - container-selinux
 
 modules:
   enable:
