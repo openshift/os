@@ -5,10 +5,5 @@
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1782026
   arches:
    - s390x
-# for s390x by-partlabel can't be used and even if that is avoided by using part-uuid, still depends on the cpi fix below
-- pattern: ext.config.var-mount
-  tracker: https://github.com/ibm-s390-tools/s390-tools/pull/82
-  arches:
-   - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
