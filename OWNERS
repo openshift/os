@@ -1,15 +1,19 @@
 # See the OWNERS docs: https://git.k8s.io/community/contributors/guide/owners.md
+# This file should mirror the list of users defined on coreos-approvers in:
+# https://github.com/openshift/release/blob/master/OWNERS_ALIASES
 
 approvers:
-  - bgilbert
-  - cgwalters
-  - darkmuggle
-  - dustymabe
-  - jlebon
-  - kelvinfan001
-  - lucab
   - miabbott
+  - cgwalters
+  - bgilbert
+  - dustymabe
   - mike-nguyen
-  - saqibali-2k
+  - jlebon
+  - ashcrow
+  - lucab
   - sohankunkerkar
   - travier
+  - saqibali-2k
+  - HuijingHei
+  - jmarrero
+  - aaradhak
