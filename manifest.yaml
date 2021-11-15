@@ -164,6 +164,29 @@ postprocess:
      # NB: we don't use -f here so we break when this is no longer needed
      rm -v /etc/iscsi/initiatorname.iscsi
 
+  # Add content_manifests dir to have json files for build info
+  # See https://issues.redhat.com/browse/GRPA-3731
+  - |
+     #!/usr/bin/env bash
+     set -euo pipefail
+     
+     REPOS=`jq .repos /usr/share/rpm-ostree/treefile.json`
+     ARCH=`jq .basearch /usr/share/rpm-ostree/treefile.json | tr -d '"'`
+     
+     . /etc/os-release
+     mkdir -p /usr/share/buildinfo/content_manifests && cd "$_" && touch $ID-$OSTREE_VERSION.json
+     # Make an empty json and add all the relevant fields
+     echo "$(var=$REPOS; jq --argjson repos "$var" '. += 
+      {
+       "metadata": {
+         "icm_version": 1,
+         "icm_spec": "https://raw.githubusercontent.com/containerbuildsystem/atomic-reactor/master/atomic_reactor/schemas/content_manifest.json",
+         "image_layer_index": 1
+        },
+        "content_sets": $repos,
+        "image_contents": []
+      }' $ID-$OSTREE_VERSION.json)" > $ID-$OSTREE_VERSION.json
+
 etc-group-members:
   - wheel
   - sudo
