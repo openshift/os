@@ -13,7 +13,7 @@ RemainAfterExit=yes
 # context on each boot.
 ExecStart=chcon -v --reference=/usr/sbin /usr/local/sbin
 # Only do this recursive relabeling once.
-ExecStart=/bin/sh -c 'if ! test -f /var/lib/.coreos-usrlocal-fixup.stamp; then find /var/usrlocal/sbin -executable -mount -exec chcon -v --reference=/usr/sbin {} \; && touch /var/lib/.coreos-usrlocal-fixup.stamp; fi'
+ExecStart=/bin/sh -c 'if ! test -f /var/lib/.coreos-usrlocal-fixup.stamp; then find /var/usrlocal/sbin -executable -mount -exec chcon -v --reference=/usr/sbin {} \\; && touch /var/lib/.coreos-usrlocal-fixup.stamp; fi'
 
 [Install]
 WantedBy=sysinit.target
