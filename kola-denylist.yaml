@@ -7,5 +7,3 @@
    - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
-- pattern: crio.base
-  tracker: https://github.com/openshift/os/issues/674
