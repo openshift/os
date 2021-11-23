@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# This is RHCOS only, by default conntrack-tools is not installed on FCOS
+
+# kola: { "exclusive": false }
+set -xeuo pipefail
+
+fatal() {
+    echo "$@" >&2
+    exit 1
+}
+
+if ! rpm --quiet -q conntrack-tools; then
+    fatal "Error: conntrack-tools is not installed"
+fi
+if test -f /usr/lib/systemd/system/conntrackd.service; then
+    fatal "Error: conntrack tools should not have daemon"
+fi

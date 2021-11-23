@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# By default afterburn-sshkeys@core is disabled on RHCOS, enabled on FCOS
+# https://github.com/coreos/afterburn/issues/405
+
+# kola: { "exclusive": false }
+
+set -xeuo pipefail
+
+fatal() {
+    echo "$@" >&2
+    exit 1
+}
+
+if [ "$(systemctl is-enabled afterburn-sshkeys@.service)" = enabled ]; then
+    fatal "Error: afterburn-sshkeys@ is enabled"
+fi

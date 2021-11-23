@@ -1,0 +1,14 @@
+#!/bin/bash
+# kola: { "exclusive": false }
+set -xeuo pipefail
+
+fatal() {
+    echo "$@" >&2
+    exit 1
+}
+
+# check if RHEL version encoded in RHCOS build version matches /etc/os-release
+source /etc/os-release
+if [ "${RHEL_VERSION//.}" != "$(echo "${VERSION}" | awk -F "." '{print $2}')" ]; then
+  fatal "Error: RHEL version does not match"
+fi

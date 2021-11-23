@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# By default coreos-generate-iscsi-initiatorname.service is active on RHCOS,
+# inactive on FCOS
+# https://github.com/openshift/os/pull/453
+
+# kola: { "exclusive": false }
+set -xeuo pipefail
+
+ok() {
+    echo "ok" "$@"
+}
+
+fatal() {
+    echo "$@" >&2
+    exit 1
+}
+
+if ! systemctl show -p ActiveState coreos-generate-iscsi-initiatorname.service | grep -q ActiveState=active; then
+    fatal "Error: coreos-generate-iscsi-initiatorname.service not active"
+fi
+ok "coreos-generate-iscsi-initiatorname.service is active"
+
+if ! test -f /etc/iscsi/initiatorname.iscsi; then
+    fatal "Error: missing /etc/iscsi/initiatorname.iscsi"
+fi
+ok "iSCSI initiator name"
