@@ -271,14 +271,16 @@ repo-packages:
       - nss-altfiles
   - repo: rhel-8-server-ose
     packages:
-      # eventually, we want the one from the container-tools module, but we're
-      # not there yet
-      - toolbox
-      # we are going to start pulling the whole container-tools stack from the
-      # OCP repo
+      # packages which exist in containers-tools:rhel8 but newer versions exist
+      # in OCP repo for the purposes of RHCOS
+      - conmon
+      - containernetworking-plugins
+      - containers-common
       - container-selinux
       - crun
       - runc
+      - skopeo
+      - toolbox
 
 modules:
   enable:
