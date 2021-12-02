@@ -7,3 +7,7 @@
    - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
+- pattern: coreos.ignition.mount.*
+  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1899990
+  arches:
+  - s390x
