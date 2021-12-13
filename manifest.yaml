@@ -276,8 +276,9 @@ repo-packages:
       - toolbox
       # we are going to start pulling the whole container-tools stack from the
       # OCP repo
-      - runc
       - container-selinux
+      - crun
+      - runc
 
 modules:
   enable:
