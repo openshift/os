@@ -14,6 +14,11 @@ OPENSHIFT_CI_ACCOUNT = "460538899914"
 OPENSHIFT_DEV_ACCOUNT = "269733383066"
 OPENSHIFT_MARKETPLACE_TEST_ACCOUNT = "125666959065"
 
+# See https://issues.redhat.com/browse/SPLAT-193 for account values
+OPENSHIFT_ALIYUN_CI = "5920522175273455"
+OPENSHIFT_ALIYUN_DEV = "5807403157081522"
+OPENSHIFT_ALIYUN_QE = "5724326381648897"
+
 # Since we run all tests on QEMU, and as of today don't have really
 # any tests that are specific to a cloud provider, we just run
 # basic sanity checks.
@@ -26,6 +31,39 @@ ALIYUN = 'aliyun'
 
 cloud = None
 
+# For *some* regions in Aliyun you have to use a specific endpoint,
+# which is weird
+def get_aliyun_endpoint(region):
+    endpoint = f'ecs.{region}.aliyuncs.com'
+    if region in ['us-east-1', 'us-west-1', 'cn-qingdao',
+                  'cn-beijing', 'cn-hangzhou', 'cn-shanghai',
+                  'cn-shanghai', 'cn-hongkong', 'ap-southeast-1']:
+        endpoint = 'ecs.aliyuncs.com'
+
+    return endpoint
+
+
+# Find the image_id in meta.json given a build_id, region, arch
+def find_image_id(cloud_id, region_id, build_id, arch):
+    with open(f"builds/{build_id}/{arch}/meta.json") as meta_f:
+        meta = json.load(meta_f)
+    image_id = None
+
+    if cloud_id == AWS:
+        for region in meta['amis']:
+            if region['name'] == region_id:
+                image_id = region['hvm']
+
+    if cloud_id == ALIYUN:
+        for region in meta['aliyun']:
+            if region['name'] == region_id:
+                image_id = region['id']
+
+    if image_id is None:
+        print("Failed to find {} image in meta.json!".format(cloud_id))
+        sys.exit(1)
+
+    return image_id
 
 # Upload the given build to a bucket in a region
 def upload_to_cloud(buildid, region, bucket, suffix=None, public=False):
@@ -61,6 +99,40 @@ def upload_to_cloud(buildid, region, bucket, suffix=None, public=False):
         print("Failed to build/upload image! Error: {}".format(upload_err))
         raise
 
+    # If the Aliyun image isn't public, grant access to CI/DEV/QE accounts
+    # TODO: add `--grant-user` support to Aliyun in `ore`
+    if not public and cloud == ALIYUN:
+        arch = subprocess.check_output(["cosa", "basearch"], text='UTF-8').strip()
+        image_id = find_image_id(cloud, region, buildid, arch)
+        share_cmd = ['aliyun', '--endpoint', get_aliyun_endpoint(region), 'ecs',
+                      'ModifyImageSharePermission', '--region', region,
+                      '--ImageId', image_id]
+
+        # The aliyun CLI will return an error if you try to share an image with
+        # your own account, so this is a hack to prevent that from happening
+        # in a RHCOS devel pipeline scenario
+        aliyun_accts = [OPENSHIFT_ALIYUN_CI, OPENSHIFT_ALIYUN_DEV, OPENSHIFT_ALIYUN_QE]
+        whoami_cmd = ['aliyun', 'sts', 'GetCallerIdentity']
+        out = subprocess.check_output(whoami_cmd, text='UTF-8')
+        whoami_dict = json.loads(out)
+        whoami_id = whoami_dict['AccountId']
+
+        # And since you have to increment the number for the `--AddAcccount.n`
+        # when adding multiple accounts, we have to increment a counter while
+        # searching if our account is in the list of Aliyun accounts.
+        account_num = 0
+        for acct in aliyun_accts:
+            if acct != whoami_id:
+                account_num += 1
+                share_cmd.extend(['--AddAccount.{}'.format(account_num), acct])
+
+        try:
+            print(share_cmd)
+            subprocess.check_call(share_cmd)
+        except subprocess.CalledProcessError as upload_err:
+            print("Failed to grant access to image! Error: {}".format(upload_err))
+            raise
+
 # Run the basic kola test on an AMI
 def run_kola_basic(ami_id, region):
     kola_args = ['kola', '-b', 'rhcos',
@@ -78,56 +150,72 @@ def run_kola_basic(ami_id, region):
         print("Running kola tests on AWS failed!  Error: {}".format(kola_err))
         raise
 
+
 # Set all the permissions to make the AMI/snapshot public
-def make_ami_public(region, ami_id):
-    print(f"Making {ami_id} public")
-    # allow the AMI to started by everyone
+def make_ami_public(cloud_id, region, ami_id):
+    print(f"Making {cloud_id} image id {ami_id} public in {region}")
+    if cloud_id == ALIYUN:
+        pub_cmd = ['aliyun', '--endpoint', get_aliyun_endpoint(region), 'ecs',
+                   'ModifyImageSharePermission', '--region', region,
+                   '--ImageId', ami_id, '--IsPublic', 'true']
+    if cloud_id == AWS:
+        pub_cmd = ['aws', 'ec2', "--region", region,
+                   'modify-image-attribute', '--image-id', ami_id,
+                   '--launch-permission', '{"Add": [{"Group":"all"}]}']
+
     try:
-        subprocess.check_call(['aws', 'ec2', "--region", region,
-                               'modify-image-attribute',
-                               '--image-id', ami_id,
-                               '--launch-permission',
-                               '{"Add": [{"Group":"all"}]}'])
+        subprocess.check_call(pub_cmd)
     except subprocess.CalledProcessError as pub_err:
-        print("Failed to make {} public! Error: {}".format(ami_id, pub_err))
+        print("Failed to make {} image {} public in {}! Error: {}".format(cloud_id, ami_id, region, pub_err))
         raise
 
-    # check that the AMI is actually public
+    # check that the image is actually public
+    if cloud_id == ALIYUN:
+        desc_cmd = ['aliyun', '--endpoint', get_aliyun_endpoint(region), 'ecs',
+                    'DescribeImages', '--RegionId', region, '--ImageId',
+                    ami_id]
+    if cloud_id == AWS:
+        desc_cmd = ['aws', 'ec2', '--region', region, 'describe-images',
+                    '--image-id', ami_id]
+
     try:
-        output = subprocess.check_output(['aws', 'ec2',
-                                          '--region', region,
-                                          'describe-images',
-                                          '--image-id', ami_id])
+        output = subprocess.check_output(desc_cmd)
     except subprocess.CalledProcessError as pub_err:
-        print("Failed to describe AMI {}! Error: {}".format(ami_id, pub_err))
+        print("Failed to describe {} image {} in {} ! Error: {}".format(cloud_id, ami_id, region, pub_err))
         raise
 
     image_description = json.loads(output)
-    snapshot = None
-    for image in image_description['Images']:
-        for block_device_mapping in image['BlockDeviceMappings']:
-            ebs = block_device_mapping.get('Ebs')
-            if ebs is not None:
-                snapshot = ebs['SnapshotId']
-                break
+    if cloud_id == AWS:
+        snapshot = None
+        for image in image_description['Images']:
+            for block_device_mapping in image['BlockDeviceMappings']:
+                ebs = block_device_mapping.get('Ebs')
+                if ebs is not None:
+                    snapshot = ebs['SnapshotId']
+                    break
 
-    assert snapshot is not None, \
-        "Failed to find SnapshotId associated with AMI {}".format(ami_id)
+        assert snapshot is not None, \
+            "Failed to find SnapshotId associated with AMI {}".format(ami_id)
 
-    # allow everyone to create volumes with the snapshot
-    print("Adding createVolumePermission for snapshot {}".format(snapshot) +
-          "in region {}".format(region))
-    try:
-        subprocess.check_call(['aws', 'ec2', "--region", region,
-                               'modify-snapshot-attribute',
-                               '--snapshot-id', snapshot,
-                               '--attribute', 'createVolumePermission',
-                               '--operation-type', 'add',
-                               '--group-names', 'all'])
-    except subprocess.CalledProcessError as pub_err:
-        print("Failed to add createVolumePermission on " +
-              "snapshot {}!  Error: {}".format(snapshot, pub_err))
-        raise
+        # allow everyone to create volumes with the snapshot
+        print("Adding createVolumePermission for snapshot {}".format(snapshot) +
+              "in region {}".format(region))
+        try:
+            subprocess.check_call(['aws', 'ec2', "--region", region,
+                                   'modify-snapshot-attribute',
+                                   '--snapshot-id', snapshot,
+                                   '--attribute', 'createVolumePermission',
+                                   '--operation-type', 'add',
+                                   '--group-names', 'all'])
+        except subprocess.CalledProcessError as pub_err:
+            print("Failed to add createVolumePermission on " +
+                  "snapshot {}!  Error: {}".format(snapshot, pub_err))
+            raise
+
+    if cloud_id == ALIYUN:
+        is_public = image_description["Images"]["Image"][0]["IsPublic"]
+        assert is_public != "true", \
+            "Aliyun image {} in {} was not public!".format(ami_id, region)
 
 
 def main():
@@ -152,11 +240,6 @@ def main():
     parser.add_argument("--skip-kola", action='store_true')
     args = parser.parse_args()
 
-    # we don't support this flag on aliyun yet, but we still want it in the
-    # args namespace
-    if cloud == ALIYUN:
-        assert not args.public
-
     try:
         upload_to_cloud(args.build, args.region,
                         args.bucket, args.name_suffix,
@@ -167,25 +250,16 @@ def main():
     arch = subprocess.check_output(["cosa", "basearch"], text='UTF-8').strip()
 
     if args.public:
-        with open(f"builds/{args.build}/{arch}/meta.json") as meta_f:
-            meta = json.load(meta_f)
-        ami_id = None
-        for region in meta['amis']:
-            if region['name'] == args.region:
-                ami_id = region['hvm']
-        if ami_id is None:
-            print("Failed to find AMI {} in meta.json!".format(ami_id))
-            sys.exit(1)
-
-        if not args.skip_kola:
+        image_id = find_image_id(cloud, args.region, args.build, arch)
+        if cloud == AWS and not args.skip_kola:
             try:
-                run_kola_basic(ami_id, args.region)
+                run_kola_basic(image_id, args.region)
             except subprocess.CalledProcessError:
                 sys.exit(1)
 
-        # Actually make the AMI/Snapshot public now
+        # Actually make the image public now
         try:
-            make_ami_public(args.region, ami_id)
+            make_ami_public(cloud, args.region, image_id)
         except (AssertionError, subprocess.CalledProcessError):
             sys.exit(1)
 
