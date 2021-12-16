@@ -1,0 +1,69 @@
+#!/usr/bin/python3 -u
+
+# This is a utility script to mark all the Aliyun images that have been
+# replicated across regions as publicly available images. It assumes that
+# meta.json has been updated with replicated regions + image IDs. It also
+# assumes that you want to make all images in all regions public.
+
+import argparse
+import json
+import subprocess
+import sys
+
+from upload_ami import get_aliyun_endpoint
+
+ALIYUN = 'aliyun'
+cloud = ALIYUN
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--build', help="Build ID to use")
+    args = parser.parse_args()
+
+    arch = subprocess.check_output(["cosa", "basearch"], text='UTF-8').strip()
+
+    with open(f"builds/{args.build}/{arch}/meta.json") as meta_f:
+        meta = json.load(meta_f)
+
+    assert 'aliyun' in meta.keys(), \
+        "Failed to find any Aliyun images in meta.json"
+
+    for img in meta['aliyun']:
+        image_id = img['id']
+        region_id = img['name']
+        pub_cmd = ['aliyun', '--endpoint', get_aliyun_endpoint(region_id), 'ecs',
+                   'ModifyImageSharePermission', '--region', region_id,
+                   '--ImageId', image_id, '--IsPublic', 'true']
+        desc_cmd = ['aliyun', '--endpoint', get_aliyun_endpoint(region_id), 'ecs',
+                    'DescribeImages', '--RegionId', region_id, '--ImageId',
+                    image_id]
+
+        # check to see if the image is public already; Aliyun SDK will throw an
+        # error if you try to make an image public more than once
+        is_public = False
+        try:
+            desc_out = subprocess.check_output(desc_cmd)
+        except subprocess.CalledProcessError as desc_err:
+            print("Failed to describe image {} in {} ! Error: {}".format(image_id, region_id, desc_err))
+            sys.exit(1)
+
+        # if we check the for the image, it may not be there because the copying
+        # operation is taking too long. in this case, the `TotalCount` field
+        # will be zero
+        image_description = json.loads(desc_out)
+        if image_description['TotalCount'] <= 0:
+            print("Could not find the image {} in region {}!".format(image_id, region_id))
+            sys.exit(1)
+
+        is_public = image_description["Images"]["Image"][0]["IsPublic"]
+
+        if not is_public:
+            try:
+                print(pub_cmd)
+                subprocess.check_call(pub_cmd)
+            except subprocess.CalledProcessError as pub_err:
+                print("Failed to make {} public in {}! Error: {}".format(image_id, region_id, pub_err))
+                sys.exit(1)
+
+if __name__ == '__main__':
+    main()
