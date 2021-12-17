@@ -1,8 +1,13 @@
 #!/usr/bin/python3 -u
 
-# Wraps coreos-assembler buildextend-aws which itself wraps `ore aws upload`,
+# THIS SCRIPT SHOULD BE CONSIDERED DEPRECATED; please avoid extending it!
+# Instead, add new functionality into coreos-assembler.
+#
+# This wraps coreos-assembler buildextend-aws which itself wraps `ore aws upload`,
 # but also supports making the images public because ore doesn't do that right
-# now. Eventually we may use plume?
+# now.  For FCOS, that's handled via plume, but RHCOS as of right now doesn't
+# use that.  But, what would make sense here is to move some of this functionality
+# into cosa buildextend-aws, such as the marketplace support.
 
 import argparse
 import json
