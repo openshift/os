@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# This is RHCOS only, we ship a different version of toolbox in FCOS
+
+# kola: { "exclusive": false }
+set -xeuo pipefail
+
+fatal() {
+    echo "$@" >&2
+    exit 1
+}
+
+# make it a var so we can change when/if we switch to containers/toolbox
+url="https://github.com/coreos/toolbox"
+
+if [ "$(rpm -q --qf '%{URL}' toolbox)" != "${url}" ]; then
+    fatal "Error: toolbox is not a shell script as expected"
+fi
