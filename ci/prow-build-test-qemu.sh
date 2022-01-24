@@ -27,9 +27,10 @@ fi
 
 # Grab the raw value of `mutate-os-release` and use sed to convert the value
 # to X-Y format
-ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
+ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
+ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
 prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-curl -L http://base-"${ocpver}"-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
+curl -L http://base-"${ocpver_mut}"-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
 cosa buildfetch --url=${prev_build_url}
 cosa fetch
 cosa build
