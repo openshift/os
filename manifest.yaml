@@ -299,6 +299,10 @@ repo-packages:
       # previously shipped a newer version in OCP/RHCOS 4.9 and had to preserve
       # the upgrade path
       - runc
+      # Need an updated skopeo for https://github.com/containers/skopeo/pull/1476
+      # for coreos layering work
+      - containers-common
+      - skopeo
 
 modules:
   enable:
