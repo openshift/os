@@ -47,10 +47,6 @@ cosa compress --artifact=metal --artifact=metal4k
 kola testiso -S --scenarios pxe-install,pxe-offline-install,iso-install,iso-offline-install,iso-live-login,iso-as-disk --output-dir tmp/kola-metal
 # iso-install scenario to sanity-check the metal4k media
 kola testiso -S --qemu-native-4k --qemu-multipath --scenarios iso-install --output-dir tmp/kola-metal4k
-if [ $(uname -i) = x86_64 ] || [ $(uname -i) = aarch64 ]; then
-    mkdir -p tmp/kola-uefi
-    kola testiso -S --qemu-firmware uefi --scenarios iso-live-login,iso-as-disk --output-dir tmp/kola-uefi/insecure
-    if [ $(uname -i) = x86_64 ]; then
-        kola testiso -S --qemu-firmware uefi-secure --scenarios iso-live-login,iso-as-disk --output-dir tmp/kola-uefi/secure
-    fi
-fi
+mkdir -p tmp/kola-uefi
+kola testiso -S --qemu-firmware uefi --scenarios iso-live-login,iso-as-disk --output-dir tmp/kola-uefi/insecure
+kola testiso -S --qemu-firmware uefi-secure --scenarios iso-live-login,iso-as-disk --output-dir tmp/kola-uefi/secure
