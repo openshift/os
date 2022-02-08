@@ -227,6 +227,7 @@ packages:
  - openvswitch2.15
  - dnsmasq
  - NetworkManager-ovs
+ - NetworkManager-config-server
  # Extra runtime
  - sssd
  # Common tools used by scripts and admins interactively
