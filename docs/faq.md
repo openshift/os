@@ -222,3 +222,11 @@ Currently, non-default multipath configurations cannot be set at installation ti
 ## Q: Does RHCOS support the use of `NetworkManager` keyfiles?  Does RHCOS support the use of `ifcfg` files?
 
 Starting with RHCOS 4.6, it is possible to use either `NetworkManager` keyfiles or `ifcfg` files for configuring host networking.  It is strongly preferred to use `NetworkManager` keyfiles.
+
+## Q: How do I request the inclusion of a new package in RHCOS?
+
+RHCOS inherits the majority of its configuration from Fedora CoreOS, so we aim to keep the package manifests between the two as closely aligned as possible. If you wish to have a package added to RHCOS, you should first suggest the inclusion of the package in Fedora CoreOS via a [new issue on the fedora-coreos-tracker repo](https://github.com/coreos/fedora-coreos-tracker/issues/new?assignees=&labels=kind%2Fenhancement&template=new-package.md&title=New+Package+Request%3A+%3Cpackage+name%3E).
+
+If the package makes sense to include in Fedora CoreOS, it will ultimately be included in RHCOS in the future when the [fedora-coreos-config](https://github.com/coreos/fedora-coreos-config) submodule is updated in this repo.
+
+If the package is **not** included in Fedora CoreOS, you may submit a PR to this repo asking for the inclusion of the package with the reasoning for including it.
