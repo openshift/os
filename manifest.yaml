@@ -49,6 +49,7 @@ rpmdb: bdb
 automatic-version-prefix: "411.84.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
+# Keep this is sync with the version in postprocess
 mutate-os-release: "4.11"
 
 documentation: false
@@ -119,6 +120,56 @@ postprocess:
   - |
      #!/usr/bin/env bash
      set -xeo pipefail
+
+     # Tweak /usr/lib/os-release
+     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.rhel
+     OCP_RELEASE="4.11"
+     (
+     . /etc/os-release
+     cat > /usr/lib/os-release <<EOF
+     NAME="${NAME} CoreOS"
+     ID="rhcos"
+     ID_LIKE="rhel fedora"
+     VERSION="${OSTREE_VERSION}"
+     VERSION_ID="${OCP_RELEASE}"
+     PLATFORM_ID="${PLATFORM_ID}"
+     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION} (Ootpa)"
+     ANSI_COLOR="${ANSI_COLOR}"
+     CPE_NAME="cpe:/o:redhat:enterprise_linux:8::coreos"
+     HOME_URL="${HOME_URL}"
+     DOCUMENTATION_URL="https://docs.openshift.com/container-platform/${OCP_RELEASE}/"
+     BUG_REPORT_URL="https://bugzilla.redhat.com/"
+     REDHAT_BUGZILLA_PRODUCT="OpenShift Container Platform"
+     REDHAT_BUGZILLA_PRODUCT_VERSION="${OCP_RELEASE}"
+     REDHAT_SUPPORT_PRODUCT="OpenShift Container Platform"
+     REDHAT_SUPPORT_PRODUCT_VERSION="${OCP_RELEASE}"
+     OPENSHIFT_VERSION="${OCP_RELEASE}"
+     RHEL_VERSION="${VERSION_ID}"
+     OSTREE_VERSION="${OSTREE_VERSION}"
+     EOF
+     )
+
+     # Tweak /etc/system-release, /etc/system-release-cpe & /etc/redhat-release
+     (
+     . /etc/os-release
+     cat > /etc/system-release-cpe <<EOF
+     ${CPE_NAME}
+     EOF
+     cat > /usr/lib/redhat-release <<EOF
+     ${NAME} release ${VERSION_ID}
+     EOF
+     rm -f /etc/system-release /etc/redhat-release
+     ln -s /usr/lib/system-release /etc/system-release
+     ln -s /usr/lib/system-release /etc/redhat-release
+     )
+
+     # Tweak /usr/lib/issue
+     cat > /usr/lib/issue <<EOF
+     \S \S{VERSION_ID}
+     EOF
+     rm -f /etc/issue /etc/issue.net
+     ln -s /usr/lib/issue /etc/issue
+     ln -s /usr/lib/issue /etc/issue.net
 
      # Let's have a non-boring motd, just like CL (although theirs is more subdued
      # nowadays compared to early versions with ASCII art).  One thing we do here
@@ -220,6 +271,9 @@ exclude-packages:
 # out the bottom and run `coreos-assembler build`.
 # A lof of packages are inherited by the manifests included at the top.
 packages:
+ # We include the generic release package and tweak the os-release info in a
+ # post-proces script
+ - redhat-release
  # Contains SCTP (https://bugzilla.redhat.com/show_bug.cgi?id=1718049)
  # and it's not really going to be worth playing the "where's my kernel module"
  # game long term.  If we ship it we support it, etc.

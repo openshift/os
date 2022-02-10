@@ -1,7 +1,5 @@
-# These presets come from the RHCOS manifest; we
-# don't currently have a really good reason why some of them
-# live in the manifest and some of them from the redhat-release-coreos
-# package.
+# Additionnal RHCOS specific presets that can not be included in the
+# redhat-release package.
 
 # Upgrade fixes
 enable rhcos-usrlocal-selinux-fixup.service
