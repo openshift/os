@@ -109,6 +109,16 @@ postprocess:
      grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
      echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
      echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+
+     # Ensure that /etc/issue.d exists for console-login-helper-messages
+     # This can be removed once we rebase to RHEL 9
+     install -d -m 0755 /etc/issue.d
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
 
      # Let's have a non-boring motd, just like CL (although theirs is more subdued
      # nowadays compared to early versions with ASCII art).  One thing we do here
