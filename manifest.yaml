@@ -224,7 +224,7 @@ packages:
  - cri-o cri-tools
  # Networking
  - nfs-utils
- - openvswitch2.15
+ - openvswitch2.16
  - dnsmasq
  - NetworkManager-ovs
  # Extra runtime
