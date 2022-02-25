@@ -40,7 +40,6 @@ repos:
   - rhel-8-baseos
   - rhel-8-appstream
   - rhel-8-fast-datapath
-  - rhel-8-fast-datapath-aarch64
   - rhel-8-server-ose
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1938928
