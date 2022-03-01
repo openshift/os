@@ -13,11 +13,11 @@
   - s390x
 - pattern: ext.config.shared.ignition.stable-boot
   tracker: https://github.com/openshift/os/issues/710
-  snooze: 2022-02-28
+  snooze: 2022-03-29
   arches:
   - s390x
 - pattern: ext.config.shared.var-mount.scsi-id
   tracker: https://github.com/openshift/os/issues/710
-  snooze: 2022-02-28
+  snooze: 2022-03-29
   arches:
   - s390x
