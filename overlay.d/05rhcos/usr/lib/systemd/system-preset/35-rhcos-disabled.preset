@@ -7,3 +7,7 @@ disable afterburn-sshkeys@.service
 # Explicitly disable: it's enabled by default otherwise but will fail because
 # we don't ship with the kargs needed for enablement.
 disable kdump.service
+
+# Undo default enablement in RHEL 8.5+ since we've traditionally shipped with
+# it disabled.
+disable nfs-client.target
