@@ -21,3 +21,15 @@
   snooze: 2022-03-29
   arches:
   - s390x
+- pattern: ext.config.shared.kdump.crash
+  tracker: https://github.com/coreos/coreos-assembler/issues/2725
+  arches:
+  - ppc64le
+- pattern: coreos.boot-mirror.luks/detach-primary
+  tracker: https://github.com/coreos/coreos-assembler/issues/2725
+  arches:
+  - ppc64le
+- pattern: coreos.boot-mirror/detach-primary
+  tracker: https://github.com/coreos/coreos-assembler/issues/2725
+  arches:
+  - ppc64le
