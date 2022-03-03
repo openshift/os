@@ -24,3 +24,7 @@ A lot of common questions are answered in the [FAQ](docs/faq.md).
 ## Building and developing RHEL CoreOS
 
 See the [development doc](docs/development.md).
+
+## CI Configuration
+
+See [OpenShift CI notes](docs/openshift-ci-notes.md) for more information.
