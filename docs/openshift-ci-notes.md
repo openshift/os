@@ -11,8 +11,8 @@ In general, the images will be pushed to
 `registry.ci.openshift.org/rhcos-devel/rhel-coreos`. Images will have the
 following tags:
 
-- `rhel-coreos:latest` - the latest image built, regardless of OCP version.
-- `rhel-coreos:<ocp version>` - the latest image for the current OCP version, starting with `4.11`.
+- `rhel-coreos:latest` - the latest image built from the `master` branch.
+- `rhel-coreos:<ocp version>` - the latest image for the associated release branch, starting with `4.11`.
 - `rhel-coreos:<build id>-<arch>` - the coreos-assembler build ID and (for now) the architecture.
 
 ## How are the secrets configured?
