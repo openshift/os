@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 	"testing"
 	"time"
 
@@ -33,8 +34,9 @@ const (
 	ostreeUnverifiedRegistry = "ostree-unverified-registry"
 	imageRegistry            = "image-registry.openshift-image-registry.svc:5000"
 	// If this moves from /run, make sure files get cleaned up
-	authfilePath = "/run/ostree/auth.json"
-	mcoNamespace = "openshift-machine-config-operator"
+	authfilePath  = "/run/ostree/auth.json"
+	mcoNamespace  = "openshift-machine-config-operator"
+	imagePullSpec = "registry.ci.openshift.org/rhcos-devel/rhel-coreos:%s"
 )
 
 type Deployments struct {
@@ -43,6 +45,15 @@ type Deployments struct {
 }
 type Status struct {
 	deployments []Deployments
+}
+
+func getImageTag() string {
+	branch, found := os.LookupEnv("BRANCH")
+	if !found || branch == "" {
+		return "latest"
+	}
+
+	return strings.ReplaceAll(branch, "release-", "")
 }
 
 func TestBootInClusterImage(t *testing.T) {
@@ -60,6 +71,10 @@ func TestBootInClusterImage(t *testing.T) {
 	require.Nil(t, err)
 	defer cs.ImageStreams(mcoNamespace).Delete(ctx, imageStreamName, metav1.DeleteOptions{})
 
+	baseImageBuildArg := fmt.Sprintf(imagePullSpec, getImageTag())
+
+	t.Logf("Imagestream %s created", imageStreamName)
+
 	// push a build to the image stream
 	buildConfig := &buildv1.Build{
 		ObjectMeta: metav1.ObjectMeta{
@@ -75,7 +90,14 @@ func TestBootInClusterImage(t *testing.T) {
 					},
 				},
 				Strategy: buildv1.BuildStrategy{
-					DockerStrategy: &buildv1.DockerBuildStrategy{},
+					DockerStrategy: &buildv1.DockerBuildStrategy{
+						BuildArgs: []corev1.EnvVar{
+							{
+								Name:  "RHEL_COREOS_IMAGE",
+								Value: baseImageBuildArg,
+							},
+						},
+					},
 				},
 				Output: buildv1.BuildOutput{
 					To: &v1.ObjectReference{
@@ -86,15 +108,23 @@ func TestBootInClusterImage(t *testing.T) {
 			},
 		},
 	}
+
+	t.Logf("Using %s as the base image", baseImageBuildArg)
+
 	_, err = cs.BuildV1Interface.Builds(mcoNamespace).Create(ctx, buildConfig, metav1.CreateOptions{})
 	require.Nil(t, err)
 	defer cs.BuildV1Interface.Builds(mcoNamespace).Delete(ctx, buildName, metav1.DeleteOptions{})
+
+	t.Logf("Build %s started", buildName)
 	waitForBuild(t, cs, buildConfig.ObjectMeta.Name)
+	t.Logf("Build completed!")
 
 	// pick a random worker node
 	unlabelFunc := helpers.LabelRandomNodeFromPool(t, cs, "worker", "node-role.kubernetes.io/infra")
 	defer unlabelFunc()
 	infraNode := helpers.GetSingleNodeByRole(t, cs, "infra")
+
+	t.Logf("Labeled node %s with infra", infraNode.Name)
 
 	// get ImagePullSecret for the MCD service account and save to authfilePath on the node
 	// eventually we should use rest.InClusterConfig() instead of cs with kubeadmin
