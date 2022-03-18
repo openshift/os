@@ -13,3 +13,8 @@ squashfs-compression: gzip
 ignition-network-kcmdline: []
 
 ostree-format: "oci"
+
+vmware-os-type: rhel8_64Guest
+# VMware hardware versions: https://kb.vmware.com/s/article/1003746
+# Supported VMware versions: https://lifecycle.vmware.com/
+vmware-hw-version: 15
