@@ -10,26 +10,31 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var deleteBuild = flag.Bool("delete-build", false, "Delete the derived build at the end of the test.")
-var deleteMachine = flag.Bool("delete-machine", false, "Delete the target machine after test run.")
-var streamBuild = flag.Bool("stream-build", false, "Stream the derived image build to stdout")
-var buildLogFile = flag.String("build-log", "", "Filename to write the derived image build log to")
+// CLI Flags
+var (
+	deleteBuild   = flag.Bool("delete-build", false, "Delete the derived build at the end of the test.")
+	deleteMachine = flag.Bool("delete-machine", false, "Delete the target machine after test run.")
+	streamBuild   = flag.Bool("stream-build", false, "Stream the derived image build to stdout")
+	buildLogFile  = flag.String("build-log", "", "Filename to write the derived image build log to")
+)
 
 const (
-	imageStreamName = "test-boot-in-cluster-image"
+	// If this moves from /run, make sure files get cleaned up
+	authfilePath = "/run/ostree/auth.json"
+
 	buildName       = imageStreamName
+	helloWorldPath  = "/usr/bin/hello-world"
+	imagePullSpec   = "registry.ci.openshift.org/rhcos-devel/rhel-coreos:%s"
+	imageRegistry   = "image-registry.openshift-image-registry.svc:5000"
+	imageStreamName = "test-boot-in-cluster-image"
+	imageURL        = ostreeUnverifiedRegistry + ":" + imageRegistry + "/" + mcoNamespace + "/" + imageStreamName
+	mcoNamespace    = "openshift-machine-config-operator"
+
 	// ostreeUnverifiedRegistry means no GPG or container signatures are used.
 	// Right now we're usually relying on digested pulls. See
 	// https://github.com/openshift/machine-config-operator/blob/master/docs/OSUpgrades.md#questions-and-answers around integrity.
 	// See https://docs.rs/ostree-ext/0.5.1/ostree_ext/container/struct.OstreeImageReference.html
 	ostreeUnverifiedRegistry = "ostree-unverified-registry"
-	imageRegistry            = "image-registry.openshift-image-registry.svc:5000"
-	// If this moves from /run, make sure files get cleaned up
-	authfilePath   = "/run/ostree/auth.json"
-	mcoNamespace   = "openshift-machine-config-operator"
-	imagePullSpec  = "registry.ci.openshift.org/rhcos-devel/rhel-coreos:%s"
-	helloWorldPath = "/usr/bin/hello-world"
-	imageURL       = ostreeUnverifiedRegistry + ":" + imageRegistry + "/" + mcoNamespace + "/" + imageStreamName
 )
 
 type Deployments struct {
@@ -50,12 +55,14 @@ func TestBootInClusterImage(t *testing.T) {
 
 	t.Logf("targeting node %s", targetNode.Name)
 
+	ctx := context.Background()
+
 	// If the delete-build flag is used, delete the Build and ImageStream afterward.
 	if deleteBuild != nil && *deleteBuild == true {
 		defer func() {
-			t.Logf("Deleting the ImageStream")
+			t.Log("Deleting the ImageStream")
 			require.Nil(t, cs.ImageStreams(mcoNamespace).Delete(context.TODO(), imageStreamName, metav1.DeleteOptions{}))
-			t.Logf("Deleting the Image Build")
+			t.Log("Deleting the Image Build")
 			require.Nil(t, cs.BuildV1Interface.Builds(mcoNamespace).Delete(context.TODO(), buildName, metav1.DeleteOptions{}))
 		}()
 	}
@@ -65,7 +72,7 @@ func TestBootInClusterImage(t *testing.T) {
 		// Only if the image is applied should we delete
 		if canDeleteMachine {
 			if deleteMachine != nil && *deleteMachine == true {
-				deleteMachineAndNode(t, cs, targetNode)
+				deleteMachineAndNode(t, ctx, cs, targetNode)
 			} else {
 				t.Logf("leaving node %s behind, you need to clean it up manually", targetNode.Name)
 			}
@@ -81,7 +88,7 @@ func TestBootInClusterImage(t *testing.T) {
 		{
 			name: "Derived Image Is Built",
 			testFunc: func(t *testing.T) {
-				if err := maybeBuildDerivedOSImage(t, cs); err != nil {
+				if err := runImageDerivationBuild(t, ctx, cs); err != nil {
 					t.Fatal(err)
 				}
 			},
@@ -96,11 +103,12 @@ func TestBootInClusterImage(t *testing.T) {
 			name: "Boots Into Derived Image",
 			testFunc: func(t *testing.T) {
 				nodeRebooted := false
-				deletePullSecret := putPullSecretOnNode(t, cs, targetNode)
+				deletePullSecret := putPullSecretOnNode(t, ctx, cs, targetNode)
 				defer func() {
 					// The pull secret should be cleared from the node upon reboot since
 					// it is placed into the /run directory. However, if the node does
-					// not reboot and we're not deleting it, we should clean it up.
+					// not reboot or get deleted, we should clean it up. Although this
+					// test targets an ephemeral cluster, so maybe this isn't important?
 					if !nodeRebooted && (deleteMachine == nil || *deleteMachine == false) {
 						deletePullSecret()
 					}
@@ -118,7 +126,7 @@ func TestBootInClusterImage(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				if err := rebootAndWait(t, cs, targetNode); err != nil {
+				if err := rebootAndWait(t, ctx, cs, targetNode); err != nil {
 					t.Fatal(err)
 				}
 
@@ -133,7 +141,7 @@ func TestBootInClusterImage(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				if err := rebootAndWait(t, cs, targetNode); err != nil {
+				if err := rebootAndWait(t, ctx, cs, targetNode); err != nil {
 					t.Fatal(err)
 				}
 

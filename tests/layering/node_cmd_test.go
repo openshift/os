@@ -3,9 +3,12 @@ package e2e_test
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
+	"path"
 	"strings"
+	"testing"
 	"time"
 
 	"github.com/openshift/machine-config-operator/test/framework"
@@ -14,12 +17,18 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/remotecommand"
+	execErrs "k8s.io/client-go/util/exec"
 	"k8s.io/kubectl/pkg/scheme"
+)
+
+const (
+	mountpointName string = "host"
+	mountpoint     string = "/" + mountpointName
 )
 
 // An error that may occur when executing a command
 type NodeCmdError struct {
-	CmdResult
+	*CmdResult
 	execErr error
 }
 
@@ -38,6 +47,10 @@ type CmdResult struct {
 	Stdout   []byte
 	Stderr   []byte
 	Duration time.Duration
+}
+
+func (c *CmdResult) CombinedOutput() string {
+	return string(c.Stdout) + "\n" + string(c.Stderr)
 }
 
 func (c *CmdResult) String() string {
@@ -106,7 +119,7 @@ type NodeCmdRunner struct {
 
 // One-shot that execs a command on an arbitrary node in the default namespace
 func ExecCmdOnNode(cs *framework.ClientSet, node *corev1.Node, cmd []string) (*CmdResult, error) {
-	return NewNodeCmdRunner(cs, node, mcoNamespace).Run(cmd)
+	return NewNodeCmdRunner(cs, node, mcoNamespace).RunWithContext(context.Background(), NodeCmdOpts{Command: cmd})
 }
 
 // Creates a reusable command runner object
@@ -123,13 +136,19 @@ func (n *NodeCmdRunner) Run(cmd []string) (*CmdResult, error) {
 	return n.RunWithOpts(NodeCmdOpts{Command: cmd})
 }
 
+// Runs the command with a provided context.
+// TODO: Wire up the context for command cancellation as well.
+func (n *NodeCmdRunner) RunWithContext(ctx context.Context, runOpts NodeCmdOpts) (*CmdResult, error) {
+	return n.runAndMaybeRetry(ctx, runOpts)
+}
+
 // Runs the command with the additional options including retrying
 func (n *NodeCmdRunner) RunWithOpts(runOpts NodeCmdOpts) (*CmdResult, error) {
-	return n.runAndMaybeRetry(runOpts)
+	return n.runAndMaybeRetry(context.Background(), runOpts)
 }
 
 // Creates a pod on the target node in the given namespace to run the command in.
-func (n *NodeCmdRunner) createCmdPod() (*corev1.Pod, error) {
+func (n *NodeCmdRunner) createCmdPod(ctx context.Context) (*corev1.Pod, error) {
 	containerName := "cmd-container"
 
 	var user int64 = 0
@@ -164,8 +183,8 @@ func (n *NodeCmdRunner) createCmdPod() (*corev1.Pod, error) {
 					TTY:       true,
 					VolumeMounts: []corev1.VolumeMount{
 						{
-							Name:      "host",
-							MountPath: "/host",
+							Name:      mountpointName,
+							MountPath: mountpoint,
 						},
 					},
 				},
@@ -176,7 +195,7 @@ func (n *NodeCmdRunner) createCmdPod() (*corev1.Pod, error) {
 			RestartPolicy: corev1.RestartPolicyNever,
 			Volumes: []corev1.Volume{
 				{
-					Name: "host",
+					Name: mountpointName,
 					VolumeSource: corev1.VolumeSource{
 						HostPath: &corev1.HostPathVolumeSource{
 							Path: "/",
@@ -188,15 +207,15 @@ func (n *NodeCmdRunner) createCmdPod() (*corev1.Pod, error) {
 		},
 	}
 
-	return n.clientSet.Pods(cmdPodSpec.Namespace).Create(context.TODO(), cmdPodSpec, metav1.CreateOptions{})
+	return n.clientSet.Pods(cmdPodSpec.Namespace).Create(ctx, cmdPodSpec, metav1.CreateOptions{})
 }
 
 // Waits for the pod to become ready so we can exec into it. The long timeout
 // is needed for when the pod takes longer to be scheduled on the node
 // post-reboot.
-func (n *NodeCmdRunner) waitForCmdPodToBeReady(pod *corev1.Pod) (*corev1.Pod, error) {
+func (n *NodeCmdRunner) waitForCmdPodToBeReady(ctx context.Context, pod *corev1.Pod) (*corev1.Pod, error) {
 	err := wait.Poll(1*time.Second, 3*time.Minute, func() (bool, error) {
-		p, err := n.clientSet.Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+		p, err := n.clientSet.Pods(pod.Namespace).Get(ctx, pod.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, nil
 		}
@@ -212,38 +231,38 @@ func (n *NodeCmdRunner) waitForCmdPodToBeReady(pod *corev1.Pod) (*corev1.Pod, er
 		return nil, fmt.Errorf("timed out while creating command pod: %w", err)
 	}
 
-	return n.clientSet.Pods(pod.Namespace).Get(context.TODO(), pod.Name, metav1.GetOptions{})
+	return n.clientSet.Pods(pod.Namespace).Get(ctx, pod.Name, metav1.GetOptions{})
 }
 
 // Creates a new command pod and waits until it is ready.
-func (n *NodeCmdRunner) getCmdPodAndWait() (*corev1.Pod, error) {
-	cmdPod, err := n.createCmdPod()
+func (n *NodeCmdRunner) getCmdPodAndWait(ctx context.Context) (*corev1.Pod, error) {
+	cmdPod, err := n.createCmdPod(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not create command pod: %w", err)
 	}
 
-	return n.waitForCmdPodToBeReady(cmdPod)
+	return n.waitForCmdPodToBeReady(ctx, cmdPod)
 }
 
 // Runs the command, optionally retrying for as many times as is necessary.
 // This will create a new pod, exec into it to run the command, then terminate
 // the pod at the very end. If no RetryCheckFunc is provided, the default will
 // be to run until the command no longer returns an error.
-func (n *NodeCmdRunner) runAndMaybeRetry(runOpts NodeCmdOpts) (*CmdResult, error) {
+func (n *NodeCmdRunner) runAndMaybeRetry(ctx context.Context, runOpts NodeCmdOpts) (*CmdResult, error) {
 	// We can't run this command.
 	if len(runOpts.Command) == 0 {
 		return nil, fmt.Errorf("zero-length command passed")
 	}
 
 	// Gets a pod and waits for it to be ready.
-	cmdPod, err := n.getCmdPodAndWait()
+	cmdPod, err := n.getCmdPodAndWait(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not create command pod: %w", err)
 	}
 
 	defer func() {
 		// Delete the pod when we're finished.
-		n.clientSet.Pods(cmdPod.Namespace).Delete(context.TODO(), cmdPod.Name, metav1.DeleteOptions{})
+		n.clientSet.Pods(cmdPod.Namespace).Delete(ctx, cmdPod.Name, metav1.DeleteOptions{})
 	}()
 
 	// We don't have any retries, so just run the command.
@@ -276,6 +295,7 @@ func (n *NodeCmdRunner) runAndMaybeRetry(runOpts NodeCmdOpts) (*CmdResult, error
 // Actually runs the command via an exec. This implementation was mostly
 // cribbed from
 // https://github.com/kubernetes/kubectl/blob/master/pkg/cmd/exec/exec.go
+// TODO: Wire up context here for deadlines / cancellation.
 func (n *NodeCmdRunner) run(runOpts NodeCmdOpts, cmdPod *corev1.Pod) (*CmdResult, error) {
 	restClient := n.clientSet.CoreV1Interface.RESTClient()
 
@@ -333,7 +353,7 @@ func (n *NodeCmdRunner) run(runOpts NodeCmdOpts, cmdPod *corev1.Pod) (*CmdResult
 	err = exec.Stream(streamOpts)
 	end := time.Since(start)
 
-	results := CmdResult{
+	results := &CmdResult{
 		Command:  runOpts.Command,
 		Duration: end,
 		Stdin:    stdinBuf.Bytes(),
@@ -342,13 +362,13 @@ func (n *NodeCmdRunner) run(runOpts NodeCmdOpts, cmdPod *corev1.Pod) (*CmdResult
 	}
 
 	if err != nil {
-		err = &NodeCmdError{
+		return results, &NodeCmdError{
 			CmdResult: results,
 			execErr:   err,
 		}
 	}
 
-	return &results, err
+	return results, nil
 }
 
 // Creates a new buffer and io.MultiWriter so we can collect stdin / stderr to
@@ -362,13 +382,13 @@ func getWriterAndBuffer(w io.Writer) (*bytes.Buffer, io.Writer) {
 	return buf, io.MultiWriter(buf, w)
 }
 
-// Prepends chroot /host onto the command we want to run.
+// Prepends chroot /host onto the command we want to run, if not already present.
 func getCommandToRun(cmd []string) []string {
-	if strings.HasPrefix(strings.Join(cmd, " "), "chroot /host") {
+	if strings.HasPrefix(strings.Join(cmd, " "), "chroot "+mountpoint) {
 		return cmd
 	}
 
-	return append([]string{"chroot", "/host"}, cmd...)
+	return append([]string{"chroot", mountpoint}, cmd...)
 }
 
 // Determines if the command pod is ready. These checks might be a little
@@ -416,12 +436,7 @@ func isPodReady(pod *corev1.Pod) bool {
 		}
 
 		// This is nil, meaning we haven't started yet
-		if status.Started == nil {
-			return false
-		}
-
-		// We haven't started the container yet
-		if *status.Started != true {
+		if status.Started == nil && *status.Started != true {
 			return false
 		}
 
@@ -433,4 +448,35 @@ func isPodReady(pod *corev1.Pod) bool {
 
 	// If we've made it here, the pod is ready.
 	return true
+}
+
+// Checks that a given command error means that the pod was terminated
+// gracefully.
+func isGracefulTerminationErr(err error) bool {
+	var execErr execErrs.CodeExitError
+	if errors.As(err, &execErr) {
+		return execErr.ExitStatus() == 143
+	}
+
+	return false
+}
+
+// Writes a file to an arbitrary path on a node
+func writeFileToNode(t *testing.T, cs *framework.ClientSet, node *corev1.Node, data []byte, dst string) error {
+	runner := NewNodeCmdRunner(cs, node, mcoNamespace)
+
+	if _, err := runner.Run([]string{"mkdir", "-p", path.Dir(dst)}); err != nil {
+		return fmt.Errorf("could not create new directory (%s): %w", path.Dir(dst), err)
+	}
+
+	runOpts := NodeCmdOpts{
+		Command: []string{"tee", dst},
+		Stdin:   bytes.NewBuffer(data),
+	}
+
+	if _, err := runner.RunWithOpts(runOpts); err != nil {
+		return fmt.Errorf("could not write to file (%s): %w", dst, err)
+	}
+
+	return nil
 }
