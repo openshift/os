@@ -37,7 +37,12 @@ cosa buildfetch --url=${prev_build_url}
 cosa fetch
 cosa build
 cosa buildextend-extensions
-cosa kola --basic-qemu-scenarios
+# Manually exclude Secure Boot testing for pre-release RHEL content.
+# This will be removed once RHEL 8.6 is GA.
+# See https://github.com/openshift/os/pull/756
+# cosa kola --basic-qemu-scenarios
+cosa kola run --qemu-nvme=true basic
+cosa kola run --qemu-firmware=uefi basic
 kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
 cosa kola run --parallel 2
 # Build metal + installer now so we can test them
