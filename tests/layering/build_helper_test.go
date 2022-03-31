@@ -204,7 +204,7 @@ func (b *builder) waitForBuildToRun(ctx context.Context, build *buildv1.Build) e
 func (b *builder) waitForBuildToComplete(t *testing.T, ctx context.Context, build *buildv1.Build) error {
 	startTime := time.Now()
 
-	if err := b.waitForBuildToRun(ctx, build); err != nil {
+	if err := b.waitForBuildToStart(ctx, build); err != nil {
 		return fmt.Errorf("build did not start: %w", err)
 	}
 
@@ -216,16 +216,16 @@ func (b *builder) waitForBuildToComplete(t *testing.T, ctx context.Context, buil
 	b.t.Logf("build pod scheduled on node: %s", buildPod.Spec.NodeName)
 
 	err = wait.Poll(2*time.Second, 20*time.Minute, func() (bool, error) {
-		b, err := b.clientSet.BuildV1Interface.Builds(build.Namespace).Get(ctx, build.Name, metav1.GetOptions{})
+		pollBuild, err := b.clientSet.BuildV1Interface.Builds(build.Namespace).Get(ctx, build.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, fmt.Errorf("could not get build: %w", err)
 		}
 
-		if b.Status.Phase == buildv1.BuildPhaseComplete {
+		if pollBuild.Status.Phase == buildv1.BuildPhaseComplete {
 			return true, nil
 		}
 
-		require.NotContains(t, []buildv1.BuildPhase{buildv1.BuildPhaseFailed, buildv1.BuildPhaseError, buildv1.BuildPhaseCancelled}, b.Status.Phase)
+		require.NotContains(t, []buildv1.BuildPhase{buildv1.BuildPhaseFailed, buildv1.BuildPhaseError, buildv1.BuildPhaseCancelled}, pollBuild.Status.Phase)
 		return false, nil
 	})
 
@@ -253,12 +253,12 @@ func (b *builder) getPodForBuild(ctx context.Context, build *buildv1.Build) (*co
 // Waits for the build to start and for the underlying build pod containers to be running.
 func (b *builder) waitForBuildToStart(ctx context.Context, build *buildv1.Build) error {
 	err := wait.Poll(2*time.Second, 5*time.Minute, func() (bool, error) {
-		b, err := b.clientSet.BuildV1Interface.Builds(build.Namespace).Get(ctx, build.Name, metav1.GetOptions{})
+		pollBuild, err := b.clientSet.BuildV1Interface.Builds(build.Namespace).Get(ctx, build.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, fmt.Errorf("could not get build: %w", err)
 		}
 
-		return b.Status.Phase == buildv1.BuildPhaseRunning, nil
+		return pollBuild.Status.Phase == buildv1.BuildPhaseRunning, nil
 	})
 
 	if err != nil {
@@ -314,6 +314,13 @@ func (b *builder) streamBuildLogs(t *testing.T, ctx context.Context, build *buil
 		return fmt.Errorf("build did not start: %w", err)
 	}
 
+	return b.writeBuildLogs(ctx, outWriters, build)
+}
+
+// Copies the streamed build logs to the supplied writers. Note: It is the
+// callers responsibility to close any open writers after calling this
+// function.
+func (b *builder) writeBuildLogs(ctx context.Context, writers []io.Writer, build *buildv1.Build) error {
 	buildPod, err := b.getPodForBuild(ctx, build)
 	if err != nil {
 		return fmt.Errorf("could not get build pod for build %s: %w", build.Name, err)
@@ -335,7 +342,7 @@ func (b *builder) streamBuildLogs(t *testing.T, ctx context.Context, build *buil
 
 	// Copy the contents of the io.Reader to our writers by using an
 	// io.MultiWriter
-	if _, err := io.Copy(io.MultiWriter(outWriters...), podLogs); err != nil {
+	if _, err := io.Copy(io.MultiWriter(writers...), podLogs); err != nil {
 		return fmt.Errorf("could not stream build logs to stdout: %w", err)
 	}
 
