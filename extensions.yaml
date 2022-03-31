@@ -50,15 +50,13 @@ extensions:
   # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
   # GRPA-3123
   # - kata-containers (RHAOS)
-  #   - qemu-kiwi (advanced-virt)
   sandboxed-containers:
     architectures:
       - x86_64
     modules:
       enable:
-        # for qemu-kiwi
-        - virt:av
+        - virt:rhel
     repos:
-      - rhel-8-advanced-virt
+      - rhel-8-appstream
     packages:
       - kata-containers
