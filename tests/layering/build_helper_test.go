@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -22,11 +21,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-// Gets the RHCOS base image tag from the BRANCH environment variable or
-// defaults to "latest"; e.g., registry.ci.openshift.org/rhcos-devel/rhel-coreos:<tag>
+// Gets the RHCOS base image tag from the BASE_IMAGE_TAG environment variable.
 func getBaseImageTag() string {
-	branch := getEnvVarOrDefault("BRANCH", "latest")
-	return strings.ReplaceAll(branch, "release-", "")
+	return getEnvVarOrDefault("BASE_IMAGE_TAG", "latest")
 }
 
 // Gets the value of an environment variable or defaults to the provided
