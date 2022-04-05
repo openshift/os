@@ -37,6 +37,7 @@ arch-include:
 # See README.md
 # and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
 repos:
+  - rhel-85-baseos
   - rhel-8-baseos
   - rhel-8-appstream
   - rhel-8-fast-datapath
@@ -351,6 +352,9 @@ packages:
  - conntrack-tools
 
 repo-packages:
+  - repo: rhel-85-baseos
+    packages:
+      - sssd
   # we always want the kernel from BaseOS
   - repo: rhel-8-baseos
     packages:
