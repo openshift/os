@@ -24,7 +24,6 @@ const (
 
 	buildName       = imageStreamName
 	helloWorldPath  = "/usr/bin/hello-world"
-	imagePullSpec   = "registry.ci.openshift.org/rhcos-devel/rhel-coreos:%s"
 	imageRegistry   = "image-registry.openshift-image-registry.svc:5000"
 	imageStreamName = "test-boot-in-cluster-image"
 	imageURL        = ostreeUnverifiedRegistry + ":" + imageRegistry + "/" + mcoNamespace + "/" + imageStreamName
