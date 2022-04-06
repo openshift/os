@@ -21,11 +21,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-// Gets the RHCOS base image tag from the BASE_IMAGE_TAG environment variable.
-func getBaseImageTag() string {
-	return getEnvVarOrDefault("BASE_IMAGE_TAG", "latest")
-}
-
 // Gets the value of an environment variable or defaults to the provided
 // default.
 func getEnvVarOrDefault(envVarName, defaultValue string) string {
@@ -108,13 +103,12 @@ func (b *builder) createImageStream(ctx context.Context) (*imagev1.ImageStream, 
 
 // Actually perform the OS derivation build and waits for it to complete.
 func (b *builder) buildDerivedOSImage(ctx context.Context) error {
-	baseImageBuildArg := fmt.Sprintf(imagePullSpec, getBaseImageTag())
-
+	baseImagePullSpec := getEnvVarOrDefault("BASE_IMAGE_PULLSPEC", "registry.ci.openshift.org/rhcos-devel/rhel-coreos:latest")
 	derivationRepoURL := getEnvVarOrDefault("DERIVATION_REPO_URL", "https://github.com/coreos/fcos-derivation-example")
 	derivationRepoRef := getEnvVarOrDefault("DERIVATION_REPO_REF", "rhcos")
 	dockerfilePath := getEnvVarOrDefault("DERIVATION_DOCKERFILE_PATH", "Dockerfile")
 
-	b.t.Log("base image pullspec:", baseImageBuildArg)
+	b.t.Log("base image pullspec:", baseImagePullSpec)
 	b.t.Log("derivation repo URL:", derivationRepoURL)
 	b.t.Log("derivation repo ref:", derivationRepoRef)
 	b.t.Log("dockerfile path:", dockerfilePath)
@@ -139,7 +133,7 @@ func (b *builder) buildDerivedOSImage(ctx context.Context) error {
 						BuildArgs: []corev1.EnvVar{
 							{
 								Name:  "RHEL_COREOS_IMAGE",
-								Value: baseImageBuildArg,
+								Value: baseImagePullSpec,
 							},
 						},
 					},
