@@ -19,10 +19,16 @@
 
 set -euo pipefail
 
-# Note: The oc binary will be injected by the Prow CI process. It
-# is not present in ci/Dockerfile.
-oc login https://api.ci.l2s4.p1.openshiftapps.com:6443 --token="$(cat /service-account-token/image-pusher-service-account-token)"
-oc registry login --registry=registry.ci.openshift.org --to="$SHARED_DIR/dockercfg.json"
+# Notes:
+# - The oc binary will be injected by the Prow CI process. It is not present in
+# ci/Dockerfile.
+# - When we log into the main CI cluster to get the registry creds, oc mutates
+# the kubeconfig for the ephemeral cluster we run our derived image tests
+# against. We temporarily set $KUBECONFIG to an empty file so that file gets
+# mutated during the login phase.
+tmp_kubeconfig="$(mktemp)"
+KUBECONFIG="$tmp_kubeconfig" oc login https://api.ci.l2s4.p1.openshiftapps.com:6443 --token="$(cat /service-account-token/image-pusher-service-account-token)"
+KUBECONFIG="$tmp_kubeconfig" oc registry login --registry=registry.ci.openshift.org --to="$SHARED_DIR/dockercfg.json";
 
 export COSA_DIR="/tmp/cosa"
 mkdir -p "$COSA_DIR"
