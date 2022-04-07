@@ -29,10 +29,18 @@ arch-include:
   x86_64:
     - fedora-coreos-config/manifests/grub2-removals.yaml
     - fedora-coreos-config/manifests/bootupd.yaml
-  ppc64le: fedora-coreos-config/manifests/grub2-removals.yaml
+    - kernel-rhel-86.yaml
+  ppc64le:
+    - fedora-coreos-config/manifests/grub2-removals.yaml
+    - kernel-rhel-86.yaml
   aarch64:
     - fedora-coreos-config/manifests/grub2-removals.yaml
     - fedora-coreos-config/manifests/bootupd.yaml
+    - kernel-rhel-86.yaml
+  s390x:
+    # Temporarily use RHEL 8.5 Kernel for s390x, until RHEL 8.6 gets a new kernel (Build 370+)
+    # See: https://bugzilla.redhat.com/show_bug.cgi?id=2047242
+    - kernel-rhel-85.yaml
 
 # See README.md
 # and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
@@ -356,9 +364,11 @@ repo-packages:
     packages:
       - sssd
   # we always want the kernel from BaseOS
-  - repo: rhel-8-baseos
-    packages:
-      - kernel
+  # Temporarily use RHEL 8.5 Kernel for s390x, until RHEL 8.6 gets a new kernel (Build 370+)
+  # See: https://bugzilla.redhat.com/show_bug.cgi?id=2047242
+  # - repo: rhel-8-baseos
+  #   packages:
+  #     - kernel
   # we want the one shipping in RHEL, not the equivalently versioned one in RHAOS
   - repo: rhel-8-appstream
     packages:
