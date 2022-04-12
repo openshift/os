@@ -93,9 +93,21 @@ Labels:     com.coreos.ostree-commit=33dd81479490fbb61a58af8525a71934e7545b9ed72
 
 Here the `81` means it's using RHEL 8.1.
 
-## Q: How do I know which RHEL will be in the next release?
+## Q: How do I know which RHEL will be in the next release? What are the current versions of RHEL being used in RHCOS?
 
-RHEL CoreOS ships RHEL updates after they're released.  At the time of this writing, OpenShift 4.6 and below will stay on RHEL 8.2 EUS, and OpenShift 4.7 will (soon) start tracking RHEL 8.3.
+RHEL CoreOS consumes content from RHEL y-stream releases that have an Extended Update Support (EUS) period of their lifecycle.  See the [RHEL Lifecycle page](https://access.redhat.com/support/policy/updates/errata) for more information.
+
+We generally don't make any statements about which version of RHEL will be used in future OCP/RHCOS releases.
+
+The table below describes the versions of RHCOS/OCP and which versions of RHEL being used.
+
+RHCOS/OCP version | RHEL version
+---|---
+4.6 | 8.2 EUS
+4.7 | 8.4 EUS
+4.8 | 8.4 EUS
+4.9 | 8.4 EUS
+4.10 | 8.4 EUS
 
 ## Q: How do I determine what version of an RPM is included in an RHCOS release?
 
