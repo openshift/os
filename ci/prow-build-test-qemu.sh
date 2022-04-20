@@ -30,21 +30,14 @@ fi
 ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
 ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
 prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-# temporarily also fetch 8.5 repo for sssd
-# https://bugzilla.redhat.com/show_bug.cgi?id=2072050
-curl -L http://base-"${ocpver_mut}"-rhel86.ocp.svc.cluster.local > src/config/ocp.repo
-curl -L http://base-"${ocpver_mut}"-rhel85.ocp.svc.cluster.local > src/config/ocp85.repo
-sed -i -e 's,\[rhel-8-,\[rhel-85-,' src/config/ocp85.repo
+# we want to use RHEL 8.5 for testing until we can start using 8.6
+# see https://github.com/openshift/release/pull/26193
+curl -L http://base-"${ocpver_mut}"-rhel85.ocp.svc.cluster.local > src/config/ocp.repo
 cosa buildfetch --url=${prev_build_url}
 cosa fetch
 cosa build
 cosa buildextend-extensions
-# Manually exclude Secure Boot testing for pre-release RHEL content.
-# This will be removed once RHEL 8.6 is GA.
-# See https://github.com/openshift/os/pull/756
-# cosa kola --basic-qemu-scenarios
-cosa kola run --qemu-nvme=true basic
-cosa kola run --qemu-firmware=uefi basic
+cosa kola --basic-qemu-scenarios
 kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
 cosa kola run --parallel 2
 # Build metal + installer now so we can test them
