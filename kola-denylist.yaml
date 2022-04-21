@@ -27,3 +27,8 @@
   tracker: https://github.com/coreos/coreos-assembler/issues/2725
   arches:
   - ppc64le
+# Disable until we rebase back to RHEL 8.6
+- pattern: ext.config.shared.var-mount.scsi-id
+  tracker: https://github.com/openshift/os/issues/710
+  arches:
+  - s390x
