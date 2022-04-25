@@ -7,12 +7,13 @@ rojig:
 include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
-  - fedora-coreos-config/manifests/networking-tools.yaml
+  # - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
+  - networking-tools.yaml
 
 ostree-layers:
   - overlay/01fcos
@@ -46,6 +47,7 @@ arch-include:
 # and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
 repos:
   - rhel-85-baseos
+  - rhel-85-appstream
   - rhel-8-baseos
   - rhel-8-appstream
   - rhel-8-fast-datapath
@@ -363,6 +365,15 @@ repo-packages:
   - repo: rhel-85-baseos
     packages:
       - sssd
+      - NetworkManager-ovs
+      - NetworkManager
+      - NetworkManager-tui
+      - NetworkManager-team
+  # temporarily using NetworkManager from 8.5
+  # See https://bugzilla.redhat.com/show_bug.cgi?id=2077605
+  - repo: rhel-85-appstream
+    packages:
+      - NetworkManager-cloud-setup
   # we always want the kernel from BaseOS
   # Temporarily use RHEL 8.5 Kernel for s390x, until RHEL 8.6 gets a new kernel (Build 370+)
   # See: https://bugzilla.redhat.com/show_bug.cgi?id=2047242
