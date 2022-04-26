@@ -1,0 +1,6 @@
+# Temporarily use RHEL 8.5 Kernel for s390x, until RHEL 8.6 gets a new kernel (Build 370+)
+# See: https://bugzilla.redhat.com/show_bug.cgi?id=2047242
+repo-packages:
+  - repo: rhel-8-baseos
+    packages:
+      - kernel

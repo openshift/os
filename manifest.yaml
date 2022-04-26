@@ -7,12 +7,13 @@ rojig:
 include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
-  - fedora-coreos-config/manifests/networking-tools.yaml
+  # - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
+  - networking-tools.yaml
 
 ostree-layers:
   - overlay/01fcos
@@ -29,14 +30,24 @@ arch-include:
   x86_64:
     - fedora-coreos-config/manifests/grub2-removals.yaml
     - fedora-coreos-config/manifests/bootupd.yaml
-  ppc64le: fedora-coreos-config/manifests/grub2-removals.yaml
+    - kernel-rhel-86.yaml
+  ppc64le:
+    - fedora-coreos-config/manifests/grub2-removals.yaml
+    - kernel-rhel-86.yaml
   aarch64:
     - fedora-coreos-config/manifests/grub2-removals.yaml
     - fedora-coreos-config/manifests/bootupd.yaml
+    - kernel-rhel-86.yaml
+  s390x:
+    # Temporarily use RHEL 8.5 Kernel for s390x, until RHEL 8.6 gets a new kernel (Build 370+)
+    # See: https://bugzilla.redhat.com/show_bug.cgi?id=2047242
+    - kernel-rhel-85.yaml
 
 # See README.md
 # and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
 repos:
+  - rhel-85-baseos
+  - rhel-85-appstream
   - rhel-8-baseos
   - rhel-8-appstream
   - rhel-8-fast-datapath
@@ -46,7 +57,7 @@ repos:
 rpmdb: bdb
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "411.85.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "411.86.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
@@ -351,10 +362,24 @@ packages:
  - conntrack-tools
 
 repo-packages:
-  # we always want the kernel from BaseOS
-  - repo: rhel-8-baseos
+  - repo: rhel-85-baseos
     packages:
-      - kernel
+      - sssd
+      - NetworkManager-ovs
+      - NetworkManager
+      - NetworkManager-tui
+      - NetworkManager-team
+  # temporarily using NetworkManager from 8.5
+  # See https://bugzilla.redhat.com/show_bug.cgi?id=2077605
+  - repo: rhel-85-appstream
+    packages:
+      - NetworkManager-cloud-setup
+  # we always want the kernel from BaseOS
+  # Temporarily use RHEL 8.5 Kernel for s390x, until RHEL 8.6 gets a new kernel (Build 370+)
+  # See: https://bugzilla.redhat.com/show_bug.cgi?id=2047242
+  # - repo: rhel-8-baseos
+  #   packages:
+  #     - kernel
   # we want the one shipping in RHEL, not the equivalently versioned one in RHAOS
   - repo: rhel-8-appstream
     packages:
