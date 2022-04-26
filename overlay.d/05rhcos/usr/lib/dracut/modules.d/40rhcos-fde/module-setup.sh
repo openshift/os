@@ -43,7 +43,6 @@ install() {
         clevis-luks-unbind
         clevis-luks-unlock
         cryptsetup
-        cryptsetup-reencrypt
         curl
         cut
         dd
