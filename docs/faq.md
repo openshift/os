@@ -242,3 +242,17 @@ RHCOS inherits the majority of its configuration from Fedora CoreOS, so we aim t
 If the package makes sense to include in Fedora CoreOS, it will ultimately be included in RHCOS in the future when the [fedora-coreos-config](https://github.com/coreos/fedora-coreos-config) submodule is updated in this repo.
 
 If the package is **not** included in Fedora CoreOS, you may submit a PR to this repo asking for the inclusion of the package with the reasoning for including it.
+
+## Q: How do I replace the current Kernel with Kernel-RT or a new Kernel version in RHCOS?
+
+The process for Kernel and Kernel-RT is almost the same. For Kernel-RT you need to `override remove` and `install`, and use
+the kernel-rt-kvm package instead of kernel-rt package. As following:
+
+```
+rpm-ostree override remove kernel kernel-core kernel-modules kernel-modules-extra --install kernel-rt-core-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm --install kernel-rt-kvm-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
+```
+For the normal Kernel only `override replace` is enough:
+
+```
+rpm-ostree override replace kernel-{,modules-,modules-extra-,core-}4.18.0-305.34.2.107.el8_4.x86_64.rpm
+```
