@@ -118,15 +118,6 @@ postprocess:
      grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
      echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
      echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
-
-     # TEMPORARY: Remove `ipmi-si` in /usr/lib/modules-load.d/fwupd-redfish.conf until fix is landed to RHEL 8.6
-     # Fixed version is fwupd-1.7.4-1.el8
-     # See https://github.com/openshift/os/issues/749
-     #     https://bugzilla.redhat.com/show_bug.cgi?id=2037294
-     #     https://github.com/fwupd/fwupd/pull/4162
-     [ ! -f /usr/lib/modules-load.d/fwupd-redfish.conf ] && exit 0
-     grep -q ipmi-si /usr/lib/modules-load.d/fwupd-redfish.conf || exit 100
-     sed -i '/ipmi-si/d' /usr/lib/modules-load.d/fwupd-redfish.conf
   - |
      #!/usr/bin/env bash
      set -xeo pipefail
