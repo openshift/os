@@ -25,6 +25,10 @@ if test '!' -w src/config; then
     mv src/config.writable src/config
 fi
 
+#
+# NOTE: If you are adjusting how the repos are fetched in this script, you
+#        must also make the same change in the `prow-build.sh` script
+#
 # Grab the raw value of `mutate-os-release` and use sed to convert the value
 # to X-Y format
 ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')

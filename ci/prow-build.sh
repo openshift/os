@@ -34,16 +34,21 @@ if test '!' -w src/config; then
     mv src/config.writable src/config
 fi
 
+#
+# NOTE: If you are adjusting how the repos are fetched in this script, you
+#        must also make the same change in the `prow-build-test-qemu.sh` script
+#
 # Grab the raw value of `mutate-os-release` and use sed to convert the value
 # to X-Y format
 ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
 ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
 prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-# temporarily also fetch 8.5 repo for sssd
-# https://bugzilla.redhat.com/show_bug.cgi?id=2072050
-curl -L http://base-"${ocpver_mut}"-rhel86.ocp.svc.cluster.local > src/config/ocp.repo
-curl -L http://base-"${ocpver_mut}"-rhel85.ocp.svc.cluster.local > src/config/ocp85.repo
-sed -i -e 's,\[rhel-8-,\[rhel-85-,' src/config/ocp85.repo
+# we want to use RHEL 8.5 for testing until we can start using 8.6
+# see https://github.com/openshift/release/pull/26193
+curl -L http://base-"${ocpver_mut}"-rhel85.ocp.svc.cluster.local > src/config/ocp.repo
+# fetch the 8.6 appstream repo to enable building of extensions
+# see: https://github.com/openshift/os/issues/795
+curl -Ls http://base-"${ocpver_mut}"-rhel86.ocp.svc.cluster.local | grep -A 3 rhel-8-appstream | sed '1,3 s/rhel-8-appstream/rhel-86-appstream/g' >> src/config/ocp.repo
 cosa buildfetch --url=${prev_build_url}
 cosa fetch
 cosa build
