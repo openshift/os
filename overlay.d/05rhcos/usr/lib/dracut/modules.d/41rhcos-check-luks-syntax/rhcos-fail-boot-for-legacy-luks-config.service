@@ -1,6 +1,5 @@
-# Fail the boot if the user tries to use the legacy 
-# LUKS configuration in an Ignition config to enable 
-# LUKS in RHCOS, so they don't accidentally end up 
+# Fail the boot if the user tries to use the legacy LUKS configuration in an
+# Ignition config to enable LUKS in RHCOS, so they don't accidentally end up
 # with an unencrypted system.
 [Unit]
 Description=RHCOS Check For Legacy LUKS Configuration

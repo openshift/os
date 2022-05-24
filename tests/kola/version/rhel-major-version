@@ -9,10 +9,10 @@ fatal() {
 
 # checks to ensure that the only packages from the RHEL major version are included
 
-source /etc/os-release 
+source /etc/os-release
 var=$(echo "${RHEL_VERSION}" | cut -d. -f1)
 for x in $(rpm -qa --queryformat='%{RELEASE}\n' | grep -oP 'el\s*\K\d+'); do
-    if [[ "$var" -ne $((x)) ]]; then 
+    if [[ "$var" -ne $((x)) ]]; then
         fatal "Error RHEL packages do not match current version"
     fi
 done
