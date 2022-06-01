@@ -22,3 +22,9 @@ rm /tmp/passwd
 # Not strictly required, but nice for debugging.
 id
 whoami
+
+# Workaround for how we cache the cosa builds in Prow and juggle users,
+# see also https://github.com/actions/checkout/issues/760#issuecomment-1097461496
+if test -d src/config; then
+    git config --global --add safe.directory $PWD/src/config
+fi
