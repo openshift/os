@@ -7,13 +7,12 @@ rojig:
 include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
-  # - fedora-coreos-config/manifests/networking-tools.yaml
+  - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
-  - networking-tools.yaml
 
 ostree-layers:
   - overlay/01fcos
@@ -47,7 +46,7 @@ repos:
 rpmdb: bdb
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "411.85.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "411.86.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess

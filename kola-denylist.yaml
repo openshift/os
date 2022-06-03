@@ -27,12 +27,3 @@
   tracker: https://github.com/coreos/coreos-assembler/issues/2725
   arches:
   - ppc64le
-# Disable until we rebase back to RHEL 8.6
-- pattern: ext.config.shared.var-mount.scsi-id
-  tracker: https://github.com/openshift/os/issues/710
-  arches:
-  - s390x
-# Disable until we revert NM back to RHEL 8.6
-- pattern: ext.config.shared.networking.default-network-behavior-change
-  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2077605
-  snooze: 2022-05-05
