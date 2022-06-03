@@ -167,8 +167,8 @@ postprocess:
      ${NAME} release ${VERSION_ID}
      EOF
      rm -f /etc/system-release /etc/redhat-release
-     ln -s /usr/lib/system-release /etc/system-release
-     ln -s /usr/lib/system-release /etc/redhat-release
+     ln -s ../usr/lib/redhat-release /etc/system-release
+     ln -s ../usr/lib/redhat-release /etc/redhat-release
      )
 
      # Tweak /usr/lib/issue
