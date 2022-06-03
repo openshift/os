@@ -7,7 +7,7 @@ export COSA_SKIP_OVERLAY=1
 cosa_dir="${COSA_DIR:-$(mktemp -d)}"
 echo "Using $cosa_dir for build"
 cd "$cosa_dir"
-cosa init /src
+cosa init --transient /src
 
 # This script is called via build.sh which is the main Prow
 # entrypoint for PRs to this repo, as well as for PRs on other repos,
