@@ -8,5 +8,5 @@ export COSA_SKIP_OVERLAY=1
 cosa_dir="${COSA_DIR:-$(mktemp -d)}"
 echo "Using $cosa_dir for build"
 cd "$cosa_dir"
-cosa init /src
+cosa init --transient /src
 exec ${dn}/prow-build-test-qemu.sh
