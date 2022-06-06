@@ -5,8 +5,6 @@ dn=$(dirname $0)
 # Prow jobs don't support adding emptydir today
 export COSA_SKIP_OVERLAY=1
 # Create a temporary cosa workdir if COSA_DIR is not set.
-cosa_dir="${COSA_DIR:-$(mktemp -d)}"
-echo "Using $cosa_dir for build"
-cd "$cosa_dir"
-cosa init --transient /src
-exec ${dn}/prow-build-test-qemu.sh
+export COSA_DIR="${COSA_DIR:-$(mktemp -d)}"
+cd "$COSA_DIR"
+exec "${dn}/prow-build-test-qemu.sh"
