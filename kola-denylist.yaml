@@ -27,3 +27,5 @@
   tracker: https://github.com/coreos/coreos-assembler/issues/2725
   arches:
   - ppc64le
+- pattern: crio.base
+  tracker: https://github.com/openshift/os/issues/818
