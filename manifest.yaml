@@ -7,13 +7,12 @@ rojig:
 include:
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
-  # - fedora-coreos-config/manifests/networking-tools.yaml
+  - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
-  - networking-tools.yaml
 
 ostree-layers:
   - overlay/01fcos
@@ -24,7 +23,7 @@ ostree-layers:
   - overlay/15rhcos-tuned-bits
   - overlay/20platform-chrony
   - overlay/21dhcp-chrony
-  - overlay/25rhcos-azure-udev-rules
+  - overlay/25rhcos-azure-udev
 
 arch-include:
   x86_64:
@@ -47,7 +46,7 @@ repos:
 rpmdb: bdb
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "411.85.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "411.86.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
@@ -156,17 +155,20 @@ postprocess:
      OSTREE_VERSION="${OSTREE_VERSION}"
      EOF
      )
+     rm -f /etc/os-release
+     ln -s ../usr/lib/os-release /etc/os-release
 
      # Tweak /etc/system-release, /etc/system-release-cpe & /etc/redhat-release
      (
      . /etc/os-release
-     cat > /etc/system-release-cpe <<EOF
+     cat > /usr/lib/system-release-cpe <<EOF
      ${CPE_NAME}
      EOF
-     cat > /usr/lib/redhat-release <<EOF
+     cat > /usr/lib/system-release <<EOF
      ${NAME} release ${VERSION_ID}
      EOF
-     rm -f /etc/system-release /etc/redhat-release
+     rm -f /etc/system-release-cpe /etc/system-release /etc/redhat-release
+     ln -s /usr/lib/system-release-cpe /etc/system-release-cpe
      ln -s /usr/lib/system-release /etc/system-release
      ln -s /usr/lib/system-release /etc/redhat-release
      )
@@ -353,32 +355,24 @@ repo-packages:
       - nss-altfiles
   - repo: rhel-8-server-ose
     packages:
-      # eventually, we want the one from the container-tools module, but we're
-      # not there yet
-      - toolbox
-      # These are the only container stack packages we don't get from modularity
-      # nor from base RHEL for various reasons. See:
-      # https://github.com/openshift/os/pull/681#issuecomment-1022443830
-      #
-      # newer than what is included in RHEL 8.4.Z EUS, but addresses some BZs
-      # that customers were encountering
+      # Starting with 4.11, we are working with the Containers team to build
+      # certain container-tools RPMs in the RHAOS branches for RHCOS + RHEL
+      # worker nodes.
+      - conmon
       - container-selinux
-      # newer than what is included in RHEL 8.4.Z EUS, because the k8s folks
-      # wanted to start testing with 1.x versions of crun
-      - crun
-      # slightly newer than what is included in RHEL 8.4.Z EUS, because we had
-      # previously shipped a newer version in OCP/RHCOS 4.9 and had to preserve
-      # the upgrade path
-      - runc
-      # Need an updated skopeo for https://github.com/containers/skopeo/pull/1476
-      # for coreos layering work
+      - containernetworking-plugins
       - containers-common
+      - criu
+      - crun
+      - fuse-overlayfs
+      - podman
+      - runc
       - skopeo
+      - slirp4netns
+      - toolbox
 
 modules:
   enable:
-    # podman stack; see https://github.com/openshift/os/pull/681#issuecomment-1022443830
-    - container-tools:rhel8
     # qemu-guest-agent
     - virt:rhel
 
