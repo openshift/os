@@ -37,3 +37,12 @@ defaults (https://bugzilla.redhat.com/show_bug.cgi?id=1828434),
 and handling in 20-chrony and chrony-helper using the defaults
 lands in downstream packages. See upstream thread:
 https://listengine.tuxfamily.org/chrony.tuxfamily.org/chrony-dev/2020/05/msg00022.html
+
+25rhcos-azure-udev-rules
+------------------------
+
+Ships udev rules for Azure. This works in tandem with the
+`25coreos-azure-udev` dracut module in 05core which ships
+them in the initramfs. In the future, we should be able to
+drop this overlay and instead ship `WALinuxAgent-udev` as we
+do in FCOS (https://bugzilla.redhat.com/show_bug.cgi?id=1913074).
