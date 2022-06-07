@@ -352,24 +352,32 @@ repo-packages:
       - nss-altfiles
   - repo: rhel-8-server-ose
     packages:
-      # Starting with 4.11, we are working with the Containers team to build
-      # certain container-tools RPMs in the RHAOS branches for RHCOS + RHEL
-      # worker nodes.
-      - conmon
-      - container-selinux
-      - containernetworking-plugins
-      - containers-common
-      - criu
-      - crun
-      - fuse-overlayfs
-      - podman
-      - runc
-      - skopeo
-      - slirp4netns
+      # eventually, we want the one from the container-tools module, but we're
+      # not there yet
       - toolbox
+      # These are the only container stack packages we don't get from modularity
+      # nor from base RHEL for various reasons. See:
+      # https://github.com/openshift/os/pull/681#issuecomment-1022443830
+      #
+      # newer than what is included in RHEL 8.4.Z EUS, but addresses some BZs
+      # that customers were encountering
+      - container-selinux
+      # newer than what is included in RHEL 8.4.Z EUS, because the k8s folks
+      # wanted to start testing with 1.x versions of crun
+      - crun
+      # slightly newer than what is included in RHEL 8.4.Z EUS, because we had
+      # previously shipped a newer version in OCP/RHCOS 4.9 and had to preserve
+      # the upgrade path
+      - runc
+      # Need an updated skopeo for https://github.com/containers/skopeo/pull/1476
+      # for coreos layering work
+      - containers-common
+      - skopeo
 
 modules:
   enable:
+    # podman stack; see https://github.com/openshift/os/pull/681#issuecomment-1022443830
+    - container-tools:rhel8
     # qemu-guest-agent
     - virt:rhel
 
