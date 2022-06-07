@@ -23,7 +23,7 @@ ostree-layers:
   - overlay/15rhcos-tuned-bits
   - overlay/20platform-chrony
   - overlay/21dhcp-chrony
-  - overlay/25rhcos-azure-udev
+  - overlay/25rhcos-azure-udev-rules
 
 arch-include:
   x86_64:

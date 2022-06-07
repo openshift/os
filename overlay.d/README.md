@@ -37,11 +37,3 @@ defaults (https://bugzilla.redhat.com/show_bug.cgi?id=1828434),
 and handling in 20-chrony and chrony-helper using the defaults
 lands in downstream packages. See upstream thread:
 https://listengine.tuxfamily.org/chrony.tuxfamily.org/chrony-dev/2020/05/msg00022.html
-
-25rhcos-azure-udev
--------------
-
-We want to provide Azure udev rules as part of the initrd, so that Ignition
-is able to detect disks and act on them. The WALinuxAgent-udev has been
-changed to install udev rules into the initramfs, but that change isn't
-in el8 yet. This can be dropped when moving to el9.
