@@ -343,6 +343,8 @@ packages:
  # https://bugzilla.redhat.com/show_bug.cgi?id=1925698
  # https://github.com/openshift/machine-config-operator/pull/2421
  - conntrack-tools
+ # Upstream PR https://github.com/coreos/fedora-coreos-config/pull/786
+ - WALinuxAgent-udev
 
 repo-packages:
   # we always want the kernel from BaseOS
