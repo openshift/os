@@ -155,20 +155,17 @@ postprocess:
      OSTREE_VERSION="${OSTREE_VERSION}"
      EOF
      )
-     rm -f /etc/os-release
-     ln -s ../usr/lib/os-release /etc/os-release
 
      # Tweak /etc/system-release, /etc/system-release-cpe & /etc/redhat-release
      (
      . /etc/os-release
-     cat > /usr/lib/system-release-cpe <<EOF
+     cat > /etc/system-release-cpe <<EOF
      ${CPE_NAME}
      EOF
-     cat > /usr/lib/system-release <<EOF
+     cat > /usr/lib/redhat-release <<EOF
      ${NAME} release ${VERSION_ID}
      EOF
-     rm -f /etc/system-release-cpe /etc/system-release /etc/redhat-release
-     ln -s /usr/lib/system-release-cpe /etc/system-release-cpe
+     rm -f /etc/system-release /etc/redhat-release
      ln -s /usr/lib/system-release /etc/system-release
      ln -s /usr/lib/system-release /etc/redhat-release
      )
