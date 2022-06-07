@@ -19,3 +19,4 @@ USER root
 RUN chgrp -Rf root "${COSA_DIR}" && \
   chmod -Rf g+w "${COSA_DIR}"
 USER builder
+WORKDIR /tmp/cosa
