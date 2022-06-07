@@ -57,6 +57,6 @@ extensions:
       enable:
         - virt:rhel
     repos:
-      - rhel-8-appstream
+      - rhel-86-appstream
     packages:
       - kata-containers
