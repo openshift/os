@@ -48,7 +48,9 @@ cosa kola --basic-qemu-scenarios
 kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
 cosa kola run --parallel 2
 # Build metal + installer now so we can test them
-cosa buildextend-metal && cosa buildextend-metal4k && cosa buildextend-live
+cosa buildextend-metal
+cosa buildextend-metal4k
+cosa buildextend-live
 # compress the metal and metal4k images now so we're testing
 # installs with the image format we ship
 cosa compress --artifact=metal --artifact=metal4k
