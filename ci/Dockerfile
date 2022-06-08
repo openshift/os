@@ -9,6 +9,8 @@ RUN go test -v -c -o layering_test ./tests/layering
 FROM registry.svc.ci.openshift.org/coreos/coreos-assembler:latest
 WORKDIR /src
 ENV COSA_DIR=/tmp/cosa
+# Prow doesn't support emptydir for jobs today
+ENV COSA_SKIP_OVERLAY=1
 COPY --from=builder /go/src/github.com/openshift/os/layering_test /usr/local/bin/layering_test
 COPY . .
 RUN mkdir -p "${COSA_DIR}"
