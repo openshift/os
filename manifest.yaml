@@ -298,6 +298,8 @@ repo-packages:
       # previously shipped a newer version in OCP/RHCOS 4.9 and had to preserve
       # the upgrade path
       - runc
+      # newer than what is included in RHEL 8.4.Z EUS, needed to match cri-o changes
+      - conmon
 
 modules:
   enable:
