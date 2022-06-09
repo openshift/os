@@ -1,0 +1,11 @@
+# We need the OCI archive to be somewhere with a predictable place with a constant
+# path. However, the Kola tests expect the OCI archive to have the build
+# number included in the filename. With that in mind, this image build will
+# extract the RHCOS OCI archive from the cosa-build archive and place it in
+# a constant path for extraction by the machine-os-oci-content image build.
+FROM cosa-build:latest AS base
+RUN /src/ci/simplify-ociarchive-path.sh
+
+FROM scratch
+COPY --from=base /tmp/cosa/builds/latest/x86_64/rhcos.x86_64.ociarchive /tmp/cosa/builds/latest/x86_64/rhcos.x86_64.ociarchive
+

@@ -1,0 +1,7 @@
+# Create a slimmer Fedora-based image for the layering test binary. This is
+# intended to make the startup of the OS layering test faster since we
+# won't have to pull the larger build-test-qemu-img.
+FROM build-test-qemu-img:latest AS base
+FROM registry.ci.openshift.org/coreos/fedora:35 AS final
+COPY --from=base /usr/local/bin/layering_test /usr/local/bin/layering_test
+
