@@ -34,9 +34,7 @@ fi
 ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
 ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
 prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-# we want to use RHEL 8.5 for testing until we can start using 8.6
-# see https://github.com/openshift/release/pull/26193
-curl -L http://base-"${ocpver_mut}"-rhel85.ocp.svc.cluster.local > src/config/ocp.repo
+curl -L http://base-"${ocpver_mut}"-rhel86.ocp.svc.cluster.local > src/config/ocp.repo
 cosa buildfetch --url=${prev_build_url}
 cosa fetch
 cosa build
