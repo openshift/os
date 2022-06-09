@@ -1,0 +1,3 @@
+# Default RHEL version used to build RHCOS
+include:
+  - rhel-8.6/manifest.yaml
