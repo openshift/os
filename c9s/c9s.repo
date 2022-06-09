@@ -1,0 +1,27 @@
+[baseos]
+name=CentOS Stream 9 BaseOS
+baseurl=http://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
+# FIXME
+gpgcheck=0
+enabled=1
+
+[appstream]
+name=CentOS Stream 9 AppStream
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/$basearch/os
+# FIXME
+gpgcheck=0
+enabled=1
+
+[nfv]
+name=CentOS Stream 9 NFV
+baseurl=http://mirror.stream.centos.org/9-stream/NFV/$basearch/os
+# FIXME
+gpgcheck=0
+enabled=1
+
+[rt]
+name=CentOS Stream 9 RT
+baseurl=http://mirror.stream.centos.org/9-stream/RT/$basearch/os
+# FIXME
+gpgcheck=0
+enabled=1
