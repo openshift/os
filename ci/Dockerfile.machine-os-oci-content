@@ -10,4 +10,3 @@
 # absolute path to refer to the OCI archive in the build context allows us
 # to "import" the OCI archive into the CI ImageStream.
 FROM oci-archive:/tmp/build/inputs/magic/cosa/builds/latest/x86_64/rhcos.x86_64.ociarchive
-

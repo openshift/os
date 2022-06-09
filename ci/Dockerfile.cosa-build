@@ -18,7 +18,7 @@ FROM build-test-qemu-img:latest
 ENV COSA_DIR=/tmp/cosa
 ENV COSA_SKIP_OVERLAY=1
 RUN mkdir -p "${COSA_DIR}" && \
-  COSA_NO_KVM=1 /src/ci/prow-build.sh && \
+  COSA_NO_KVM=1 /src/ci/prow-entrypoint.sh build && \
   rm -rf "${COSA_DIR}/cache"
 # We need to make sure that root can read / write to the COSA_DIR so that
 # when this container is actually run, we have permissions to read and
@@ -32,4 +32,3 @@ RUN chgrp -Rf root "${COSA_DIR}" && \
   chmod -Rf g+w "${COSA_DIR}"
 USER builder
 WORKDIR /tmp/cosa
-

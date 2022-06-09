@@ -1,1 +1,2 @@
-validate.sh
+#!/bin/bash
+true
