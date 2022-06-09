@@ -8,4 +8,3 @@ RUN /src/ci/simplify-ociarchive-path.sh
 
 FROM scratch
 COPY --from=base /tmp/cosa/builds/latest/x86_64/rhcos.x86_64.ociarchive /tmp/cosa/builds/latest/x86_64/rhcos.x86_64.ociarchive
-
