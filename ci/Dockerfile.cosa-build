@@ -1,0 +1,35 @@
+# This stage actually builds the RHCOS OCI image. However, due to
+# limitations within OpenShift CI, we need to do the following:
+# 1. Disable KVM by using the COSA_NO_KVM env var. This is due to OpenShift
+# CI using the default OpenShift Docker Build strategy, which precludes us
+# from mounting /dev/kvm into the build context.
+# 2. Due to a limitation in the version of Buildah that OpenShift Builds
+# uses (at the time of this writing, it uses a v1.23.z version of Buildah),
+# we cannot mount the build context into the container build (e.g., `RUN
+# --mount=type=bind,rw=true,src=.,dst=/buildcontext,bind-propagation=shared
+# <cmd>`), which would allow it to mutate the build context. This is due to
+# https://github.com/containers/buildah/pull/3548 not being present.
+# For now, this necessitates passing this image into the cosa-build image
+# build below to extract the OCI archive and inject it into the
+# ImageStream. However, once the OpenShift CI system is upgraded to use
+# OpenShift 4.11, we can create the RHCOS image in a single shot via this
+# stage.
+FROM build-test-qemu-img:latest
+ENV COSA_DIR=/tmp/cosa
+ENV COSA_SKIP_OVERLAY=1
+RUN mkdir -p "${COSA_DIR}" && \
+  COSA_NO_KVM=1 /src/ci/prow-build.sh && \
+  rm -rf "${COSA_DIR}/cache"
+# We need to make sure that root can read / write to the COSA_DIR so that
+# when this container is actually run, we have permissions to read and
+# write to the COSA_DIR to allow the Kola tests to run.
+# Note: In Docker BuildKit, this would double the image size because this
+# would create an additional layer. However, since OpenShift Image Builds
+# use Buildah, this is eliminated because it squashes these layers
+# together.
+USER root
+RUN chgrp -Rf root "${COSA_DIR}" && \
+  chmod -Rf g+w "${COSA_DIR}"
+USER builder
+WORKDIR /tmp/cosa
+
