@@ -274,6 +274,8 @@ repo-packages:
       # eventually, we want the one from the container-tools module, but we're
       # not there yet
       - toolbox
+      # newer than what is included in RHEL 8.4.Z EUS, needed to match cri-o changes
+      - conmon
 
 modules:
   enable:
