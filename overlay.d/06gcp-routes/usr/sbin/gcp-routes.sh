@@ -2,7 +2,7 @@
 
 # Update iptables rules based on google cloud load balancer VIPS
 #
-# This is needed because the GCP L3 load balancer doesn't actually do DNAT; 
+# This is needed because the GCP L3 load balancer doesn't actually do DNAT;
 # the destination IP address is still the VIP. Normally, there is an agent that
 # adds the vip to the local routing table, tricking the kernel in to thinking
 # it's a local IP and allowing processes doing an accept(0.0.0.0) to receive

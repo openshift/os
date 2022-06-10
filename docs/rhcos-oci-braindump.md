@@ -77,7 +77,7 @@ mechanism. This allows one to inject an arbitrary path from a pre-built
 container into the build context of another container.
 
 In particular, OpenShift Image Builds does this by creating a temporary directory at `/tmp/build/inputs/<relative
-path>` for each image input ([source](https://github.com/openshift/builder/blob/37525a77fa07e26c420962dee47193d672ef0b35/pkg/build/builder/common.go#L72)) and parsing the Dockerfile to replace any references to the relative path with the absolute path. 
+path>` for each image input ([source](https://github.com/openshift/builder/blob/37525a77fa07e26c420962dee47193d672ef0b35/pkg/build/builder/common.go#L72)) and parsing the Dockerfile to replace any references to the relative path with the absolute path.
 
 ### Buildah
 
@@ -142,12 +142,12 @@ images:
 This works thusly:
 1. Build the `build-test-qemu-img` from the `ci/Dockerfile` present in this
 repository. This copies in all of the scripts and configs as well as builds the
-OS layering test binary. 
+OS layering test binary.
 1. We build the `cosa-build` container which
 effectively takes the `build-test-qemu-img` and runs `cosa fetch && cosa build`
 as part of a container image build. This produces the OCI archive within
 `$COSA_DIR/builds/latest/x86_64/rhcos.ociarchive`.
-1. We use this image as the input for the `machine-os-oci-content` image. 
+1. We use this image as the input for the `machine-os-oci-content` image.
 
 A downside of this mechanism is that the resulting container size for
 `cosa-build` is 20+ GB on-disk when the resulting on-disk size of the RHCOS OCI
@@ -169,7 +169,7 @@ images:
 
     # We copy the built OCI archive into the mounted build context.
     RUN --mount=type=bind,rw=true,src=.,dst=/buildcontext,bind-propagation=shared cp "${COSA_DIR}/builds/latest/x86_64/rhcos.x86_64.ociarchive" "/buildcontext/rhcos.x86_64.ociarchive"
-  
+
     # Since we can mutate the build context and we know where the OpenShift
     # Image Builder injects it into the build pod, we can take advantage of the
     # mutated build context thusly.
@@ -187,7 +187,7 @@ images:
   to: machine-oci-os-content
 ```
 
-What is nice about the future solution is that we can largely bypass having to pass around a 20+ GB image since the final image will be around 2.75 GB or so. 
+What is nice about the future solution is that we can largely bypass having to pass around a 20+ GB image since the final image will be around 2.75 GB or so.
 
 ### Far-Future Solution
 

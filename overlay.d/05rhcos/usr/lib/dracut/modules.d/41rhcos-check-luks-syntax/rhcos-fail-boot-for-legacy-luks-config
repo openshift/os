@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-# This script tries to look for a `files` entry with the `/etc/clevis.json` 
-# path (used to enable LUKS in RHCOS 4.6 or earlier versions) in an 
+# This script tries to look for a `files` entry with the `/etc/clevis.json`
+# path (used to enable LUKS in RHCOS 4.6 or earlier versions) in an
 # Ignition config. If it exists, then the script ends with exit 1.
 
 ignition_cfg="/run/ignition.json"
@@ -11,8 +11,8 @@ wanted_path="/etc/clevis.json"
 # select the `/etc/clevis.json` entry from a given Ignition config
 if jq -e ".storage.files[]? | select(.path==\"${wanted_path}\")" "${ignition_cfg}" > /dev/null; then
     echo "Your Ignition config specifies LUKS filesystem encryption using the obsolete
-${wanted_path} config file, which is no longer supported. Refusing to boot. 
-Please refer to https://github.com/openshift/openshift-docs/pull/27661 for more 
+${wanted_path} config file, which is no longer supported. Refusing to boot.
+Please refer to https://github.com/openshift/openshift-docs/pull/27661 for more
 information."
     exit 1
 fi
