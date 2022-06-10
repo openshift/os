@@ -6,6 +6,9 @@ set -xeuo pipefail
 # Global variables
 REDIRECTOR_URL="https://rhcos-redirector.apps.art.xq1c.p1.openshiftapps.com/art/storage/releases/"
 
+# Default version of RHEL used to build RHCOS
+RHELVER="rhel-8.6"
+
 # This function is used to update the /etc/passwd file within the COSA container
 # at test-time. The need for this comes from the fact that OpenShift will run a
 # container with a randomized user ID by default to enhance security. Because
@@ -28,6 +31,8 @@ setup_user() {
     whoami
 }
 
+# Setup a new build directory with COSA init, selecting the version of RHEL or
+# CentOS Stream that we want as a basis for RHCOS/SCOS.
 cosa_init() {
     # Always create a writable copy of the source repo
     tmp_src="$(mktemp -d)"
@@ -39,7 +44,7 @@ cosa_init() {
     cd "$cosa_dir"
 
     # Setup source tree
-    cosa init --transient "${tmp_src}/os"
+    cosa init --transient "${tmp_src}/os" "${RHELVER}"
 }
 
 # Do a cosa build & cosa build-extensions only.
@@ -57,11 +62,10 @@ cosa_build() {
     cosa buildfetch --url="${prev_build_url}"
 
     # Fetch the repos corresponding to the release we are building
-    rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
-    id
-    whoami
-    ls -alh "src/config/"
-    curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    if [[ "${RHELVER}" == "rhel-8.6" ]]; then
+        rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
+        curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    fi
 
     # Fetch packages
     cosa fetch
@@ -152,13 +156,15 @@ main () {
             cosa_init
             cosa_build
             ;;
-        "build-test-qemu-kola-basic")
+        "build-test-qemu-kola-basic" | "rhcos-86-build-test-qemu")
+            RHELVER="rhel-8.6"
             setup_user
             cosa_init
             cosa_build
             kola_test_qemu
             ;;
-        "build-test-qemu-kola-all")
+        "build-test-qemu-kola-all" | "rhcos-86-build-test-metal")
+            RHELVER="rhel-8.6"
             setup_user
             cosa_init
             cosa_build
