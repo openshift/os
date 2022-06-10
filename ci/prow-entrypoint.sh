@@ -42,9 +42,11 @@ cosa_init() {
     cosa init --transient "${tmp_src}/os"
 }
 
-# Do a cosa build & cosa build-extensions only
+# Do a cosa build & cosa build-extensions only.
 # This is called both as part of the build phase and test phase in Prow thus we
 # can not do any kola testing in this function.
+# We do not build the QEMU image here as we don't need it in the pure container
+# test case.
 cosa_build() {
     # Grab the raw value of `mutate-os-release` and use sed to convert the value
     # to X-Y format
@@ -61,32 +63,28 @@ cosa_build() {
     ls -alh "src/config/"
     curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
 
-    # Build RHCOS & extensions
+    # Fetch packages
     cosa fetch
-    cosa build
+    # Only build the ostree image by default
+    cosa build ostree
+    # Build extensions
     cosa buildextend-extensions
 }
 
-# Make sure the image is at least booting before runnning expensive tests
-kola_test_basic() {
-    cosa kola run basic
-}
-
-kola_test_basic_scenarios() {
+# Build QEMU image and run all kola tests
+kola_test_qemu() {
+    cosa buildextend-qemu
     cosa kola --basic-qemu-scenarios
-}
-
-kola_test_upgrade() {
     kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
-}
-
-kola_test_run() {
     cosa kola run --parallel 2
 }
 
+# Build metal, metal4k & live images and run kola tests
 kola_test_metal() {
     # Build metal + installer now so we can test them
-    cosa buildextend-metal && cosa buildextend-metal4k && cosa buildextend-live
+    cosa buildextend-metal
+    cosa buildextend-metal4k
+    cosa buildextend-live
 
     # Compress the metal and metal4k images now so we're testing
     # installs with the image format we ship
@@ -160,29 +158,17 @@ main () {
             setup_user
             cosa_init
             cosa_build
-            kola_test_basic
-            kola_test_basic_scenarios
+            kola_test_qemu
             ;;
         "build-test-qemu-kola-all")
             setup_user
             cosa_init
             cosa_build
-            kola_test_basic
-            kola_test_run
-            ;;
-        "build-test-qemu-kola-upgrade")
-            setup_user
-            cosa_init
-            cosa_build
-            kola_test_basic
-            kola_test_upgrade
-            ;;
-        "build-test-qemu-kola-metal")
-            setup_user
-            cosa_init
-            cosa_build
-            kola_test_basic
             kola_test_metal
+            ;;
+        "build-test-qemu-kola-upgrade" | "build-test-qemu-kola-metal")
+            echo "Disabled tests"
+            exit 0
             ;;
         *)
             echo "Unknown test name"
