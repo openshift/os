@@ -144,7 +144,9 @@ main () {
     if [[ -d /cosa ]]; then
         jq . < /cosa/coreos-assembler-git.json
     fi
-    rpm-ostree --version
+    if [[ $(command -v rpm-ostree) ]]; then
+        rpm-ostree --version
+    fi
 
     case "${1}" in
         "validate")
