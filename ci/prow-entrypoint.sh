@@ -156,14 +156,14 @@ main () {
             cosa_init
             cosa_build
             ;;
-        "build-test-qemu-kola-basic" | "rhcos-86-build-test-qemu")
+        "rhcos-86-build-test-qemu")
             RHELVER="rhel-8.6"
             setup_user
             cosa_init
             cosa_build
             kola_test_qemu
             ;;
-        "build-test-qemu-kola-all" | "rhcos-86-build-test-metal")
+        "rhcos-86-build-test-metal")
             RHELVER="rhel-8.6"
             setup_user
             cosa_init
