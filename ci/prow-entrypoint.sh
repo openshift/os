@@ -57,9 +57,12 @@ cosa_build() {
     # to X-Y format
     ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
     ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-    prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-    # Fetch the previous build
-    cosa buildfetch --url="${prev_build_url}"
+
+    # Currently disabled for SCOS as we don't have any previous builds
+    if [[ "${RHELVER}" != "c9s" ]]; then
+        # Fetch the previous build
+        cosa buildfetch --url="${REDIRECTOR_URL}/rhcos-${ocpver}/"
+    fi
 
     # Fetch the repos corresponding to the release we are building
     if [[ "${RHELVER}" == "rhel-8.6" ]]; then
@@ -69,6 +72,9 @@ cosa_build() {
         # Temporary workaround until we have all packages for RHCOS 9
         curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/ocp86.repo"
         curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/ocp90.repo"
+    elif [[ "${RHELVER}" == "c9s" ]]; then
+        # Temporary workarounds until we have all packages for SCOS
+        curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/ocp86.repo"
     fi
 
     # Fetch packages
@@ -188,7 +194,21 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "disabled-test" | "scos-9-build-test-qemu" | "scos-9-build-test-metal")
+        "scos-9-build-test-qemu")
+            RHELVER="c9s"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_qemu
+            ;;
+        "scos-9-build-test-metal")
+            RHELVER="c9s"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_metal
+            ;;
+        "disabled-test")
             echo "Disabled tests"
             exit 0
             ;;
