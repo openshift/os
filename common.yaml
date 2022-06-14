@@ -188,7 +188,8 @@ packages:
  - systemd-journal-gateway
  # RHEL 8.6 shipped with clevis-15-8, so we can drop the version requirement
  - clevis clevis-luks clevis-dracut
- - cryptsetup-reencrypt tpm2-tools
+ # tpm2-tools is required by clevis
+ - tpm2-tools
  # Used to update PAM configuration to work with SSSD
  # https://bugzilla.redhat.com/show_bug.cgi?id=1774154
  - authselect
