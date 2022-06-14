@@ -29,6 +29,10 @@ setup_user() {
 }
 
 cosa_init() {
+    if test -d builds; then
+        echo "Already in an initialized cosa dir"
+        return
+    fi
     # Always create a writable copy of the source repo
     tmp_src="$(mktemp -d)"
     cp -a /src "${tmp_src}/os"
