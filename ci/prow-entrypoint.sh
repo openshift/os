@@ -49,6 +49,22 @@ cosa_init() {
 
     # Setup source tree
     cosa init --transient "${tmp_src}/os" "${RHELVER}"
+
+    # Running `cosa fetch` etc in the context of these Prow jobs doesn't play
+    # well with relative symlinks. Convert the symlinks in the subdir to
+    # copies of the files and copy in the rest of the necessary bits.  This
+    # allows the subdir organization to remain in place for non-Prow use cases
+    # and just special cases this particular environment.
+    pushd "$cosa_dir/src/config/"
+    while IFS= read -r -d '' linkname; do
+        realfile=$(readlink -f $linkname)
+        rm $linkname
+        cp -a $realfile $linkname
+    done< <(find ./ -type l -print0)
+
+    cp -a "${tmp_src}"/os/{.git,common.yaml,kola-denylist.yaml,group,rhcos-packages.yaml,passwd} .
+    popd
+
 }
 
 # Do a cosa build & cosa build-extensions only.
