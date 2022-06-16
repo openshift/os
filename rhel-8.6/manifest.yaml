@@ -11,7 +11,7 @@ variables:
 
 # Include manifests common to all RHEL and CentOS Stream versions
 include:
-  - ../common.yaml
+  - common.yaml
 
 # Starting from here, everything should be specific to RHCOS based on RHEL 8.6
 
