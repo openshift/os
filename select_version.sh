@@ -15,7 +15,7 @@ main() {
     fi
 
     case "$osver" in
-        "rhel-8.6")
+        "rhel-8.6" | "rhel-9.0")
             echo "Building RHCOS based on ${osver}"
             content_sets_required="true"
             ;;

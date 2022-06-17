@@ -67,9 +67,13 @@ cosa_build() {
     # to X-Y format
     ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
     ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-    prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-    # Fetch the previous build
-    cosa buildfetch --url="${prev_build_url}"
+
+    # Temporary workaround until we publish builds for other versions
+    if [[ "${RHELVER}" == "rhel-8.6" ]]; then
+        prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
+        # Fetch the previous build
+        cosa buildfetch --url="${prev_build_url}"
+    fi
 
     # Fetch the repos corresponding to the release we are building
     # Temporarily double checked until we have uniformity for all RHEL and
@@ -77,6 +81,10 @@ cosa_build() {
     if [[ "${RHELVER}" == "rhel-8.6" ]]; then
         rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
         curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    elif [[ "${RHELVER}" == "rhel-9.0" ]]; then
+        # Temporary workaround until we have all packages for RHCOS 9
+        curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+        curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/ocp.repo"
     fi
 
     # Fetch packages
@@ -184,7 +192,21 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "rhcos-90-build-test-qemu" | "rhcos-90-build-test-metal" | "scos-9-build-test-qemu" | "scos-9-build-test-metal")
+        "rhcos-90-build-test-qemu")
+            RHELVER="rhel-9.0"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_qemu
+            ;;
+        "rhcos-90-build-test-metal" )
+            RHELVER="rhel-9.0"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_metal
+            ;;
+        "scos-9-build-test-qemu" | "scos-9-build-test-metal")
             echo "Disabled tests"
             exit 0
             ;;
