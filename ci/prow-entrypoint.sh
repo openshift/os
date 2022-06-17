@@ -158,7 +158,7 @@ main () {
             cosa_init
             cosa_build
             ;;
-        "rhcos-86-build-test-qemu")
+        "rhcos-cosa-prow-pr-ci" | "rhcos-86-build-test-qemu")
             setup_user
             cosa_init
             cosa_build
@@ -170,7 +170,7 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "build-test-qemu-kola-upgrade" | "build-test-qemu-kola-metal" | "rhcos-90-build-test-qemu" | "rhcos-90-build-test-metal" | "scos-9-build-test-qemu" | "scos-9-build-test-metal")
+        "rhcos-90-build-test-qemu" | "rhcos-90-build-test-metal" | "scos-9-build-test-qemu" | "scos-9-build-test-metal")
             echo "Disabled tests"
             exit 0
             ;;
