@@ -315,7 +315,6 @@ packages:
  - systemd-journal-gateway
  # RHEL7 compatibility
  - compat-openssl10
- - cryptsetup-reencrypt
  # Used to update PAM configuration to work with SSSD
  # https://bugzilla.redhat.com/show_bug.cgi?id=1774154
  - authselect
