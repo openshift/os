@@ -315,11 +315,6 @@ packages:
  - systemd-journal-gateway
  # RHEL7 compatibility
  - compat-openssl10
- # Make sure we pull in at least clevis 15; it drops the rd.neednet=1 hardcode
- # and has a few other patches we need.
- # https://bugzilla.redhat.com/show_bug.cgi?id=1853651
- - "'clevis >= 15-1.el8' 'clevis-luks >= 15-1.el8' 'clevis-dracut >= 15-1.el8'"
- - cryptsetup-reencrypt tpm2-tools
  # Used to update PAM configuration to work with SSSD
  # https://bugzilla.redhat.com/show_bug.cgi?id=1774154
  - authselect
