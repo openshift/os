@@ -158,7 +158,7 @@ main () {
             cosa_init
             cosa_build
             ;;
-        "rhcos-86-build-test-qemu")
+        "rhcos-cosa-prow-pr-ci" | "rhcos-86-build-test-qemu")
             setup_user
             cosa_init
             cosa_build
