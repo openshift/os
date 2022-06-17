@@ -1,0 +1,39 @@
+[baseos]
+name=CentOS Stream 9 - BaseOS
+baseurl=http://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///tmp/RPM-GPG-KEY-centosofficial
+
+[appstream]
+name=CentOS Stream 9 - AppStream
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///tmp/RPM-GPG-KEY-centosofficial
+
+[nfv]
+name=CentOS Stream 9 - NFV
+baseurl=http://mirror.stream.centos.org/9-stream/NFV/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///tmp/RPM-GPG-KEY-centosofficial
+
+[rt]
+name=CentOS Stream 9 - RT
+baseurl=http://mirror.stream.centos.org/9-stream/RT/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///tmp/RPM-GPG-KEY-centosofficial
+
+[openvswitch]
+name=CentOS Stream 9 OpenvSwitch
+baseurl=http://mirror.stream.centos.org/SIGs/9-stream/nfv/x86_64/openvswitch-2/
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+# gpgkey=file:///tmp/RPM-GPG-KEY-centosofficial

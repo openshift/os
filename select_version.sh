@@ -19,6 +19,9 @@ main() {
             echo "Building RHCOS based on ${osver}"
             content_sets_required="true"
             ;;
+        "c9s")
+            echo "Building SCOS based on ${osver}"
+            ;;
         *)
             echo "Unknown OS version: ${osver}"
             exit 1
