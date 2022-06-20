@@ -28,6 +28,8 @@ setup_user() {
     whoami
 }
 
+# Setup a new build directory with COSA init, selecting the version of RHEL or
+# CentOS Stream that we want as a basis for RHCOS/SCOS.
 cosa_init() {
     if test -d builds; then
         echo "Already in an initialized cosa dir"
@@ -44,6 +46,15 @@ cosa_init() {
 
     # Setup source tree
     cosa init --transient "${tmp_src}/os"
+    # Select RHEL os CentOS Stream version
+    # This must be defined for each test job entry point
+    if [[ -z ${RHELVER+x} ]]; then
+        echo "No RHEL or CentOS Stream version selected to build RHCOS/SCOS"
+        exit 1
+    fi
+    pushd src/config
+    ./select_version.sh "${RHELVER}"
+    popd
 }
 
 # Do a cosa build & cosa build-extensions only.
@@ -61,11 +72,12 @@ cosa_build() {
     cosa buildfetch --url="${prev_build_url}"
 
     # Fetch the repos corresponding to the release we are building
-    rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
-    id
-    whoami
-    ls -alh "src/config/"
-    curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    # Temporarily double checked until we have uniformity for all RHEL and
+    # CentOS versions
+    if [[ "${RHELVER}" == "rhel-8.6" ]]; then
+        rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
+        curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    fi
 
     # Fetch packages
     cosa fetch
@@ -159,12 +171,14 @@ main () {
             cosa_build
             ;;
         "rhcos-cosa-prow-pr-ci" | "rhcos-86-build-test-qemu")
+            RHELVER="rhel-8.6"
             setup_user
             cosa_init
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-86-build-test-metal")
+            RHELVER="rhel-8.6"
             setup_user
             cosa_init
             cosa_build
