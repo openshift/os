@@ -11,3 +11,6 @@
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1899990
   arches:
   - s390x
+- pattern: rhcos.upgrade.from-ocp-rhcos
+  tracker: https://github.com/openshift/os/issues/857
+  snooze: 2022-06-27
