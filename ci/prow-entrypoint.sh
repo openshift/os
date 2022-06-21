@@ -44,17 +44,13 @@ cosa_init() {
     echo "Using $cosa_dir for build"
     cd "$cosa_dir"
 
-    # Setup source tree
-    cosa init --transient "${tmp_src}/os"
-    # Select RHEL os CentOS Stream version
-    # This must be defined for each test job entry point
-    if [[ -z ${RHELVER+x} ]]; then
+    # Require the CI jobs to explicitly setup the variant to avoid mistakes
+    if [[ -z ${OSVER+x} ]]; then
         echo "No RHEL or CentOS Stream version selected to build RHCOS/SCOS"
         exit 1
     fi
-    pushd src/config
-    ./select_version.sh "${RHELVER}"
-    popd
+    # Setup source tree, selecting a variant
+    cosa init --transient "${tmp_src}/os" "${OSVER}"
 }
 
 # Do a cosa build & cosa build-extensions only.
@@ -67,14 +63,18 @@ cosa_build() {
     # to X-Y format
     ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
     ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-    prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-    # Fetch the previous build
-    cosa buildfetch --url="${prev_build_url}"
+
+    # Temporary workaround until we publish builds for other versions
+    if [[ "${OSVER}" == "rhel-8.6" ]]; then
+        prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
+        # Fetch the previous build
+        cosa buildfetch --url="${prev_build_url}"
+    fi
 
     # Fetch the repos corresponding to the release we are building
     # Temporarily double checked until we have uniformity for all RHEL and
     # CentOS versions
-    if [[ "${RHELVER}" == "rhel-8.6" ]]; then
+    if [[ "${OSVER}" == "rhel-8.6" ]]; then
         rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
         curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
     fi
@@ -171,14 +171,14 @@ main () {
             cosa_build
             ;;
         "rhcos-cosa-prow-pr-ci" | "rhcos-86-build-test-qemu")
-            RHELVER="rhel-8.6"
+            OSVER="rhel-8.6"
             setup_user
             cosa_init
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-86-build-test-metal")
-            RHELVER="rhel-8.6"
+            OSVER="rhel-8.6"
             setup_user
             cosa_init
             cosa_build

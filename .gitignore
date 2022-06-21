@@ -1,2 +1,4 @@
 /*.repo
 /content_sets.yaml
+/manifest.yaml
+/extensions.yaml
