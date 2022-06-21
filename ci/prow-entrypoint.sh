@@ -77,6 +77,10 @@ cosa_build() {
     if [[ "${OSVER}" == "rhel-8.6" ]]; then
         rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
         curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    elif [[ "${OSVER}" == "rhel-9.0" ]]; then
+        # Temporary workaround until we have all packages for RHCOS 9
+        curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+        curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/ocp.repo"
     fi
 
     # Fetch packages
@@ -184,7 +188,21 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "rhcos-90-build-test-qemu" | "rhcos-90-build-test-metal" | "scos-9-build-test-qemu" | "scos-9-build-test-metal")
+        "rhcos-90-build-test-qemu")
+            OSVER="rhel-9.0"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_qemu
+            ;;
+        "rhcos-90-build-test-metal" )
+            OSVER="rhel-9.0"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_metal
+            ;;
+        "scos-9-build-test-qemu" | "scos-9-build-test-metal")
             echo "Disabled tests"
             exit 0
             ;;
