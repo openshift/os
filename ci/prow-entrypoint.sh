@@ -81,6 +81,13 @@ cosa_build() {
         # Temporary workaround until we have all packages for RHCOS 9
         curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/ocp.repo"
         curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    elif [[ "${OSVER}" == "c9s" ]]; then
+        sed "s|file:///tmp|file://${PWD}/src/config/rpm-gpg|" "src/config/repos/c9s.repo" > "src/config/c9s.repo"
+        # Temporary workaround until we have all packages for SCOS
+        curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/tmp.repo"
+        awk '/rhel-8-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
+        echo "includepkgs=cri-o,cri-tools,openshift-clients,openshift-hyperkube" >> "src/config/ocp.repo"
+        rm "src/config/tmp.repo"
     fi
 
     # Fetch packages
@@ -202,7 +209,21 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "scos-9-build-test-qemu" | "scos-9-build-test-metal")
+        "scos-9-build-test-qemu")
+            OSVER="c9s"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_qemu
+            ;;
+        "scos-9-build-test-metal" )
+            OSVER="c9s"
+            setup_user
+            cosa_init
+            cosa_build
+            kola_test_metal
+            ;;
+        "explicitely-disabled-test")
             echo "Disabled tests"
             exit 0
             ;;
