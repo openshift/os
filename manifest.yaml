@@ -276,6 +276,8 @@ repo-packages:
       - toolbox
       # newer than what is included in RHEL 8.4.Z EUS, needed to match cri-o changes
       - conmon
+      # newer than what is included in RHEL 8.4.Z EUS, needed to patch for BZ#2096508
+      - runc
 
 modules:
   enable:
