@@ -32,11 +32,11 @@ repos:
 rpmdb: bdb
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "411.86.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "412.86.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.11"
+mutate-os-release: "4.12"
 
 postprocess:
   - |
@@ -45,7 +45,7 @@ postprocess:
 
      # Tweak /usr/lib/os-release
      grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.rhel
-     OCP_RELEASE="4.11"
+     OCP_RELEASE="4.12"
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
