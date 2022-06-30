@@ -1,0 +1,19 @@
+#!/bin/bash
+# kola: { "distros": "rhcos", "tags": "needs-internet", "platforms": "qemu-unpriv", "architec$
+# Make sure that basic toolbox functionnality is working:
+# Run Toolbox
+
+set -xeuo pipefail
+
+function check_status {
+    testname=$1
+    status=$2
+    reason=$3
+    if [ $status ==0 ]; then
+        echo "$testname passed"
+    else
+        echo "$testname failed: $reason"
+    fi
+}
+
+check_status "toolbox with no arguments" $? $cmd_output
