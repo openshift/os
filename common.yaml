@@ -106,6 +106,13 @@ postprocess:
     #!/usr/bin/bash
     mkdir -p /etc/yum.repos.d
 
+  # These enable librhsm which enables host subscriptions to work in containers
+  # https://github.com/rpm-software-management/librhsm/blob/fcd972cbe7c8a3907ba9f091cd082b1090231492/rhsm/rhsm-context.c#L30
+  - |
+    #!/usr/bin/bash
+    ln -sr /run/secrets/etc-pki-entitlement /etc/pki/entitlement-host
+    ln -sr /run/secrets/rhsm /etc/rhsm-host
+
   # This updates the PAM configuration to reference all of the SSSD modules.
   # Removes the `authselect` binary afterwards since `authselect` does not play well with `nss-altfiles`
   # (https://github.com/pbrezina/authselect/issues/48).
