@@ -1,0 +1,5 @@
+[ext]
+name=extensions
+baseurl=http://localhost:9091/
+enabled=1
+gpgcheck=1
