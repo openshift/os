@@ -175,6 +175,8 @@ packages:
  - containernetworking-plugins
  # Pinned due to cosa on Fedora not honoring RHEL 8 modules as expected
  - container-selinux
+ # Needed for newer rpm-ostree
+ - "'skopeo >= 2:1.7.0'"
  - cri-o cri-tools
  # Networking
  - nfs-utils
