@@ -27,8 +27,7 @@
   tracker: https://github.com/coreos/coreos-assembler/issues/2725
   arches:
   - ppc64le
-- pattern: ext.config.shared.binfmt.qemu
-  tracker: https://github.com/openshift/os/pull/874
+- pattern: ext.config.shared.files.file-directory-permissions
+  tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1243
   arches:
   - s390x
-  - aarch64
