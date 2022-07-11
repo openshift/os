@@ -125,7 +125,6 @@ func assertNotInDerivedImage(t *testing.T, cs *framework.ClientSet, node *corev1
 func checkUsingImage(t *testing.T, cs *framework.ClientSet, node *corev1.Node, usingImage bool, status *Status) {
 	// These files are placed on the node by the derived container build process.
 	expectedFiles := []string{
-		"/usr/lib64/libpixman-1.so.0",
 		"/etc/systemd/system/hello-world.service",
 		helloWorldPath,
 	}

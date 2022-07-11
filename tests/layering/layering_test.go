@@ -22,12 +22,13 @@ const (
 	// If this moves from /run, make sure files get cleaned up
 	authfilePath = "/run/ostree/auth.json"
 
-	buildName       = imageStreamName
-	helloWorldPath  = "/usr/bin/hello-world"
-	imageRegistry   = "image-registry.openshift-image-registry.svc:5000"
-	imageStreamName = "test-boot-in-cluster-image"
-	imageURL        = ostreeUnverifiedRegistry + ":" + imageRegistry + "/" + mcoNamespace + "/" + imageStreamName
-	mcoNamespace    = "openshift-machine-config-operator"
+	buildName          = imageStreamName
+	buildConfigMapName = buildName + "-config-map"
+	helloWorldPath     = "/usr/bin/hello-world"
+	imageRegistry      = "image-registry.openshift-image-registry.svc:5000"
+	imageStreamName    = "test-boot-in-cluster-image"
+	imageURL           = ostreeUnverifiedRegistry + ":" + imageRegistry + "/" + mcoNamespace + "/" + imageStreamName
+	mcoNamespace       = "openshift-machine-config-operator"
 
 	// ostreeUnverifiedRegistry means no GPG or container signatures are used.
 	// Right now we're usually relying on digested pulls. See
@@ -60,9 +61,11 @@ func TestBootInClusterImage(t *testing.T) {
 	if deleteBuild != nil && *deleteBuild == true {
 		defer func() {
 			t.Log("Deleting the ImageStream")
-			require.Nil(t, cs.ImageStreams(mcoNamespace).Delete(context.TODO(), imageStreamName, metav1.DeleteOptions{}))
+			require.Nil(t, cs.ImageStreams(mcoNamespace).Delete(ctx, imageStreamName, metav1.DeleteOptions{}))
 			t.Log("Deleting the Image Build")
-			require.Nil(t, cs.BuildV1Interface.Builds(mcoNamespace).Delete(context.TODO(), buildName, metav1.DeleteOptions{}))
+			require.Nil(t, cs.BuildV1Interface.Builds(mcoNamespace).Delete(ctx, buildName, metav1.DeleteOptions{}))
+			t.Log("Deleting the Image Build ConfigMap")
+			require.Nil(t, cs.CoreV1Interface.ConfigMaps(mcoNamespace).Delete(ctx, buildConfigMapName, metav1.DeleteOptions{}))
 		}()
 	}
 
