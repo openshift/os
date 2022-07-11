@@ -111,6 +111,7 @@ kola_test_metal() {
 
 # Ensure that we can create all platform images for COSA CI
 cosa_buildextend_all() {
+    cosa build
     cosa buildextend-aliyun
     cosa buildextend-aws
     cosa buildextend-azure
