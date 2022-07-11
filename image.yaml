@@ -10,6 +10,10 @@ ignition-network-kcmdline: []
 
 ostree-format: "oci"
 
+# vmware-secure-boot changes the EFI secure boot option.
+# set false here due to https://bugzilla.redhat.com/show_bug.cgi?id=2106055
+vmware-secure-boot: "false"
+
 vmware-os-type: rhel8_64Guest
 # VMware hardware versions: https://kb.vmware.com/s/article/1003746
 # Supported VMware versions: https://lifecycle.vmware.com/
