@@ -109,6 +109,34 @@ kola_test_metal() {
     fi
 }
 
+# Ensure that we can create all platform images for COSA CI
+cosa_buildextend_all() {
+    cosa buildextend-aliyun
+    cosa buildextend-aws
+    cosa buildextend-azure
+    cosa buildextend-azurestack
+    cosa buildextend-dasd
+    cosa buildextend-gcp
+    cosa buildextend-ibmcloud
+    cosa buildextend-kubevirt
+    cosa buildextend-live
+    cosa buildextend-metal
+    cosa buildextend-metal4k
+    cosa buildextend-nutanix
+    cosa buildextend-openstack
+    cosa buildextend-powervs
+    cosa buildextend-vmware
+
+    # Will be done in another step
+    # cosa buildextend-qemu
+
+    # Currently not available for RHCOS
+    # cosa buildextend-digitalocean
+    # cosa buildextend-exoscale
+    # cosa buildextend-virtualbox
+    # cosa buildextend-vultr
+}
+
 # Basic syntaxt validation for manifests
 validate() {
     # Create a temporary copy
@@ -157,7 +185,14 @@ main () {
             cosa_init
             cosa_build
             ;;
-        "rhcos-cosa-prow-pr-ci" | "rhcos-86-build-test-qemu")
+        "rhcos-cosa-prow-pr-ci")
+            setup_user
+            cosa_init
+            cosa_build
+            cosa_buildextend_all
+            kola_test_qemu
+            ;;
+        "rhcos-86-build-test-qemu")
             setup_user
             cosa_init
             cosa_build
