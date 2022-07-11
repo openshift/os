@@ -1,4 +1,3 @@
-ARG RHCOS_VERSION=latest
 #Build a newer rpm-ostree
 FROM quay.io/centos/centos:stream8 as rpm-ostree
 RUN sed -i -e 's,enabled=0,enabled=1,' /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
@@ -14,7 +13,7 @@ RUN env CFLAGS='-ggdb -Og' CXXFLAGS='-ggdb -Og' ./autogen.sh --prefix=/usr --lib
 RUN make
 
 ## Downloads the extensions given the extensions.yaml
-FROM registry.ci.openshift.org/rhcos-devel/rhel-coreos:${RHCOS_VERSION} as os
+FROM registry.ci.openshift.org/rhcos-devel/rhel-coreos:latest as os
 
 # Install new rpm-ostree
 COPY --from=rpm-ostree /rpm-ostree/target/debug/rpm-ostree /usr/bin/rpm-ostree
