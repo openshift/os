@@ -109,26 +109,34 @@ kola_test_metal() {
     fi
 }
 
-# Ensure that we can create all platform images for COSA CI
+# The goal of this function is to ensure that we can create all platform images
+# for COSA CI. However, we currently only build a subset of those images as it
+# takes too long to build and test all of them in Prow.
 cosa_buildextend_all() {
-    cosa buildextend-aliyun
-    cosa buildextend-aws
-    cosa buildextend-azure
-    cosa buildextend-azurestack
-    cosa buildextend-dasd
-    cosa buildextend-gcp
-    cosa buildextend-ibmcloud
-    cosa buildextend-kubevirt
-    cosa buildextend-live
+    # Live requires metal image
     cosa buildextend-metal
     cosa buildextend-metal4k
-    cosa buildextend-nutanix
-    cosa buildextend-openstack
-    cosa buildextend-powervs
-    cosa buildextend-vmware
+    cosa buildextend-live
 
-    # Will be done in another step
-    # cosa buildextend-qemu
+    # Do QEMU first as it's required for other platform images
+    cosa buildextend-qemu
+
+    # cosa buildextend-aws
+    # cosa buildextend-gcp
+    # cosa buildextend-azure
+    # cosa buildextend-aliyun
+    # cosa buildextend-azurestack
+    # cosa buildextend-ibmcloud
+    # cosa buildextend-nutanix
+    # cosa buildextend-openstack
+    # cosa buildextend-vmware
+
+    # Currently failling in Prow as this uses buildah / nested containers
+    # cosa buildextend-kubevirt
+
+    # Does not build on x86_64
+    # cosa buildextend-dasd
+    # cosa buildextend-powervs
 
     # Currently not available for RHCOS
     # cosa buildextend-digitalocean
@@ -189,6 +197,7 @@ main () {
             setup_user
             cosa_init
             cosa_build
+            cosa_buildextend_all
             kola_test_qemu
             ;;
         "rhcos-86-build-test-qemu")
