@@ -219,17 +219,32 @@ Alternatively, you can try the [OpenStack VMWare Virtual Serial Port Concentrato
 See <https://access.redhat.com/solutions/5500131>
 The FCOS equivalent is <https://docs.fedoraproject.org/en-US/fedora-coreos/access-recovery/>
 
-## Q: Does RHCOS support multipath?
+## Q: Does RHCOS support multipath on the primary disk?
 
 Yes. Multipath is turned on at installation time by using:
 
 ```bash
-coreos-installer install --append-karg rd.multipath=default --append-karg root=/dev/disk/by-label/dm-mpath-root ...
+coreos-installer install --append-karg rd.multipath=default --append-karg root=/dev/disk/by-label/dm-mpath-root --append-karg rw ...
 ```
+
+(The `rw` karg is required whenever `root` is specified so that systemd mounts it read-write. This matches what `rdcore rootmap` normally does in non-multipath situations.)
 
 If your environment permits it, it's also possible to turn on multipath as a day-2 operation using a MachineConfig object which appends the same kernel arguments. Note however that in some setups, any I/O to non-optimized paths will result in I/O errors. And since there is no guarantee which path the host may select prior to turning on multipath, this may break the system. In these cases, you must enable multipathing at installation time.
 
-Currently, non-default multipath configurations cannot be set at installation time. After booting with the default configuration, you may change the settings in `/etc/multipath.conf` just like on traditional RHEL (see docs [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_device_mapper_multipath/index)). If you need these customized settings to take effect from the initrd, then you will need to enable initramfs regeneration via `rpm-ostree initramfs --enable` and remove the `rd.multipath=default` kernel argument (e.g. `rpm-ostree kargs --delete rd.multipath=default`).
+## Q: Does RHCOS support multipath on secondary disks?
+
+Yes, however setting this up is currently awkward to do. You must set everything up through Ignition units. The following kola test which creates a filesystem on a multipathed device and mounts it at `/var/lib/containers` shows how to do this:
+https://github.com/coreos/coreos-assembler/blob/e98358a42c80a78789295d2b44abe96e885246fb/mantle/kola/tests/misc/multipath.go#L36-L94
+
+Do *not* add `rd.multipath` or `root` unless the primary disk is also multipathed.
+
+### Q: How can multipath settings be modified?
+
+Currently, non-default multipath configurations for the primary disk cannot be set at `coreos-installer` time. You may configure multipath using Ignition or MachineConfigs to modify `/etc/multipath.conf` or ideally to add `/etc/multipath/conf.d` dropins. Configuration documentation for traditional RHEL applies (see docs [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_device_mapper_multipath/index)). If you need these customized settings to take effect from the initrd, then you can add it as an initramfs overlay via `rpm-ostree initramfs-etc --track /etc/multipath.conf --track /etc/multipath` and removing the `rd.multipath=default` kernel argument (e.g. `rpm-ostree kargs --delete rd.multipath=default`).
+
+## Q: Does RHCOS support booting off of iSCSI?
+
+If the device is connected to the host via a HBA then it'll show up transparently as a local disk and should work fine. We do not currently support booting from an iSCSI device where the OS is the initiator. iSCSI on secondary disks should be fine.
 
 ## Q: Does RHCOS support the use of `NetworkManager` keyfiles?  Does RHCOS support the use of `ifcfg` files?
 
