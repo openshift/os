@@ -189,7 +189,6 @@ main () {
             setup_user
             cosa_init
             cosa_build
-            cosa_buildextend_all
             kola_test_qemu
             ;;
         "rhcos-86-build-test-qemu")
