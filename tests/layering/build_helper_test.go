@@ -12,6 +12,7 @@ import (
 	buildv1 "github.com/openshift/api/build/v1"
 	imagev1 "github.com/openshift/api/image/v1"
 	"github.com/openshift/machine-config-operator/test/framework"
+	"github.com/openshift/os/tests/layering/fixtures"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/api/core/v1"
@@ -61,6 +62,10 @@ func (b *builder) build(ctx context.Context) error {
 		return nil
 	}
 
+	if err := b.createConfigMap(ctx); err != nil {
+		return err
+	}
+
 	return b.buildDerivedOSImage(ctx)
 }
 
@@ -101,17 +106,32 @@ func (b *builder) createImageStream(ctx context.Context) (*imagev1.ImageStream, 
 	return imageStream, err
 }
 
+// Creates a configmap which contains the hello-world.go and
+// hello-world.service files for injection into the image build context.
+func (b *builder) createConfigMap(ctx context.Context) error {
+	configMap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: buildConfigMapName,
+		},
+		Data: map[string]string{
+			"hello-world.go":      fixtures.HelloWorldSrc,
+			"hello-world.service": fixtures.HelloWorldService,
+		},
+	}
+
+	_, err := b.clientSet.CoreV1Interface.ConfigMaps(mcoNamespace).Create(ctx, configMap, metav1.CreateOptions{})
+	if err != nil {
+		return fmt.Errorf("could not create build configmap: %w", err)
+	}
+
+	return nil
+}
+
 // Actually perform the OS derivation build and waits for it to complete.
 func (b *builder) buildDerivedOSImage(ctx context.Context) error {
 	baseImagePullSpec := getEnvVarOrDefault("BASE_IMAGE_PULLSPEC", "registry.ci.openshift.org/rhcos-devel/rhel-coreos:latest")
-	derivationRepoURL := getEnvVarOrDefault("DERIVATION_REPO_URL", "https://github.com/coreos/fcos-derivation-example")
-	derivationRepoRef := getEnvVarOrDefault("DERIVATION_REPO_REF", "rhcos")
-	dockerfilePath := getEnvVarOrDefault("DERIVATION_DOCKERFILE_PATH", "Dockerfile")
 
 	b.t.Log("base image pullspec:", baseImagePullSpec)
-	b.t.Log("derivation repo URL:", derivationRepoURL)
-	b.t.Log("derivation repo ref:", derivationRepoRef)
-	b.t.Log("dockerfile path:", dockerfilePath)
 
 	// Create a new build
 	buildConfig := &buildv1.Build{
@@ -121,18 +141,21 @@ func (b *builder) buildDerivedOSImage(ctx context.Context) error {
 		Spec: buildv1.BuildSpec{
 			CommonSpec: buildv1.CommonSpec{
 				Source: buildv1.BuildSource{
-					Type: "Git",
-					Git: &buildv1.GitBuildSource{
-						URI: derivationRepoURL,
-						Ref: derivationRepoRef,
+					ConfigMaps: []buildv1.ConfigMapBuildSource{
+						{
+							ConfigMap: corev1.LocalObjectReference{
+								Name: buildConfigMapName,
+							},
+							DestinationDir: ".",
+						},
 					},
+					Dockerfile: &fixtures.Dockerfile,
 				},
 				Strategy: buildv1.BuildStrategy{
 					DockerStrategy: &buildv1.DockerBuildStrategy{
-						DockerfilePath: dockerfilePath,
 						BuildArgs: []corev1.EnvVar{
 							{
-								Name:  "RHEL_COREOS_IMAGE",
+								Name:  "BASE_OS_IMAGE",
 								Value: baseImagePullSpec,
 							},
 						},
