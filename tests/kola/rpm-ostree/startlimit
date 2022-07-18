@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+# https://github.com/coreos/rpm-ostree/pull/3523/commits/0556152adb14a8e1cdf6c5d6f234aacbe8dd4e3f
+for x in $(seq 10); do rpm-ostree status >/dev/null; done
+echo ok
