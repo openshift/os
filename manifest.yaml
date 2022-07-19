@@ -21,6 +21,7 @@ ostree-layers:
   - overlay/06gcp-routes
   - overlay/15rhcos-logrotate
   - overlay/15rhcos-tuned-bits
+  - overlay/15rhcos-rhel8-workarounds  # TODO conditionalize on rhel8
   - overlay/20platform-chrony
   - overlay/21dhcp-chrony
   - overlay/25rhcos-azure-udev
