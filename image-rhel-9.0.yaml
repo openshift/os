@@ -11,6 +11,8 @@ ostree-format: "oci"
 # set false here due to https://bugzilla.redhat.com/show_bug.cgi?id=2106055
 vmware-secure-boot: false
 
+# rhel9_64Guest requires hardware version 18 and vSphere 7.0U3
+# https://kb.vmware.com/s/article/88157
 vmware-os-type: rhel8_64Guest
 # VMware hardware versions: https://kb.vmware.com/s/article/1003746
 # Supported VMware versions: https://lifecycle.vmware.com/
