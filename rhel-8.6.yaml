@@ -18,6 +18,7 @@ include:
 ostree-layers:
   # Temporary logrotate service and timer units
   - overlay/15rhcos-logrotate
+  - overlay/15rhcos-rhel8-workarounds
   - overlay/25rhcos-azure-udev
 
 # See README.md
