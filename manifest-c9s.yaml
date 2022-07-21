@@ -22,8 +22,8 @@ repos:
   - baseos
   - appstream
   - sig-nfv
-  # Temporarily include RHCOS 8 repo for cri-o, oc & hyperkube
-  - rhel-8-server-ose
+  # Temporarily include RHCOS 9 repo for cri-o, cri-tools, oc & hyperkube
+  - rhel-9-server-ose
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "412.91.<date:%Y%m%d%H%M>"
