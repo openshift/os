@@ -154,8 +154,3 @@ repo-packages:
   - repo: rhel-9-appstream
     packages:
       - nss-altfiles
-  - repo: rhel-9-server-ose
-    packages:
-      # eventually, we want the one from the container-tools module, but we're
-      # not there yet
-      - toolbox
