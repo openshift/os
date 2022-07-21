@@ -15,8 +15,7 @@ include:
 
 # Starting from here, everything should be specific to RHCOS based on RHEL 9.0
 
-# See README.md
-# and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
+# See "Notes about repositories" in `docs/development.md`
 repos:
   - rhel-9-baseos
   - rhel-9-appstream

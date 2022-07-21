@@ -21,8 +21,7 @@ ostree-layers:
   - overlay/15rhcos-rhel8-workarounds
   - overlay/25rhcos-azure-udev
 
-# See README.md
-# and https://github.com/openshift/release/blob/master/core-services/release-controller/README.md#rpm-mirrors
+# See "Notes about repositories" in `docs/development.md`
 repos:
   - rhel-8-baseos
   - rhel-8-appstream
