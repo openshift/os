@@ -49,14 +49,11 @@ extensions:
   # https://github.com/openshift/machine-config-operator/pull/2456
   # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
   # GRPA-3123
-  # - kata-containers (RHAOS)
-  sandboxed-containers:
-    architectures:
-      - x86_64
-    modules:
-      enable:
-        - virt:rhel
-    repos:
-      - appstream
-    packages:
-      - kata-containers
+  # - kata-containers
+  # sandboxed-containers:
+  #   architectures:
+  #     - x86_64
+  #   repos:
+  #     - appstream
+  #   packages:
+  #     - kata-containers
