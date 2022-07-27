@@ -300,6 +300,8 @@ repo-packages:
       - runc
       # newer than what is included in RHEL 8.4.Z EUS, needed to match cri-o changes
       - conmon
+      # newer then what is included in RHEL 8.4.Z EUS
+      - podman skopeo
 
 modules:
   enable:
