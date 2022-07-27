@@ -223,6 +223,8 @@ packages:
  # Used on the bootstrap node
  - systemd-journal-remote
  # Extras
+ # Pin systemd version until we solve https://bugzilla.redhat.com/show_bug.cgi?id=2109546
+ - "'systemd <= 239-45.el8_4.10'"
  - systemd-journal-gateway
  # RHEL7 compatibility
  - compat-openssl10
