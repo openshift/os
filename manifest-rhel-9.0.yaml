@@ -140,7 +140,7 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - redhat-release
- # SCOS package name does not include a version number
+ # Keep the version in sync with SCOS
  - openvswitch2.17
 
 # Packages pinned to specific repos in RHCOS

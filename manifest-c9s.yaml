@@ -138,5 +138,5 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
- # RHCOS package name includes a version number
- - openvswitch2.16
+ # Keep the version in sync with RHCOS
+ - openvswitch2.17

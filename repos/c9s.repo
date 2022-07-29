@@ -33,7 +33,7 @@ gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Officia
 [openvswitch]
 name=CentOS Stream 9 OpenvSwitch
 baseurl=http://mirror.stream.centos.org/SIGs/9-stream/nfv/x86_64/openvswitch-2/
-gpgcheck=0
+gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-# gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-NFV
