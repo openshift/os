@@ -154,3 +154,7 @@ repo-packages:
   - repo: rhel-9-appstream
     packages:
       - nss-altfiles
+  # remove this when newer version in rhel9
+  - repo: rhel-8-server-ose
+    packages:
+      - skopeo
