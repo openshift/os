@@ -104,7 +104,7 @@ try_open() {
     local clevis_id="$(cryptsetup luksDump ${dev} | sed -rn 's|^\s+([0-9]+): clevis|\1|p')"
     if [ -n "${clevis_id}" ]; then
         load_kmods
-        local pin=$(cryptsetup token export --token-id "${cleivs_id}" "${dev}" \
+        local pin=$(cryptsetup token export --token-id "${clevis_id}" "${dev}" \
             | jq -rM '.jwe.protected' | base64 -d | jq -rM '.clevis.pin')
         msg "${dev} is configured for Clevis pin '${pin}'"
         [ "${pin}" == "tpm2" ] || net_waiter
