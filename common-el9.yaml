@@ -1,0 +1,32 @@
+# Manifest shared between CentOS Stream 9 and RHEL 9 variants
+
+postprocess:
+  # Collection of workarounds specific to EL9 variants
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+
+     # FIXME: Force enable dbus-broker to get the dbus.service → dbus-broker.service
+     systemctl enable dbus-broker
+
+     # FIXME: Why is this only broken here?  NM isn't removing the link?
+     sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
+
+     # crio should stop hardcoding things in their config file!
+     # We are apparently somehow pulling in a conmon override in RHCOS
+     # that contains /usr/libexec/crio/conmon - WHY?
+     # sed -i '/conmon.*=/d' /etc/crio/crio.conf
+     # Oh right but the MCO overrides that too so...
+     mkdir -p /usr/libexec/crio
+     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
+
+     # Use crun by default
+     sed -i '/\[crio.runtime\]/a default_runtime="crun"' /etc/crio/crio.conf
+     cat >> /etc/crio/crio.conf <<EOF
+     [crio.runtime.runtimes.crun]
+     runtime_path="/usr/bin/crun"
+     EOF
+
+# Packages that are only for SCOS & RHCOS 9
+packages:
+ - openvswitch2.17

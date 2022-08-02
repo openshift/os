@@ -9,9 +9,11 @@ variables:
   distro: "rhel"
   version: "9.0"
 
-# Include manifests common to all RHEL and CentOS Stream versions
+# Include manifests common to all RHEL and CentOS Stream versions and manifest
+# common to RHEL 9 & C9S variants
 include:
   - common.yaml
+  - common-el9.yaml
 
 # Starting from here, everything should be specific to RHCOS based on RHEL 9.0
 
@@ -108,31 +110,6 @@ postprocess:
 
      ---
      EOF
-  # Collection of workarounds specific to RHEL 9.0 based RHCOS
-  - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-
-     # FIXME: Force enable dbus-broker to get the dbus.service → dbus-broker.service
-     systemctl enable dbus-broker
-
-     # FIXME: Why is this only broken here?  NM isn't removing the link?
-     sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
-
-     # crio should stop hardcoding things in their config file!
-     # We are apparently somehow pulling in a conmon override in RHCOS
-     # that contains /usr/libexec/crio/conmon - WHY?
-     # sed -i '/conmon.*=/d' /etc/crio/crio.conf
-     # Oh right but the MCO overrides that too so...
-     mkdir -p /usr/libexec/crio
-     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
-
-     # Use crun by default
-     sed -i '/\[crio.runtime\]/a default_runtime="crun"' /etc/crio/crio.conf
-     cat >> /etc/crio/crio.conf <<EOF
-     [crio.runtime.runtimes.crun]
-     runtime_path="/usr/bin/crun"
-     EOF
 
 # Packages that are only in RHCOS and not in SCOS or that have special
 # constraints that do not apply to SCOS
@@ -140,8 +117,6 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - redhat-release
- # Keep the version in sync with SCOS
- - openvswitch2.17
 
 # Packages pinned to specific repos in RHCOS
 repo-packages:
