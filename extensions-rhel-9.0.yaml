@@ -53,9 +53,6 @@ extensions:
   sandboxed-containers:
     architectures:
       - x86_64
-    modules:
-      enable:
-        - virt:rhel
     repos:
       - rhel-9-appstream
     packages:
