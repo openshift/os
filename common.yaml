@@ -222,6 +222,8 @@ packages:
  - conntrack-tools
  # Upstream PR https://github.com/coreos/fedora-coreos-config/pull/786
  - WALinuxAgent-udev
+ # Provide fips-mode-setup which is needed by rhcos-fips.sh
+ - crypto-policies-scripts
 
 packages-x86_64:
   # Temporary add of open-vm-tools. Should be removed when containerized
