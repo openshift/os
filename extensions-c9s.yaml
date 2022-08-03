@@ -4,6 +4,7 @@
 
 repos:
   - nfv
+  - sig-virtualization
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
@@ -50,10 +51,10 @@ extensions:
   # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
   # GRPA-3123
   # - kata-containers
-  # sandboxed-containers:
-  #   architectures:
-  #     - x86_64
-  #   repos:
-  #     - appstream
-  #   packages:
-  #     - kata-containers
+  sandboxed-containers:
+    architectures:
+      - x86_64
+    repos:
+      - sig-virtualization
+    packages:
+      - kata-containers

@@ -92,7 +92,7 @@ cosa_build() {
         # Temporary workaround until we have all packages for RHCOS 9
         curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/tmp.repo"
         awk '/rhel-8-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp86.repo"
-        echo "includepkgs=kata-containers,skopeo" >> "src/config/ocp86.repo"
+        echo "includepkgs=skopeo" >> "src/config/ocp86.repo"
         rm "src/config/tmp.repo"
     else
         # Assume C9S/SCOS if the version does not match known values for RHEL
