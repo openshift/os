@@ -21,7 +21,7 @@ include:
 repos:
   - baseos
   - appstream
-  - openvswitch
+  - sig-nfv
   # Temporarily include RHCOS 8 repo for cri-o, oc & hyperkube
   - rhel-8-server-ose
 
