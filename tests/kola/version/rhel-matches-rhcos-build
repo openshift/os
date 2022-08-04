@@ -9,6 +9,10 @@ fatal() {
 
 # check if RHEL version encoded in RHCOS build version matches /etc/os-release
 source /etc/os-release
+# scos does not include RHEL_VERSION
+if [[ ${ID} == "scos" ]]; then
+    RHEL_VERSION=$(echo ${OSTREE_VERSION} | cut -f2 -d.)
+fi
 if [ "${RHEL_VERSION//.}" != "$(echo "${VERSION}" | awk -F "." '{print $2}')" ]; then
   fatal "Error: RHEL version does not match"
 fi

@@ -10,7 +10,16 @@ fatal() {
 # checks to ensure that the only packages from the RHEL major version are included
 
 source /etc/os-release
-var=$(echo "${RHEL_VERSION}" | cut -d. -f1)
+# scos does not include RHEL_VERSION
+if [[ ${ID} == "scos" ]]; then
+    RHEL_VERSION=$(echo ${OSTREE_VERSION} | cut -f2 -d.)
+    var=${RHEL_VERSION:0:1}
+    # now scos is using rhel-8-server-ose
+    # remove this when switch to rhel-9-server-ose
+    exit 0
+else
+    var=$(echo "${RHEL_VERSION}" | cut -d. -f1)
+fi
 for x in $(rpm -qa --queryformat='%{RELEASE}\n' | grep -oP 'el\s*\K\d+'); do
     if [[ "$var" -ne $((x)) ]]; then
         fatal "Error RHEL packages do not match current version"
