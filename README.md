@@ -26,7 +26,7 @@ See the [SCOS development doc](docs/development-scos.md).
 
 ## Building and developing RHEL CoreOS
 
-See the [RHCOS development doc](docs/development.md).
+See the [RHCOS development doc](docs/development-rhcos.md).
 
 ## CI Configuration
 
