@@ -1,5 +1,7 @@
 #!/bin/bash
 # kola: { "exclusive": false }
+# Check that the OS version (C9S, RHEL 9.0) matches the version stored in
+# /etc/os-release
 set -xeuo pipefail
 
 fatal() {
@@ -7,8 +9,18 @@ fatal() {
     exit 1
 }
 
-# check if RHEL version encoded in RHCOS build version matches /etc/os-release
-source /etc/os-release
-if [ "${RHEL_VERSION//.}" != "$(echo "${VERSION}" | awk -F "." '{print $2}')" ]; then
-  fatal "Error: RHEL version does not match"
+ocp_version="$(source /etc/os-release; echo "${VERSION}")"
+variant="$(source /etc/os-release; echo "${ID}")"
+case "${variant}" in
+    "scos")
+        osver="$(source /usr/lib/os-release.stream; echo "${VERSION_ID}")"
+        ;;
+    "rhcos")
+        osver="$(source /usr/lib/os-release.rhel; echo "${VERSION_ID}" | sed 's/\.//')"
+        ;;
+    "*")
+        fatal "Unknown variant"
+esac
+if [[ "${osver}" != "$(echo "${ocp_version}" | awk -F "." '{print $2}')" ]]; then
+  fatal "Error: OS version and /etc/os-release version do not match"
 fi

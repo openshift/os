@@ -1,5 +1,6 @@
 #!/bin/bash
 # kola: { "exclusive": false }
+# Ensure that only packages from the RHEL major version are included
 set -xeuo pipefail
 
 fatal() {
@@ -7,12 +8,28 @@ fatal() {
     exit 1
 }
 
-# checks to ensure that the only packages from the RHEL major version are included
+variant="$(source /etc/os-release; echo "${ID}")"
+case "${variant}" in
+    "scos")
+        osver="$(source /usr/lib/os-release.stream; echo "${VERSION}")"
+        ;;
+    "rhcos")
+        osver="$(source /usr/lib/os-release.rhel; echo "${VERSION}" | cut -d. -f1 )"
+        ;;
+    "*")
+        fatal "Unknown variant"
+esac
 
-source /etc/os-release
-var=$(echo "${RHEL_VERSION}" | cut -d. -f1)
-for x in $(rpm -qa --queryformat='%{RELEASE}\n' | grep -oP 'el\s*\K\d+'); do
-    if [[ "$var" -ne $((x)) ]]; then
-        fatal "Error RHEL packages do not match current version"
+for pkg in $(rpm -qa); do
+    name="$(rpm -q --queryformat='%{NAME}' "${pkg}")"
+    # See https://bugzilla.redhat.com/show_bug.cgi?id=2115815
+    if [[ "${variant}" == "scos" ]] && [[ "${name}" == "shim-x64" ]]; then
+        continue
+    fi
+    # Weirdly, querying the libgcc package on RHEL 8 returns the result twice
+    # so let's read only the first answer
+    release="$(rpm -q --queryformat='%{RELEASE}' "${pkg}" | grep -oP 'el\s*\K\d+' | head -1)"
+    if [[ "${release}" != "${osver}" ]]; then
+        fatal "Found packages '${name}' with release version '${release}' that does not match the OS current version '${osver}'"
     fi
 done

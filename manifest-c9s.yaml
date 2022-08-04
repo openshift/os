@@ -29,7 +29,7 @@ repos:
   - rhel-9-server-ose
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "412.91.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "412.9.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
