@@ -48,6 +48,19 @@ cosa_init() {
     cosa init --transient "${tmp_src}/os"
 }
 
+# Temporary hack while we setup variant support in COSA
+setup_variant() {
+    if [[ ${#} -ne 1 ]]; then
+        echo "This should have been called with a single 'variant' argument"
+        exit 1
+    fi
+    local -r variant="${1}"
+    echo "Selecting variant: ${variant}"
+    ln -snf "manifest-${variant}.yaml" "src/config/manifest.yaml"
+    ln -snf "extensions-${variant}.yaml" "src/config/extensions.yaml"
+    ln -snf "image-${variant}.yaml" "src/config/image.yaml"
+}
+
 # Do a cosa build & cosa build-extensions only.
 # This is called both as part of the build phase and test phase in Prow thus we
 # can not do any kola testing in this function.
@@ -58,13 +71,38 @@ cosa_build() {
     # to X-Y format
     ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
     ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-    prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
-    # Fetch the previous build
-    cosa buildfetch --url="${prev_build_url}"
+
+    # Figure out which version we're building
+    rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
+
+    # Temporary workaround until we publish builds for other versions
+    if [[ "${rhelver}" == "86" ]]; then
+        prev_build_url="${REDIRECTOR_URL}/rhcos-${ocpver}/"
+        # Fetch the previous build
+        cosa buildfetch --url="${prev_build_url}"
+    fi
 
     # Fetch the repos corresponding to the release we are building
-    rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
-    curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    if [[ "${rhelver}" == "86" ]]; then
+        curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+    elif [[ "${rhelver}" == "90" ]]; then
+        curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+
+        # Temporary workaround until we have all packages for RHCOS 9
+        curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/tmp.repo"
+        awk '/rhel-8-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp86.repo"
+        echo "includepkgs=kata-containers,skopeo" >> "src/config/ocp86.repo"
+        rm "src/config/tmp.repo"
+    else
+        # Assume C9S/SCOS if the version does not match known values for RHEL
+        cp "src/config/repos/c9s.repo" "src/config/c9s.repo"
+
+        # Temporary workaround until we have all packages for SCOS
+        curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/tmp.repo"
+        awk '/rhel-9-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp90.repo"
+        echo "includepkgs=cri-o,cri-tools,openshift-clients,openshift-hyperkube" >> "src/config/ocp90.repo"
+        rm "src/config/tmp.repo"
+    fi
 
     # Fetch packages
     cosa fetch
@@ -107,6 +145,17 @@ kola_test_metal() {
             kola testiso -S --qemu-firmware uefi-secure --scenarios iso-live-login,iso-as-disk --output-dir tmp/kola-uefi/secure
         fi
     fi
+}
+
+# Temporary to get EL9 in CI
+kola_test_qemu_light() {
+    cosa buildextend-qemu
+    cosa kola --basic-qemu-scenarios
+}
+kola_test_metal_light() {
+    cosa buildextend-metal
+    cosa buildextend-metal4k
+    cosa buildextend-live
 }
 
 # Ensure that we can create all platform images for COSA CI
@@ -203,7 +252,45 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "rhcos-90-build-test-qemu" | "rhcos-90-build-test-metal" | "scos-9-build-test-qemu" | "scos-9-build-test-metal")
+        "rhcos-90-build-test-qemu")
+            setup_user
+            cosa_init
+            # Temporary. Will be removed once variant support is in COSA
+            setup_variant "rhel-9.0"
+            cosa_build
+            # Temporarily disabled until all tests pass
+            # kola_test_qemu
+            ;;
+        "rhcos-90-build-test-metal" )
+            setup_user
+            cosa_init
+            # Temporary. Will be removed once variant support is in COSA
+            setup_variant "rhel-9.0"
+            cosa_build
+            # Temporarily disabled until all tests pass
+            # kola_test_metal
+            ;;
+        "scos-9-build-test-qemu")
+            setup_user
+            cosa_init
+            # Temporary. Will be removed once variant support is in COSA
+            setup_variant "c9s"
+            cosa_build
+            # Temporary light tests only until all tests pass
+            kola_test_qemu_light
+            # kola_test_qemu
+            ;;
+        "scos-9-build-test-metal" )
+            setup_user
+            cosa_init
+            # Temporary. Will be removed once variant support is in COSA
+            setup_variant "c9s"
+            cosa_build
+            # Temporary light tests only until all tests pass
+            kola_test_metal_light
+            # kola_test_metal
+            ;;
+        "explicitely-disabled-test")
             echo "Disabled tests"
             exit 0
             ;;
