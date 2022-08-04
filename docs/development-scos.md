@@ -36,9 +36,9 @@ Fedora CoreOS].
   $ cp "src/config/repos/c9s.repo" "src/config/c9s.repo"
   ```
 - **Temporary workaround until we have full repos for SCOS:** Add the internal
-  `rhel-8-server-ose` repo definition from RHCOS to `c9s.repo`:
+  `rhel-9-server-ose` repo definition from RHCOS to `c9s.repo`:
   ```
-  [rhel-8-server-ose]
+  [rhel-9-server-ose]
   enabled=1
   gpgcheck=0
   baseurl=http://...
