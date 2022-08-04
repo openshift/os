@@ -131,7 +131,17 @@ postprocess:
      [crio.runtime.runtimes.crun]
      runtime_path="/usr/bin/crun"
      EOF
+  # https://gitlab.com/redhat/centos-stream/rpms/systemd/-/blob/c9s/0004-Avoid-tmp-being-mounted-as-tmpfs-without-the-user-s-.patch
+  - |
+     #!/usr/bin/env bash
+     set -xeuo pipefail
 
+     # Enable tmp-on-tmpfs by default because we don't want to have things
+     # leak across reboots, it increases alignment with FCOS, and also fixes
+     # the Live ISO.  First, verify that RHEL is still disabling.
+     grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
+     echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
+     echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
 # Packages that are only in SCOS and not in RHCOS or that have special
 # constraints that do not apply to RHCOS
 packages:
