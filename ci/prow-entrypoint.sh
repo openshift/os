@@ -253,7 +253,7 @@ main () {
             setup_user
             cosa_init
             # Temporary. Will be removed once variant support is in COSA
-            setup_variant "rhel-9.0"
+            setup_variant "rhel-coreos-9"
             cosa_build
             # Temporarily disabled until all tests pass
             # kola_test_qemu
@@ -262,7 +262,7 @@ main () {
             setup_user
             cosa_init
             # Temporary. Will be removed once variant support is in COSA
-            setup_variant "rhel-9.0"
+            setup_variant "rhel-coreos-9"
             cosa_build
             # Temporarily disabled until all tests pass
             # kola_test_metal
@@ -271,7 +271,7 @@ main () {
             setup_user
             cosa_init
             # Temporary. Will be removed once variant support is in COSA
-            setup_variant "c9s"
+            setup_variant "scos"
             cosa_build
             kola_test_qemu
             ;;
@@ -279,7 +279,7 @@ main () {
             setup_user
             cosa_init
             # Temporary. Will be removed once variant support is in COSA
-            setup_variant "c9s"
+            setup_variant "scos"
             cosa_build
             # Temporary to get SCOS in CI
             kola_test_metal_light
