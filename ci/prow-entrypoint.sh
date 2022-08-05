@@ -149,10 +149,6 @@ kola_test_metal() {
 }
 
 # Temporary to get EL9 in CI
-kola_test_qemu_light() {
-    cosa buildextend-qemu
-    cosa kola --basic-qemu-scenarios
-}
 kola_test_metal_light() {
     cosa buildextend-metal
     cosa buildextend-metal4k
@@ -277,9 +273,7 @@ main () {
             # Temporary. Will be removed once variant support is in COSA
             setup_variant "c9s"
             cosa_build
-            # Temporary light tests only until all tests pass
-            kola_test_qemu_light
-            # kola_test_qemu
+            kola_test_qemu
             ;;
         "scos-9-build-test-metal" )
             setup_user
@@ -287,9 +281,8 @@ main () {
             # Temporary. Will be removed once variant support is in COSA
             setup_variant "c9s"
             cosa_build
-            # Temporary light tests only until all tests pass
+            # Temporary to get SCOS in CI
             kola_test_metal_light
-            # kola_test_metal
             ;;
         *)
             # This case ensures that we exhaustively list the tests that should
