@@ -59,6 +59,7 @@ setup_variant() {
     ln -snf "manifest-${variant}.yaml" "src/config/manifest.yaml"
     ln -snf "extensions-${variant}.yaml" "src/config/extensions.yaml"
     ln -snf "image-${variant}.yaml" "src/config/image.yaml"
+    ln -snf "kola-denylist-${variant}.yaml" "src/config/kola-denylist.yaml"
 }
 
 # Do a cosa build & cosa build-extensions only.
