@@ -291,11 +291,12 @@ main () {
             kola_test_metal_light
             # kola_test_metal
             ;;
-        "explicitely-disabled-test")
-            echo "Disabled tests"
-            exit 0
-            ;;
         *)
+            # This case ensures that we exhaustively list the tests that should
+            # pass for a PR. To add a new test in openshift/os:
+            # 1. Add a new test case here that does nothing and get it merged
+            # 2. Add a new test job in openshift/release that calls this test
+            # 3. Update your test here and debug it with the CI in the PR
             echo "Unknown test name"
             exit 1
             ;;
