@@ -6,9 +6,6 @@ postprocess:
      #!/usr/bin/env bash
      set -xeo pipefail
 
-     # FIXME: Force enable dbus-broker to get the dbus.service → dbus-broker.service
-     systemctl enable dbus-broker
-
      # FIXME: Why is this only broken here?  NM isn't removing the link?
      sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
 
