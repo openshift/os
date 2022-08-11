@@ -5,8 +5,6 @@
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1782026
   arches:
    - s390x
-- pattern: ext.config.chrony.dhcp-propagation
-  tracker: https://github.com/coreos/fedora-coreos-config/commit/3dee27d4487ee0a484858fe60e3c5b1a792d48b9
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
 - pattern: coreos.ignition.mount.*
