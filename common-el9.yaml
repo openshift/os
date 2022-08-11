@@ -1,5 +1,8 @@
 # Manifest shared between CentOS Stream 9 and RHEL 9 variants
 
+include:
+  - fedora-coreos-config/manifests/shared-el9.yaml
+
 postprocess:
   # Collection of workarounds specific to EL9 variants
   - |
