@@ -9,9 +9,6 @@ postprocess:
      #!/usr/bin/env bash
      set -xeo pipefail
 
-     # FIXME: Force enable dbus-broker to get the dbus.service → dbus-broker.service
-     systemctl enable dbus-broker
-
      # FIXME: Why is this only broken here?  NM isn't removing the link?
      sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
 
@@ -29,6 +26,13 @@ postprocess:
      [crio.runtime.runtimes.crun]
      runtime_path="/usr/bin/crun"
      EOF
+
+     # Enable tmp-on-tmpfs by default because we don't want to have things leak
+     # across reboots, it increases alignment with FCOS, and also fixes the
+     # Live ISO. First, verify that RHEL is still disabling.
+     grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
+     echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
+     echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
 
 # Packages that are only for SCOS & RHCOS 9
 packages:

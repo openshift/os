@@ -59,6 +59,7 @@ setup_variant() {
     ln -snf "manifest-${variant}.yaml" "src/config/manifest.yaml"
     ln -snf "extensions-${variant}.yaml" "src/config/extensions.yaml"
     ln -snf "image-${variant}.yaml" "src/config/image.yaml"
+    ln -snf "kola-denylist-${variant}.yaml" "src/config/kola-denylist.yaml"
 }
 
 # Do a cosa build & cosa build-extensions only.
@@ -148,10 +149,6 @@ kola_test_metal() {
 }
 
 # Temporary to get EL9 in CI
-kola_test_qemu_light() {
-    cosa buildextend-qemu
-    cosa kola --basic-qemu-scenarios
-}
 kola_test_metal_light() {
     cosa buildextend-metal
     cosa buildextend-metal4k
@@ -276,9 +273,7 @@ main () {
             # Temporary. Will be removed once variant support is in COSA
             setup_variant "c9s"
             cosa_build
-            # Temporary light tests only until all tests pass
-            kola_test_qemu_light
-            # kola_test_qemu
+            kola_test_qemu
             ;;
         "scos-9-build-test-metal" )
             setup_user
@@ -286,15 +281,15 @@ main () {
             # Temporary. Will be removed once variant support is in COSA
             setup_variant "c9s"
             cosa_build
-            # Temporary light tests only until all tests pass
+            # Temporary to get SCOS in CI
             kola_test_metal_light
-            # kola_test_metal
-            ;;
-        "explicitely-disabled-test")
-            echo "Disabled tests"
-            exit 0
             ;;
         *)
+            # This case ensures that we exhaustively list the tests that should
+            # pass for a PR. To add a new test in openshift/os:
+            # 1. Add a new test case here that does nothing and get it merged
+            # 2. Add a new test job in openshift/release that calls this test
+            # 3. Update your test here and debug it with the CI in the PR
             echo "Unknown test name"
             exit 1
             ;;
