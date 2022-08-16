@@ -35,6 +35,7 @@
   tracker: https://github.com/coreos/fedora-coreos-config/issues/1500
   arches:
     - s390x
+  snooze: 2022-09-15
 
 # Broken tests under investigation
 - pattern: coreos.boot-mirror
