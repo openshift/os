@@ -43,9 +43,6 @@
 - pattern: ext.config.shared.files.dracut-executable
   tracker: https://github.com/openshift/os/issues/942
 - pattern: ext.config.shared.networking.default-network-behavior-change
-- pattern: ext.config.shared.networking.force-persist-ip
-- pattern: ext.config.shared.networking.mtu-on-bond-kargs
-- pattern: ext.config.shared.networking.prefer-ignition-networking
 - pattern: ext.config.shared.podman.dns
 - pattern: ext.config.version.rhel-major-version
 - pattern: ext.config.version.rhel-matches-rhcos-build
