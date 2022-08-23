@@ -6,8 +6,7 @@ rojig:
   summary: OKD 4
 
 variables:
-  distro: "scos"
-  version: "9"
+  osversion: "c9s"
 
 # Include manifests common to all RHEL and CentOS Stream versions and manifest
 # common to RHEL 9 & C9S variants

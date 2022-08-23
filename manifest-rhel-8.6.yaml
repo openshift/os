@@ -6,8 +6,7 @@ rojig:
   summary: OpenShift 4
 
 variables:
-  distro: "rhel"
-  version: "8.6"
+  osversion: "rhel-8.6"
 
 # Include manifests common to all RHEL and CentOS Stream versions
 include:
