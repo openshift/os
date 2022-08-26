@@ -36,47 +36,46 @@ older versions, see the internal documentation.
   ```
   If you're going to work on multiple versions of RHCOS, using a dedicated
   directory for each version is recommended (i.e.  `rhcos-4.11`).
-- Clone the config repo (`openshift/os`):
+
+- **For 4.12 and later only:** Clone the config repo (`openshift/os`), passing
+  as argument the internal Git repo which includes the RPM repo configs and
+  optionaly the specific branch:
   ```
   # Main developement branch, default version
-  $ cosa init https://github.com/openshift/os.git
+  $ cosa init \
+        --yumrepo https://.../redhat-coreos.git \
+        https://github.com/openshift/os.git
 
-  # Release specific branch, default version
-  $ cosa init --branch release-4.10 https://github.com/openshift/os.git
-  ```
-- **Optional and temporary workaround until we have variant support in COSA:**
-  Manually select the RHCOS variant. This is not needed if you want to buid the
-  default variant:
-  ```
-  $ ln -snf "manifest-rhel-9.0.yaml" "src/config/manifest.yaml"
-  $ ln -snf "extensions-rhel-9.0.yaml" "src/config/extensions.yaml"
-  $ ln -snf "image-rhel-9.0.yaml" "src/config/image.yaml"
-  ```
-- Clone the internal `redhat-coreos` repo:
-  ```
-  # Main developement branch
-  $ git clone https://.../redhat-coreos.git
+  # Main developement branch, selecting a specific variant
+  $ cosa init \
+        --yumrepo https://.../redhat-coreos.git \
+        --variant rhel-coreos-9 \
+        https://github.com/openshift/os.git
 
-  # Release specific branch
-  $ git clone --branch 4.11 https://.../redhat-coreos.git
+  # Specific release branch, selecting a specific variant
+  $ cosa init \
+        --branch release-4.12 \
+        --variant rhel-coreos-9 \
+        --yumrepo https://.../redhat-coreos.git \
+        https://github.com/openshift/os.git
   ```
-- Copy the repo files and the `content_sets.yaml` file from the `redhat-coreos`
-  repo into `src/config` (`openshift/os`):
-  ```
-  # For 4.9, 4.10 and 4.11, copy all repo files and content_sets:
-  $ cp redhat-coreos/*.repo src/config/
-  $ cp redhat-coreos/content_sets.yaml src/config/
 
-  # For 4.12 and later, when building the default variant, copy the default
-  # repo and content_sets files:
-  $ cp redhat-coreos/rhel-8.6.repo src/config/
-  $ cp redhat-coreos/content_sets-rhel-8.6.yaml src/config/content_sets.yaml
+- **For 4.11 and earlier only:**
+  - Clone the config repo (`openshift/os`) on the specific branch:
+    ```
+    $ cosa init --branch release-4.10 https://github.com/openshift/os.git
+    ```
+  - Clone the internal `redhat-coreos` repo with the correct branch:
+    ```
+    $ git clone --branch 4.11 https://.../redhat-coreos.git
+    ```
+  - Copy the repo files and the `content_sets.yaml` file from the
+    `redhat-coreos` repo into `src/config` (`openshift/os`):
+    ```
+    $ cp redhat-coreos/*.repo src/config/
+    $ cp redhat-coreos/content_sets.yaml src/config/
+    ```
 
-  # For 4.12 and later, if you want to build a non-default variant then you
-  # have to copy the corresponding versioned files:
-  $ cp redhat-coreos/rhel-9.0.repo src/config/
-  $ cp redhat-coreos/content_sets-rhel-9.0.yaml src/config/content_sets.yaml
-  ```
 - Fetch packages and build RHCOS ostree container and QEMU image:
   ```
   $ cosa fetch
