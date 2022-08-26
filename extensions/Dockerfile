@@ -6,7 +6,8 @@ FROM registry.ci.openshift.org/rhcos-devel/rhel-coreos:latest as os
 RUN mkdir /os
 WORKDIR /os
 ADD . .
-RUN if [ ! -f ocp.repo  ]; then ci/get-ocp-repo.sh ; fi
+ARG COSA
+RUN if [[ -z "$COSA" ]] ; then ci/get-ocp-repo.sh ; fi
 RUN rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ {manifest,extensions}.yaml
 
 ## Creates the repo metadata for the extensions & builds the go binary
