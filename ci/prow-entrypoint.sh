@@ -95,8 +95,6 @@ cosa_build() {
         rm "src/config/tmp.repo"
     else
         # Assume C9S/SCOS if the version does not match known values for RHEL
-        cp "src/config/repos/c9s.repo" "src/config/c9s.repo"
-
         # Temporary workaround until we have all packages for SCOS
         curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/tmp.repo"
         awk '/rhel-9-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp90.repo"
