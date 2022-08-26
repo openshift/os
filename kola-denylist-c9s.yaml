@@ -39,6 +39,7 @@
 
 # Broken tests under investigation
 - pattern: coreos.boot-mirror
+- pattern: crio.base
 - pattern: ext.config.shared.chrony.dhcp-propagation
 - pattern: ext.config.shared.files.dracut-executable
   tracker: https://github.com/openshift/os/issues/942
