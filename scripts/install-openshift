@@ -10,7 +10,7 @@ import textwrap
 import sys
 import uuid
 
-RELEASE_IMAGE_TEMPLATE = "registry.svc.ci.openshift.org/ocp/release"
+RELEASE_IMAGE_TEMPLATE = "registry.ci.openshift.org/ocp/release"
 
 
 def install_oc():
