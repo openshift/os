@@ -4,8 +4,6 @@
 
 repos:
   - rhel-9-nfv
-  # Temporarily included for kata-containers
-  - rhel-8-server-ose
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
