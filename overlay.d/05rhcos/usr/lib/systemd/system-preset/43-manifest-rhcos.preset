@@ -5,6 +5,7 @@
 
 # Upgrade fixes
 enable rhcos-usrlocal-selinux-fixup.service
+enable rhcos-selinux-policy-upgrade.service
 # Enable the iscsi workaround
 enable coreos-generate-iscsi-initiatorname.service
 # Enable auditd. See https://jira.coreos.com/browse/RHCOS-536

@@ -1,0 +1,14 @@
+[Unit]
+Description=RHEL CoreOS Rebuild SELinux Policy If Necessary
+Documentation=https://bugzilla.redhat.com/2057497
+DefaultDependencies=false
+After=systemd-tmpfiles-setup.service local-fs.target
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/libexec/rhcos-rebuild-selinux-policy
+
+[Install]
+WantedBy=sysinit.target
