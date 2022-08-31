@@ -22,21 +22,11 @@ Fedora CoreOS].
   ```
 - Clone the config repo (`openshift/os`):
   ```
-  $ cosa init https://github.com/openshift/os.git
+  $ cosa init --variant scos https://github.com/openshift/os.git
   ```
-- **Temporary workaround until we have variant support in COSA:** Manually
-  select the SCOS variant:
-  ```
-  $ ln -snf "manifest-c9s.yaml" "src/config/manifest.yaml"
-  $ ln -snf "extensions-c9s.yaml" "src/config/extensions.yaml"
-  $ ln -snf "image-c9s.yaml" "src/config/image.yaml"
-  ```
-- Setup the CentOS Stream 9 repos:
-  ```
-  $ cp "src/config/repos/c9s.repo" "src/config/c9s.repo"
   ```
 - **Temporary workaround until we have full repos for SCOS:** Add the internal
-  `rhel-9-server-ose` repo definition from RHCOS to `c9s.repo`:
+  `rhel-9-server-ose` repo definition from RHCOS to `rhcos9.repo`:
   ```
   [rhel-9-server-ose]
   enabled=1

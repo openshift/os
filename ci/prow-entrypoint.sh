@@ -35,6 +35,14 @@ cosa_init() {
         echo "Already in an initialized cosa dir"
         return
     fi
+
+    if [[ ${#} -ne 1 ]]; then
+        echo "This should have been called with a single 'variant' argument"
+        exit 1
+    fi
+    local -r variant="${1}"
+    echo "Using variant: ${variant}"
+
     # Always create a writable copy of the source repo
     tmp_src="$(mktemp -d)"
     cp -a /src "${tmp_src}/os"
@@ -45,21 +53,7 @@ cosa_init() {
     cd "$cosa_dir"
 
     # Setup source tree
-    cosa init --transient "${tmp_src}/os"
-}
-
-# Temporary hack while we setup variant support in COSA
-setup_variant() {
-    if [[ ${#} -ne 1 ]]; then
-        echo "This should have been called with a single 'variant' argument"
-        exit 1
-    fi
-    local -r variant="${1}"
-    echo "Selecting variant: ${variant}"
-    ln -snf "manifest-${variant}.yaml" "src/config/manifest.yaml"
-    ln -snf "extensions-${variant}.yaml" "src/config/extensions.yaml"
-    ln -snf "image-${variant}.yaml" "src/config/image.yaml"
-    ln -snf "kola-denylist-${variant}.yaml" "src/config/kola-denylist.yaml"
+    cosa init --transient --variant "${variant}" "${tmp_src}/os"
 }
 
 # Do a cosa build & cosa build-extensions only.
@@ -68,13 +62,18 @@ setup_variant() {
 # We do not build the QEMU image here as we don't need it in the pure container
 # test case.
 cosa_build() {
+    local manifest="src/config/manifest.yaml"
+    if [[ -f "src/config.json" ]]; then
+        variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
+        manifest="src/config/manifest-${variant}.yaml"
+    fi
     # Grab the raw value of `mutate-os-release` and use sed to convert the value
     # to X-Y format
-    ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
-    ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
+    ocpver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["mutate-os-release"]')
+    ocpver_mut=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
 
     # Figure out which version we're building
-    rhelver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
+    rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
     # Temporary workaround until we publish builds for other versions
     if [[ "${rhelver}" == "86" ]]; then
@@ -228,58 +227,50 @@ main () {
             validate
             ;;
         "build")
-            cosa_init
+            cosa_init "rhel-coreos-8"
             cosa_build
             ;;
         "rhcos-cosa-prow-pr-ci")
             setup_user
-            cosa_init
+            cosa_init "rhel-coreos-8"
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-86-build-test-qemu")
             setup_user
-            cosa_init
+            cosa_init "rhel-coreos-8"
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-86-build-test-metal")
             setup_user
-            cosa_init
+            cosa_init "rhel-coreos-8"
             cosa_build
             kola_test_metal
             ;;
         "rhcos-90-build-test-qemu")
             setup_user
-            cosa_init
-            # Temporary. Will be removed once variant support is in COSA
-            setup_variant "rhel-9.0"
+            cosa_init "rhel-coreos-9"
             cosa_build
             # Temporarily disabled until all tests pass
             # kola_test_qemu
             ;;
         "rhcos-90-build-test-metal" )
             setup_user
-            cosa_init
-            # Temporary. Will be removed once variant support is in COSA
-            setup_variant "rhel-9.0"
+            cosa_init "rhel-coreos-9"
             cosa_build
             # Temporarily disabled until all tests pass
             # kola_test_metal
             ;;
         "scos-9-build-test-qemu")
             setup_user
-            cosa_init
-            # Temporary. Will be removed once variant support is in COSA
-            setup_variant "c9s"
+            cosa_init "scos"
             cosa_build
             kola_test_qemu
             ;;
         "scos-9-build-test-metal" )
             setup_user
-            cosa_init
-            # Temporary. Will be removed once variant support is in COSA
-            setup_variant "c9s"
+            cosa_init "scos"
             cosa_build
             # Temporary to get SCOS in CI
             kola_test_metal_light
