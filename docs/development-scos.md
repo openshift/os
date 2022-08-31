@@ -10,21 +10,25 @@ Fedora CoreOS].
 ## Build process
 
 - Make sure you're meeting the [prerequisites].
+
 - Setup a `cosa` alias, following the [upstream documentation][cosa-alias].
+
 - Always make sure that you have the latest version of the COSA container:
   ```
   $ podman pull quay.io/coreos-assembler/coreos-assembler
   ```
+
 - Create and use a dedicated directory:
   ```
   $ mkdir scos
   $ cd scos
   ```
+
 - Clone the config repo (`openshift/os`):
   ```
   $ cosa init --variant scos https://github.com/openshift/os.git
   ```
-  ```
+
 - **Temporary workaround until we have full repos for SCOS:** Add the internal
   `rhel-9-server-ose` repo definition from RHCOS to `rhcos9.repo`:
   ```
@@ -33,6 +37,7 @@ Fedora CoreOS].
   gpgcheck=0
   baseurl=http://...
   ```
+
 - Fetch packages and build SCOS ostree container and QEMU image:
   ```
   $ cosa fetch
@@ -65,9 +70,17 @@ Fedora CoreOS].
   $ cosa kola run --parallel 2
   ```
 
+## Overriding packages for testing
+
+- If you need to override a file or a package for local testing, you can place
+  those into the `override/rootfs` or `override/rpm` directory before building
+  the image. See the [Using overrides] section from the [COSA
+  documentation][coreos-assembler].
+
 [coreos-assembler]: https://github.com/coreos/coreos-assembler/
 [Building Fedora CoreOS]: https://coreos.github.io/coreos-assembler/building-fcos/
 [prerequisites]: https://coreos.github.io/coreos-assembler/building-fcos/#getting-started---prerequisites
 [cosa-alias]: https://coreos.github.io/coreos-assembler/building-fcos/#define-a-bash-alias-to-run-cosa
 [buildextend]: https://coreos.github.io/coreos-assembler/cosa/#buildextend-commands
 [kola]: https://coreos.github.io/coreos-assembler/kola/
+[Using overrides]: https://coreos.github.io/coreos-assembler/working/#using-overrides
