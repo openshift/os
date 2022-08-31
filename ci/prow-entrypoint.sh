@@ -56,12 +56,8 @@ cosa_init() {
     cosa init --transient --variant "${variant}" "${tmp_src}/os"
 }
 
-# Do a cosa build & cosa build-extensions only.
-# This is called both as part of the build phase and test phase in Prow thus we
-# can not do any kola testing in this function.
-# We do not build the QEMU image here as we don't need it in the pure container
-# test case.
-cosa_build() {
+# Initialize the .repo files
+prepare_repos() {
     local manifest="src/config/manifest.yaml"
     if [[ -f "src/config.json" ]]; then
         variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
@@ -103,7 +99,15 @@ cosa_build() {
         echo "includepkgs=cri-o,cri-tools,openshift-clients,openshift-hyperkube" >> "src/config/ocp90.repo"
         rm "src/config/tmp.repo"
     fi
+}
 
+# Do a cosa build & cosa build-extensions only.
+# This is called both as part of the build phase and test phase in Prow thus we
+# can not do any kola testing in this function.
+# We do not build the QEMU image here as we don't need it in the pure container
+# test case.
+cosa_build() {
+    prepare_repos
     # Fetch packages
     cosa fetch
     # Only build the ostree image by default
@@ -209,7 +213,7 @@ validate() {
 }
 
 main () {
-    if [[ "${#}" -ne 1 ]]; then
+    if [[ "${#}" -lt 1 ]]; then
         echo "This script is expected to be called by Prow with the name of the build phase or test to run"
         exit 1
     fi
@@ -226,7 +230,11 @@ main () {
         "validate")
             validate
             ;;
-        "build")
+        "init")
+            cosa_init "$2"
+            prepare_repos
+            ;;
+        "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
             cosa_init "rhel-coreos-8"
             cosa_build
             ;;
