@@ -1,0 +1,16 @@
+#!/bin/bash
+# Executed by rhcos-selinux-policy-upgrade.service
+set -euo pipefail
+
+RHEL_VERSION=$(. /usr/lib/os-release && echo ${RHEL_VERSION:-})
+echo -n "RHEL_VERSION=${RHEL_VERSION:-}"
+case "${RHEL_VERSION:-}" in
+  8.[0-6]) echo "Checking for policy recompilation";;
+  *) echo "Assuming we have new enough ostree"; exit 0;;
+esac
+
+ls -al /{usr/,}etc/selinux/targeted/policy/policy.31
+if ! cmp --quiet /{usr/,}etc/selinux/targeted/policy/policy.31; then
+    echo "Recompiling policy due to local modifications as workaround for https://bugzilla.redhat.com/2057497"
+    semodule -B
+fi
