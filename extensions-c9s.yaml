@@ -3,7 +3,6 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - nfv
   - sig-virtualization
 
 extensions:
@@ -41,6 +40,8 @@ extensions:
   kernel-rt:
     architectures:
       - x86_64
+    repos:
+      - nfv
     packages:
       - kernel-rt-core
       - kernel-rt-kvm
