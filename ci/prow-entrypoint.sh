@@ -149,13 +149,6 @@ kola_test_metal() {
     fi
 }
 
-# Temporary to get EL9 in CI
-kola_test_metal_light() {
-    cosa buildextend-metal
-    cosa buildextend-metal4k
-    cosa buildextend-live
-}
-
 # Ensure that we can create all platform images for COSA CI
 cosa_buildextend_all() {
     cosa buildextend-aliyun
@@ -278,8 +271,7 @@ main () {
             setup_user
             cosa_init "scos"
             cosa_build
-            # Temporary to get SCOS in CI
-            kola_test_metal_light
+            kola_test_metal
             ;;
         *)
             # This case ensures that we exhaustively list the tests that should
