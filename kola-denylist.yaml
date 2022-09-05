@@ -60,10 +60,6 @@
   osversion:
     - c9s
     - rhel-9.0
-- pattern: ext.config.shared.podman.dns
-  osversion:
-    - c9s
-    - rhel-9.0
 - pattern: ext.config.shared.podman.rootless-systemd
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2123246
   osversion:
