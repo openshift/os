@@ -117,16 +117,18 @@ packages:
  # post-proces script
  - redhat-release
 
-# Packages pinned to specific repos in RHCOS
+# Packages pinned to specific repos in RHCOS 9
 repo-packages:
   # we always want the kernel from BaseOS
   - repo: rhel-9-baseos
     packages:
       - kernel
-  # we want the one shipping in RHEL, not the equivalently versioned one in RHAOS
   - repo: rhel-9-appstream
     packages:
+      # We want the one shipping in RHEL, not the equivalently versioned one in RHAOS
       - nss-altfiles
+      # Use the new containers/toolbox
+      - toolbox
   # TODO: Remove this when newer version of skopeo is available in RHEL9 or RHAOS9
   - repo: rhel-8-server-ose
     packages:
