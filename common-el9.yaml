@@ -20,13 +20,6 @@ postprocess:
      mkdir -p /usr/libexec/crio
      ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
 
-     # Use crun by default
-     sed -i '/\[crio.runtime\]/a default_runtime="crun"' /etc/crio/crio.conf
-     cat >> /etc/crio/crio.conf <<EOF
-     [crio.runtime.runtimes.crun]
-     runtime_path="/usr/bin/crun"
-     EOF
-
      # Enable tmp-on-tmpfs by default because we don't want to have things leak
      # across reboots, it increases alignment with FCOS, and also fixes the
      # Live ISO. First, verify that RHEL is still disabling.
