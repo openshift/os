@@ -45,3 +45,11 @@ gpgcheck=1
 repo_gpgcheck=0
 enabled=1
 gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Virtualization
+
+[okd-copr]
+name=OKD COPR
+baseurl=https://download.copr.fedorainfracloud.org/results/@OKD/okd/centos-stream-9-$basearch/
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/@OKD/okd/pubkey.gpg
