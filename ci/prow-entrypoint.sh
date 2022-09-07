@@ -94,7 +94,7 @@ prepare_repos() {
         # Temporary workaround until we have all packages for SCOS
         curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/tmp.repo"
         awk '/rhel-9-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp90.repo"
-        echo "includepkgs=cri-o,cri-tools,openshift-clients,openshift-hyperkube" >> "src/config/ocp90.repo"
+        echo "includepkgs=openshift-clients,openshift-hyperkube" >> "src/config/ocp90.repo"
         rm "src/config/tmp.repo"
     fi
 }

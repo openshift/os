@@ -25,7 +25,8 @@ repos:
   - baseos
   - appstream
   - sig-nfv
-  # Temporarily include RHCOS 9 repo for cri-o, cri-tools, oc & hyperkube
+  - okd-copr
+  # Temporarily include RHCOS 9 repo for oc & hyperkube
   - rhel-9-server-ose
 
 # We include hours/minutes to avoid version number reuse
