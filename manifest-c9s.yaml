@@ -118,3 +118,16 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
+
+# Packages pinned to specific repos in SCOS 9
+repo-packages:
+  # We always want the kernel from BaseOS
+  - repo: baseos
+    packages:
+      - kernel
+  - repo: appstream
+    packages:
+      # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
+      - nss-altfiles
+      # Use the new containers/toolbox
+      - toolbox
