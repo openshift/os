@@ -11,7 +11,10 @@ RUN if [[ -z "$COSA" ]] ; then ci/get-ocp-repo.sh ; fi
 RUN rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ {manifest,extensions}.yaml
 
 ## Creates the repo metadata for the extensions & builds the go binary
-FROM quay.io/centos/centos:stream8 as builder
+FROM registry.access.redhat.com/ubi8/ubi:latest as builder
+ADD . .
+ARG COSA
+RUN if [[ -z "$COSA" ]] ; then ci/get-ocp-repo.sh ; fi
 COPY --from=os /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 RUN dnf install -y createrepo_c golang
 ADD extensions/repo-server/main.go .
