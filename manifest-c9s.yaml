@@ -132,3 +132,7 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
+  - repo: okd-copr
+    packages:
+      - cri-o
+      - cri-tools
