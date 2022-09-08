@@ -57,14 +57,6 @@
   osversion:
     - c9s
     - rhel-9.0
-- pattern: ext.config.version.rhel-major-version
-  osversion:
-    - c9s
-    - rhel-9.0
-- pattern: ext.config.version.rhel-matches-rhcos-build
-  osversion:
-    - c9s
-    - rhel-9.0
 - pattern: rhcos.network.bond-with-dhcp
   osversion:
     - c9s
