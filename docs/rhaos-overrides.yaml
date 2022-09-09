@@ -1,0 +1,16 @@
+# This file currently is just written (and read) by humans, but
+# it intends to define in a future machine-readable way the
+# desired RHEL packages we want to ship in OCP/RHCOS before
+# they're released by errata.
+# What we want in the future is to implement https://issues.redhat.com/browse/COS-808
+# Basically:
+# - Make multiple versions of packages *available* in RHAOS repos
+# - A pull request to this repo becomes the *source of truth*
+#
+# But for now, we just use this as a public reference for which packages
+# we intend to ship
+
+rhel-8:
+  # Ship https://github.com/coreos/rpm-ostree/pull/3961/commits/6f3370e3b45d855afc37947e255ef25bae3985e3
+  # for https://issues.redhat.com/browse/MCO-356
+  - rpm-ostree-2022.10.94.g89f58028-2.el8
