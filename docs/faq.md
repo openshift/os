@@ -126,13 +126,13 @@ $ oc image info (oc adm release info --image-for=machine-os-content quay.io/open
 $
 ```
 
-The full contents of each RHCOS release are visible in the [release browser](https://releases-rhcos-art.cloud.privileged.psi.redhat.com/) via the "OS contents" link next to each build.
+The full contents of each RHCOS release are visible in the [release browser](https://releases-rhcos-art.apps.ocp-virt.prod.psi.redhat.com) via the "OS contents" link next to each build.
 It's a known issue (bug) that this web page is only accessible inside the private RHT network.
 
 Alternately, you can query the metadata directly (but note that this URL is subject to change).
 
 ```bash
-$ curl -Ls https://releases-rhcos-art.cloud.privileged.psi.redhat.com/storage/releases/rhcos-4.5/45.82.202007140205-0/x86_64/commitmeta.json | jq '.["rpmostree.rpmdb.pkglist"][] | select(.[0] == "cri-o")'
+$ curl -Ls https://releases-rhcos-art.apps.ocp-virt.prod.psi.redhat.com/storage/releases/rhcos-4.5/45.82.202007140205-0/x86_64/commitmeta.json | jq '.["rpmostree.rpmdb.pkglist"][] | select(.[0] == "cri-o")'
 [
   "cri-o",
   "0",
