@@ -25,11 +25,11 @@ mkdir -p /run/cryptsetup
 mkdir -p "${RUN_D}"
 
 msg() {
-    echo "coreos-cryptfs: ${@}"
+    echo "coreos-cryptfs: $*"
 }
 
 fatal() {
-    msg ${@};
+    msg "${@}";
     exit 1;
 }
 
@@ -43,10 +43,10 @@ load_kmods() {
 
 cmd_waiter() {
     local c=0;
-    until ${@} >> /dev/null;
+    until "${@}" >> /dev/null;
     do
         sleep 0.5;
-        c=$(($c + 1))
+        c=$((c + 1))
         if [ "${c}" -gt 60 ]; then
             return 1
         fi
@@ -72,15 +72,18 @@ coreos_token() {
     local dev="${1:?dev must be the first argument}"
 
     # Check if the token is in the LUKS header.
-    local coreos_id="$(cryptsetup luksDump ${dev} | sed -rn 's|^\s+([0-9]+): coreos|\1|p')"
+    local coreos_id
+    coreos_id="$(cryptsetup luksDump "${dev}" | sed -rn 's|^\s+([0-9]+): coreos|\1|p')"
     if [ -z "${coreos_id}" ]; then
         msg "${dev} does not have a coreos LUKS header."
         exit 0
     fi
 
     # Read the token and parse it.
-    local token="$(cryptsetup token export --token-id ${coreos_id} ${dev})"
-    local token_type="$(jq -erM '.type //""' <<<${token})"
+    local token
+    token="$(cryptsetup token export --token-id "${coreos_id}" "${dev}")"
+    local token_type
+    token_type="$(jq -erM '.type //""' <<<"${token}")"
     if [ "${token_type}" != "coreos" ]; then
         cat << EOM
 COREOS: DEVICE ${dev} MISSING LUKS TOKEN ${token_type}"
@@ -94,17 +97,19 @@ EOM
 
 coreos_key() {
     local dev="${1:?dev must be the first argument}"
-    jq -erM '.key' <<<"$(coreos_token ${dev})"
+    jq -erM '.key' <<<"$(coreos_token "${dev}")"
 }
 
 try_open() {
     # Determine if the volume is clevis managed or automatic unlock.
     # The automatic clevis hooks will NOT work since they rely on the systemd
     # crypttab generator.
-    local clevis_id="$(cryptsetup luksDump ${dev} | sed -rn 's|^\s+([0-9]+): clevis|\1|p')"
+    local clevis_id
+    clevis_id="$(cryptsetup luksDump "${dev}" | sed -rn 's|^\s+([0-9]+): clevis|\1|p')"
     if [ -n "${clevis_id}" ]; then
         load_kmods
-        local pin=$(cryptsetup token export --token-id "${clevis_id}" "${dev}" \
+        local pin
+        pin=$(cryptsetup token export --token-id "${clevis_id}" "${dev}" \
             | jq -rM '.jwe.protected' | base64 -d | jq -rM '.clevis.pin')
         msg "${dev} is configured for Clevis pin '${pin}'"
         [ "${pin}" == "tpm2" ] || net_waiter
@@ -112,7 +117,8 @@ try_open() {
         exit $?;
     fi
 
-    local cipher=$(cryptsetup luksDump ${dev} | awk '/cipher/{print$NF;exit}')
+    local cipher
+    cipher=$(cryptsetup luksDump "${dev}" | awk '/cipher/{print$NF;exit}')
     msg "${dev} uses the '${cipher}'"
     if [ "${cipher}" == "cipher_null-ecb" ]; then
         # for null-cipher, us a direct dm-linear target
@@ -120,22 +126,24 @@ try_open() {
         msg "${dev} is not encrypted. Device will be mounted as device-mapper linear target."
 
         # We inline a growpart here since it's simpler than trying to reconfigure dm-linear
-        local major=$((0x$(stat -c '%t' "${dev}")))
-        local minor=$((0x$(stat -c '%T' "${dev}")))
-        local devpath=$(realpath "/sys/dev/block/${major}:${minor}")
-        local partition=$(cat "$devpath/partition")
-        local parent_path=$(dirname "$devpath")
-        local parent_device=/dev/$(basename "${parent_path}")
+        local major minor devpath partition parent_path parent_device
+        major=$((0x$(stat -c '%t' "${dev}")))
+        minor=$((0x$(stat -c '%T' "${dev}")))
+        devpath=$(realpath "/sys/dev/block/${major}:${minor}")
+        partition=$(cat "$devpath/partition")
+        parent_path=$(dirname "$devpath")
+        parent_device=/dev/$(basename "${parent_path}")
 
         # TODO: make this idempotent, and don't error out if
         # we can't resize.
         growpart "${parent_device}" "${partition}" || true
 
-        local dev_size=$(($(blockdev --getsize ${dev}) - ${LUKS_HEADER_OFFSET_SECTORS}))
+        local dev_size=$(($(blockdev --getsize "${dev}") - "${LUKS_HEADER_OFFSET_SECTORS}"))
         echo "0 ${dev_size} linear ${dev} ${LUKS_HEADER_OFFSET_SECTORS}" \
             | dmsetup create coreos-luks-root-nocrypt
     else
-        local key="$(coreos_key ${dev})"
+        local key
+        key="$(coreos_key "${dev}")"
         (echo -en "${key:-x}" | cryptsetup luksOpen "${dev}" coreos-luks-root) ||
            fatal "FAILED to open ${dev}"
     fi
