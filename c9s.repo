@@ -4,7 +4,7 @@ baseurl=http://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
 
 [appstream]
 name=CentOS Stream 9 - AppStream
@@ -12,7 +12,7 @@ baseurl=http://mirror.stream.centos.org/9-stream/AppStream/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
 
 [nfv]
 name=CentOS Stream 9 - NFV
@@ -20,7 +20,7 @@ baseurl=http://mirror.stream.centos.org/9-stream/NFV/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
 
 [rt]
 name=CentOS Stream 9 - RT
@@ -28,7 +28,7 @@ baseurl=http://mirror.stream.centos.org/9-stream/RT/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-Official
 
 [sig-nfv]
 name=CentOS Stream 9 - SIG NFV
@@ -36,7 +36,7 @@ baseurl=http://mirror.stream.centos.org/SIGs/9-stream/nfv/$basearch/openvswitch-
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-NFV
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-NFV
 
 [sig-virtualization]
 name=CentOS Stream 9 - SIG Virtualization
@@ -44,7 +44,7 @@ baseurl=http://mirror.stream.centos.org/SIGs/9-stream/virt/x86_64/kata-container
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Virtualization
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-Virtualization
 
 [okd-copr]
 name=OKD COPR
