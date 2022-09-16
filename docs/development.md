@@ -112,6 +112,6 @@ the portion of the test that uses `curl` to populate the `ocp.repo` (see <https:
 
 For example:
 
-`$ curl -Ls http://base-4-11-rhel8.ocp.svc.cluster.local > src/config/ocp.repo`
+`$ curl --fail -Ls http://base-4-11-rhel8.ocp.svc.cluster.local > src/config/ocp.repo`
 
 1. Build and test normally
