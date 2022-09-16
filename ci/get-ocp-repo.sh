@@ -4,4 +4,4 @@ ocpver=$(rpm-ostree compose tree --print-only manifest.yaml | jq -r '.["mutate-o
 ocpver_mut=$(rpm-ostree compose tree --print-only manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
 rhelver=$(rpm-ostree compose tree --print-only manifest.yaml | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
-curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "ocp.repo"
+curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "ocp.repo"

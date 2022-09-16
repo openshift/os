@@ -80,19 +80,19 @@ prepare_repos() {
 
     # Fetch the repos corresponding to the release we are building
     if [[ "${rhelver}" == "86" ]]; then
-        curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+        curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
     elif [[ "${rhelver}" == "90" ]]; then
-        curl -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+        curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
 
         # Temporary workaround until we have all packages for RHCOS 9
-        curl -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/tmp.repo"
+        curl --fail -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/tmp.repo"
         awk '/rhel-8-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp86.repo"
         echo "includepkgs=skopeo" >> "src/config/ocp86.repo"
         rm "src/config/tmp.repo"
     else
         # Assume C9S/SCOS if the version does not match known values for RHEL
         # Temporary workaround until we have all packages for SCOS
-        curl -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/tmp.repo"
+        curl --fail -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/tmp.repo"
         awk '/rhel-9-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp90.repo"
         echo "includepkgs=openshift-clients,openshift-hyperkube" >> "src/config/ocp90.repo"
         rm "src/config/tmp.repo"
