@@ -178,6 +178,8 @@ packages:
  # Needed for newer rpm-ostree
  - "'skopeo >= 2:1.7.0'"
  - cri-o cri-tools
+ # Not yet in RHEL, dev preview in Openshift
+ - conmon-rs
  # Networking
  - nfs-utils
  - dnsmasq
