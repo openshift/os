@@ -229,6 +229,10 @@ main () {
             cosa_init "rhel-coreos-8"
             cosa_build
             ;;
+        "update-variant")
+            cosa update-variant default "$2"
+            prepare_repos
+            ;;
         "rhcos-cosa-prow-pr-ci")
             setup_user
             cosa_init "rhel-coreos-8"
