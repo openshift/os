@@ -1,0 +1,8 @@
+#!/bin/bash
+## kola:
+##  # readonly test
+##  exclusive: false
+set -xeuo pipefail
+
+# See https://issues.redhat.com/browse/LOG-3117
+test -L /etc/localtime
