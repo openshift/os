@@ -3,7 +3,7 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - sig-virtualization
+  - c9s-sig-virtualization
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
@@ -56,6 +56,6 @@ extensions:
     architectures:
       - x86_64
     repos:
-      - sig-virtualization
+      - c9s-sig-virtualization
     packages:
       - kata-containers

@@ -20,14 +20,12 @@ include:
 ostree-layers:
   - overlay/07c9s
 
-# CentOS Stream 9 repos + internal repos for now
+# CentOS Stream 9 repos + OCP public repos
 repos:
-  - baseos
-  - appstream
-  - sig-nfv
-  - okd-copr
-  # Temporarily include RHCOS 9 repo for oc & hyperkube
-  - rhel-9-server-ose
+  - c9s-baseos
+  - c9s-appstream
+  - c9s-sig-nfv
+  - ocp-412-el8-beta-public
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "412.9.<date:%Y%m%d%H%M>"
@@ -123,16 +121,13 @@ packages:
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
   # We always want the kernel from BaseOS
-  - repo: baseos
+  - repo: c9s-baseos
     packages:
       - kernel
-  - repo: appstream
+  - repo: c9s-appstream
     packages:
       # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
-  - repo: okd-copr
-    packages:
-      - cri-o
-      - cri-tools
+

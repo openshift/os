@@ -1,0 +1,10 @@
+[ocp-412-el8-beta-public]
+name=OpenShift 4.12 RHEL8 RPMs
+baseurl=https://mirror.openshift.com/pub/openshift-v4/$basearch/dependencies/rpms/4.12-el8-beta/
+# For some sad reason, the OCP RPMs aren't GPG signed?  Anyways we should stop caring about RPM GPG
+# and move to pulling RPMs from OCI artifacts
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/redhat/RPM-GPG-KEY-redhat8-release
+
