@@ -26,6 +26,7 @@ repos:
   - appstream
   - sig-nfv
   - okd-copr
+  - epel-9
   # Temporarily include RHCOS 9 repo for oc & hyperkube
   - rhel-9-server-ose
 
@@ -119,6 +120,9 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
+ # Include distribution-gpg-keys for having the GPG keys available
+ # when building the extensions image within the base container via COSA
+ - distribution-gpg-keys
 
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
@@ -136,3 +140,6 @@ repo-packages:
     packages:
       - cri-o
       - cri-tools
+  - repo: epel-9
+    packages:
+      - distribution-gpg-keys

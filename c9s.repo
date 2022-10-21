@@ -53,3 +53,11 @@ gpgcheck=1
 repo_gpgcheck=0
 enabled=1
 gpgkey=https://download.copr.fedorainfracloud.org/results/@OKD/okd/pubkey.gpg
+
+[epel-9]
+name=Extra Packages for Enterprise Linux 9
+baseurl=https://dl.fedoraproject.org/pub/epel/9/Everything/$basearch
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/epel/RPM-GPG-KEY-EPEL-9
