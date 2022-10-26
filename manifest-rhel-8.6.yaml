@@ -151,6 +151,8 @@ packages:
  - compat-openssl10
  # SCOS package name does not include a version number
  - openvswitch2.17
+ # https://github.com/openshift/os/issues/1036
+ - libsemanage-2.9-8.el8
 
 # Packages pinned to specific repos in RHCOS
 repo-packages:
