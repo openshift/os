@@ -346,6 +346,8 @@ packages:
  - conntrack-tools
  # Upstream PR https://github.com/coreos/fedora-coreos-config/pull/786
  - WALinuxAgent-udev
+ # https://github.com/openshift/os/issues/1036
+ - libsemanage-2.9-8.el8
 
 repo-packages:
   # we always want the kernel from BaseOS
