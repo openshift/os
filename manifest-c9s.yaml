@@ -125,7 +125,8 @@ repo-packages:
   # We always want the kernel from BaseOS
   - repo: baseos
     packages:
-      - kernel
+      # Pin the kernel: https://github.com/openshift/os/issues/1039
+      - kernel-5.14.0-168.el9
   - repo: appstream
     packages:
       # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
