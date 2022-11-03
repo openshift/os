@@ -32,10 +32,9 @@
   arches:
   - s390x
 - pattern: ext.config.shared.kdump.crash
-  tracker: https://github.com/coreos/fedora-coreos-config/issues/1500
+  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2080063
   arches:
     - s390x
-  snooze: 2022-09-15
 
 # This test does not affect RHEL 8.6 but we're keeping it for EL9
 - pattern: ext.config.shared.networking.hostname.fallback-hostname
