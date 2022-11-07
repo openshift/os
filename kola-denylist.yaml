@@ -55,3 +55,10 @@
 # Temporary to unblock COSA CI
 - pattern: ext.config.shared.clhm.network-device-info
   tracker: https://github.com/openshift/os/issues/1041
+
+# Remove this when fixed NetworkManager-1.41.4-2 is delivered to c9s
+- pattern: ext.config.shared.networking.mtu-on-bond-ignition
+  tracker: https://github.com/openshift/os/issues/1057
+  osversion:
+    - c9s
+  snooze: 2022-11-15
