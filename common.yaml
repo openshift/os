@@ -164,6 +164,13 @@ postprocess:
         done
     done
 
+remove-files:
+  # We don't ship man(1) or info(1)
+  - usr/share/info
+  - usr/share/man
+  # Drop text docs too
+  - usr/share/doc
+
 etc-group-members:
   - wheel
   - sudo
