@@ -3,7 +3,7 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - rhel-9-nfv
+  - rhel-9.0-nfv
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
@@ -54,6 +54,6 @@ extensions:
     architectures:
       - x86_64
     repos:
-      - rhel-9-appstream
+      - rhel-9.0-appstream
     packages:
       - kata-containers
