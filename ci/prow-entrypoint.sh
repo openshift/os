@@ -17,9 +17,11 @@ REDIRECTOR_URL="https://rhcos-redirector.apps.art.xq1c.p1.openshiftapps.com/art/
 setup_user() {
     user_id="$(id -u)"
     group_id="$(id -g)"
+    # create a homedir we're sure our UID will have access to
+    homedir=$(mktemp -d -p /var/tmp)
 
-    grep -v "^builder" /etc/passwd > /tmp/passwd
-    echo "builder:x:${user_id}:${group_id}::/home/builder:/bin/bash" >> /tmp/passwd
+    grep -v "^prowbuilder" /etc/passwd > /tmp/passwd
+    echo "prowbuilder:x:${user_id}:${group_id}::${homedir}:/bin/bash" >> /tmp/passwd
     cat /tmp/passwd > /etc/passwd
     rm /tmp/passwd
 
