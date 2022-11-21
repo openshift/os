@@ -3,7 +3,7 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - rhel-8-server-ose
+  - rhel-8.6-server-ose-4.13
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
@@ -57,6 +57,6 @@ extensions:
       enable:
         - virt:rhel
     repos:
-      - rhel-8-appstream
+      - rhel-8.6-appstream
     packages:
       - kata-containers
