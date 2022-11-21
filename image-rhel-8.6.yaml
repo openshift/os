@@ -8,9 +8,8 @@ squashfs-compression: gzip
 # defaulting to `ip=dhcp,dhcp6 rd.neednet=1` when it doesn't see this key.
 ignition-network-kcmdline: []
 
-# See https://github.com/coreos/coreos-assembler/pull/3014 - this
-# will hopefully be the default soon, but trying to enable it here first.
-ostree-format: "oci-chunked-v1"
+# Keep OCP metadata on our container image, but xref https://github.com/openshift/os/issues/1047
+ostree-container-inject-openshift-cvo-labels: true
 
 # vmware-secure-boot changes the EFI secure boot option.
 # set false here due to https://bugzilla.redhat.com/show_bug.cgi?id=2106055
