@@ -3,7 +3,7 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - rhel-8-nfv
+  - rhel-8-server-ose
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
