@@ -88,14 +88,14 @@ prepare_repos() {
 
         # Temporary workaround until we have all packages for RHCOS 9
         curl --fail -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/tmp.repo"
-        awk '/rhel-8-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp86.repo"
+        awk '/rhel-8.6-server-ose-4.13/,/^$/' "src/config/tmp.repo" > "src/config/ocp86.repo"
         echo "includepkgs=skopeo" >> "src/config/ocp86.repo"
         rm "src/config/tmp.repo"
     else
         # Assume C9S/SCOS if the version does not match known values for RHEL
         # Temporary workaround until we have all packages for SCOS
         curl --fail -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/tmp.repo"
-        awk '/rhel-9-server-ose/,/^$/' "src/config/tmp.repo" > "src/config/ocp90.repo"
+        awk '/rhel-9.0-server-ose-4.13/,/^$/' "src/config/tmp.repo" > "src/config/ocp90.repo"
         echo "includepkgs=openshift-clients,openshift-hyperkube" >> "src/config/ocp90.repo"
         rm "src/config/tmp.repo"
     fi

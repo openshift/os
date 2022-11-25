@@ -18,12 +18,12 @@ include:
 
 # See "Notes about repositories" in `docs/development.md`
 repos:
-  - rhel-9-baseos
-  - rhel-9-appstream
-  - rhel-9-fast-datapath
+  - rhel-9.0-baseos
+  - rhel-9.0-appstream
+  - rhel-9.0-fast-datapath
   # Temporarily include RHCOS 8 repo for skopeo
-  - rhel-8-server-ose
-  - rhel-9-server-ose
+  - rhel-8.6-server-ose-4.13
+  - rhel-9.0-server-ose-4.13
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "413.90.<date:%Y%m%d%H%M>"
@@ -120,16 +120,16 @@ packages:
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
   # we always want the kernel from BaseOS
-  - repo: rhel-9-baseos
+  - repo: rhel-9.0-baseos
     packages:
       - kernel
-  - repo: rhel-9-appstream
+  - repo: rhel-9.0-appstream
     packages:
       # We want the one shipping in RHEL, not the equivalently versioned one in RHAOS
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
   # TODO: Remove this when newer version of skopeo is available in RHEL9 or RHAOS9
-  - repo: rhel-8-server-ose
+  - repo: rhel-8.6-server-ose-4.13
     packages:
       - skopeo
