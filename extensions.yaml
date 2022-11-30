@@ -3,7 +3,7 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 repos:
-  - rhel-8-nfv
+  - rhel-8.4-nfv
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
@@ -55,6 +55,6 @@ extensions:
         # for qemu-kiwi
         - virt:av
     repos:
-      - rhel-8-advanced-virt
+      - rhel-8.4-advanced-virt
     packages:
       - kata-containers
