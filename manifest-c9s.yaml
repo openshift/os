@@ -27,7 +27,7 @@ repos:
   - sig-nfv
   - okd-copr
   # Temporarily include RHCOS 9 repo for oc & hyperkube
-  - rhel-9-server-ose
+  - rhel-9.0-server-ose-4.12
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "412.9.<date:%Y%m%d%H%M>"
