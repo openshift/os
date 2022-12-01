@@ -85,12 +85,6 @@ prepare_repos() {
         curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
     elif [[ "${rhelver}" == "90" ]]; then
         curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
-
-        # Temporary workaround until we have all packages for RHCOS 9
-        curl --fail -L "http://base-${ocpver_mut}-rhel86.ocp.svc.cluster.local" -o "src/config/tmp.repo"
-        awk '/rhel-8.6-server-ose-4.13/,/^$/' "src/config/tmp.repo" > "src/config/ocp86.repo"
-        echo "includepkgs=skopeo" >> "src/config/ocp86.repo"
-        rm "src/config/tmp.repo"
     else
         # Assume C9S/SCOS if the version does not match known values for RHEL
         # Temporary workaround until we have all packages for SCOS
