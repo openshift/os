@@ -129,7 +129,3 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
-  # TODO: Remove this when newer version of skopeo is available in RHEL9 or RHAOS9
-  - repo: rhel-8.6-server-ose-4.13
-    packages:
-      - skopeo
