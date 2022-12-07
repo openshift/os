@@ -1,0 +1,99 @@
+#!/bin/bash
+# Verify that replacing with an older centos kernel works, and that
+# replacing with kernel-rt works.
+## kola:
+##  tags: "needs-internet"
+##  timeoutMin: 30
+set -euo pipefail
+
+. $KOLA_EXT_DATA/commonlib.sh
+# Execute a command verbosely, i.e. echoing its arguments to stderr
+runv () {
+    ( set -x ; $@ )
+}
+
+basearch=$(arch)
+rhelver=$(. /usr/lib/os-release && echo $RHEL_VERSION)
+major=$(echo $rhelver | cut -f 1 -d .)
+baseurl=
+case "${major}" in
+    8)
+        # TODO: why the heck does centos only support insecure http?!?
+        baseurl=http://mirror.centos.org/centos/8-stream/
+        # TODO avoid hardcoding versions
+        target_kver=4.18.0-383.el8
+        target_kver_rt=4.18.0-394.rt7.179.el8
+        ;;
+    9) 
+        # TODO: why the heck does centos only support insecure http?!?
+        baseurl=http://mirror.stream.centos.org/9-stream/
+        # TODO avoid hardcoding versions
+        target_kver=5.14.0-196.el9
+        target_kver_rt=5.14.0-201.rt14.202.el9
+        ;;
+    *)  fatal "Unhandled RHEL_VERSION=${rhelver}"
+        ;;
+esac
+
+case "${AUTOPKGTEST_REBOOT_MARK:-}" in
+"")
+    echo "Testing overriding with previous CentOS Stream kernel"
+    kver=$(uname -r)
+    if test "${kver}" = "${target_kver}"; then
+        fatal "Already in ${target_kver}"
+    fi
+    tmpdir=$(mktemp -d -p /var/tmp)
+    pushd $tmpdir
+    runv curl -sSLf --remote-name-all ${baseurl}/BaseOS/$basearch/os/Packages/kernel{,-core,-modules,-modules-extra}-${target_kver}.${basearch}.rpm
+    runv rpm-ostree override replace ./*.rpm
+    popd
+    rm $tmpdir -rf
+    runv /tmp/autopkgtest-reboot 1
+    ;;
+1)
+    case $(uname -r) in 
+        ${target_kver}.${basearch})
+            echo "ok kernel override"
+            ;;
+        *) 
+            runv uname -r
+            runv rpm -q kernel
+            fatal "Failed to apply kernel override to ${target_kver}"
+            ;;
+    esac
+
+    echo "Testing overriding with CentOS Stream RT kernel"
+    case $basearch in
+        x86_64) 
+            tmpdir=$(mktemp -d -p /var/tmp)
+            pushd $tmpdir
+            runv rpm-ostree override reset -a
+            runv curl -sSLf --remote-name-all ${baseurl}/NFV/$basearch/os/Packages/kernel-rt{-core,-modules,-modules-extra,-kvm}-${target_kver_rt}.${basearch}.rpm
+            args=()
+            for x in ./*.rpm; do
+                args+=(--install ./$x)
+            done
+            runv rpm-ostree override remove kernel{,-core,-modules,-modules-extra} "${args[@]}"
+            rm $tmpdir -rf
+            runv /tmp/autopkgtest-reboot 2
+            ;;
+        *) echo "note: no kernel-rt for $basearch"; exit 0
+            ;;
+    esac
+    ;;
+2) 
+    case $(uname -r) in 
+        ${target_kver_rt}.${basearch}) echo "ok kernel-rt" ;;
+        *) 
+           uname -r
+           rpm -q kernel-rt
+           fatal "Failed to apply kernel override to ${target_kver_rt}"
+        ;;
+    esac
+    ;;
+*)
+    fatal "Unhandled reboot mark ${AUTOPKGTEST_REBOOT_MARK:-}"
+    ;;
+esac
+
+echo ok
