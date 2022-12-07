@@ -117,7 +117,7 @@ packages:
 
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
-  # we always want the kernel from BaseOS
+  # We always want the kernel from BaseOS
   - repo: rhel-9.0-baseos
     packages:
       - kernel
@@ -127,3 +127,13 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
+  - repo: rhel-9.0-server-ose-4.13
+    packages:
+      # Updated CoreOS packages
+      - afterburn
+      - afterburn-dracut
+      - coreos-installer
+      - coreos-installer-bootinfra
+      - ignition
+      - rpm-ostree
+      - rpm-ostree-libs
