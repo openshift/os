@@ -127,3 +127,13 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
+  - repo: rhel-9.0-server-ose-4.12
+    packages:
+      # Updated CoreOS packages
+      - afterburn
+      - afterburn-dracut
+      - coreos-installer
+      - coreos-installer-bootinfra
+      - ignition
+      - rpm-ostree
+      - rpm-ostree-libs
