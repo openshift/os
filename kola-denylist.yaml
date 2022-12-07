@@ -35,6 +35,8 @@
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2080063
   arches:
     - s390x
+- pattern: rhcos.upgrade.from-ocp-rhcos
+  tracker: https://github.com/coreos/coreos-assembler/issues/3270
 
 # This test does not affect RHEL 8.6 but we're keeping it for EL9
 - pattern: ext.config.shared.networking.hostname.fallback-hostname
