@@ -1,6 +1,8 @@
 # This file documents currently known-to-fail kola tests. It is consumed by
 # coreos-assembler to automatically skip some tests. For more information,
 # see: https://github.com/coreos/coreos-assembler/pull/866.
+- pattern: rhcos.upgrade.from-ocp-rhcos
+  tracker: https://github.com/coreos/coreos-assembler/issues/3270
 - pattern: fips.enable*
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1782026
   arches:
