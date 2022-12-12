@@ -62,3 +62,20 @@
   osversion:
     - c9s
   snooze: 2022-11-15
+
+- pattern: ext.config.shared.networking.force-persist-ip
+  tracker: https://github.com/fedora-selinux/selinux-policy/commit/c86d943538f907c2e6b20ffda0a8d2b5b5bd2e34
+  osversion:
+    - rhel-9.0
+- pattern: ext.config.shared.networking.mtu-on-bond-kargs
+  tracker: https://github.com/fedora-selinux/selinux-policy/commit/c86d943538f907c2e6b20ffda0a8d2b5b5bd2e34
+  osversion:
+    - rhel-9.0
+- pattern: ext.config.shared.networking.no-persist-ip
+  tracker: https://github.com/fedora-selinux/selinux-policy/commit/c86d943538f907c2e6b20ffda0a8d2b5b5bd2e34
+  osversion:
+    - rhel-9.0
+- pattern: ext.config.shared.networking.prefer-ignition-networking
+  tracker: https://github.com/fedora-selinux/selinux-policy/commit/c86d943538f907c2e6b20ffda0a8d2b5b5bd2e34
+  osversion:
+    - rhel-9.0
