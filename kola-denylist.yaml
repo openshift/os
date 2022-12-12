@@ -17,3 +17,8 @@
    - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
+# New s390x cluster is to slow to run this test
+- pattern: luks.tang
+  tracker: https://github.com/openshift/os/issues/1093
+  arches:
+    - s390x
