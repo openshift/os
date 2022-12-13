@@ -72,3 +72,11 @@
   tracker: https://github.com/fedora-selinux/selinux-policy/commit/c86d943538f907c2e6b20ffda0a8d2b5b5bd2e34
   osversion:
     - rhel-9.0
+- pattern: ext.config.shared.networking.nameserver
+  tracker: https://github.com/openshift/os/issues/1096
+  osversion:
+    - rhel-9.0
+- pattern: ext.config.shared.networking.bridge-static-via-kargs
+  tracker: https://github.com/openshift/os/issues/1096
+  osversion:
+    - rhel-9.0
