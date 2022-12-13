@@ -63,6 +63,9 @@
     - c9s
   snooze: 2022-11-15
 
+- pattern: ext.config.rpm-ostree.replace-rt-kernel
+  tracker: https://github.com/openshift/os/issues/1099
+
 - pattern: ext.config.shared.networking.force-persist-ip
   tracker: https://github.com/fedora-selinux/selinux-policy/commit/c86d943538f907c2e6b20ffda0a8d2b5b5bd2e34
   osversion:
