@@ -247,15 +247,13 @@ main () {
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
-            # Temporarily disabled until all tests pass
-            # kola_test_qemu
+            kola_test_qemu
             ;;
         "rhcos-90-build-test-metal" )
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
-            # Temporarily disabled until all tests pass
-            # kola_test_metal
+            kola_test_metal
             ;;
         "scos-9-build-test-qemu")
             setup_user
