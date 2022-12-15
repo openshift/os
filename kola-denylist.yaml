@@ -42,10 +42,6 @@
     - rhel-8.6
 
 # Broken tests for EL9 under investigation
-- pattern: ext.config.shared.files.dracut-executable
-  tracker: https://github.com/openshift/os/issues/942
-  osversion:
-    - rhel-9.0
 - pattern: ext.config.shared.podman.rootless-systemd
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2123246
   osversion:
