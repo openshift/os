@@ -24,7 +24,7 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     setsebool -P container_manage_cgroup on
     /tmp/autopkgtest-reboot changed-policy
     ;;
-    "changed-policy") 
+    "changed-policy")
     if test "${service_should_start}" = "1" && ! grep -qFe 'Recompiling policy' logs.txt; then
         cat logs.txt
         fatal "Failed to recompile policy on first boot"

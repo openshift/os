@@ -9,7 +9,7 @@
 # the initramfs [1], but that change isn't in el8 yet. This can be
 # dropped when moving to el9.
 #
-# [1] https://src.fedoraproject.org/rpms/WALinuxAgent/c/521b67bc8575f53a30b4b2c4e63292e67483a4e1?branch=rawhide 
+# [1] https://src.fedoraproject.org/rpms/WALinuxAgent/c/521b67bc8575f53a30b4b2c4e63292e67483a4e1?branch=rawhide
 
 install() {
     inst_multiple \

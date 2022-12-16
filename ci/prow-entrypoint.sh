@@ -197,6 +197,35 @@ validate() {
     git submodule update --init --recursive
     # Basic syntax check
     ./fedora-coreos-config/ci/validate
+
+    # Validate shell scripts with ShellCheck
+    if [[ -z "$(command -v shellcheck)" ]]; then
+        sudo dnf install -y ShellCheck
+    fi
+
+    local found_errors="false"
+    # Let's start with error, then we can do warning, info, style
+    local -r severity="error"
+
+    set +x
+    while IFS= read -r -d '' f; do
+        shebang="$(head -1 "${f}")"
+        if [[ "${f}" == *.sh ]] || \
+            [[ ${shebang} =~ ^#!/.*/bash.* ]] || \
+            [[ ${shebang} =~ ^#!/.*/env\ bash ]]; then
+            echo "[+] Checking ${f}"
+            shellcheck --shell bash --external-sources --severity="${severity}" "${f}" || found_errors="true"
+            bash -n "${f}" || found_errors="true"
+        fi
+    done< <(find . -path "./.git" -prune -o -type f -print0)
+
+    if [[ "${found_errors}" != "false" ]]; then
+        echo "[+] Found errors with ShellCheck"
+        exit 1
+    fi
+
+    echo "[+] No error found with ShellCheck!"
+    exit 0
 }
 
 main () {

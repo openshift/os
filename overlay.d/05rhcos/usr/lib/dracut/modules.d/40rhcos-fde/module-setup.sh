@@ -68,12 +68,12 @@ install() {
         tr
         umount
     )
-    inst_multiple ${bins[@]}
+    inst_multiple "${bins[@]}"
 
     # Needed for clevis binding
     inst_dir /usr/share/cracklib
     for x in /usr/share/cracklib/*; do
-        inst $x
+        inst "${x}"
     done
 
     # Needed for TPM2 devices
