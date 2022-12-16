@@ -157,7 +157,7 @@ packages:
 # Packages pinned to specific repos in RHCOS
 repo-packages:
   # we always want the kernel from BaseOS
-  - repo: rhel-8.6-baseos
+  - repo: rhel-8.6-server-ose-4.12
     packages:
       - kernel
   # we want the one shipping in RHEL, not the equivalently versioned one in RHAOS
