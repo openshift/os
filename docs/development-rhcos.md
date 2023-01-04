@@ -55,11 +55,10 @@ and later. For older versions, see the internal documentation.
   export RHCOS_REPO="..."
   ```
 
-- **For 4.12 and later only:** Clone the config repo (`openshift/os`), passing
-  as argument the internal Git repo which includes the RPM repo configs and
-  optionaly the specific branch. As the Red Hat CA are not included in the cosa
-  container by default, we spawn a shell inside the COSA container and add them
-  manually for the initial clone:
+- Clone the config repo (`openshift/os`), passing as argument the internal Git 
+  repo which includes the RPM repo configs and optionaly the specific branch. 
+  As the Red Hat CA are not included in the cosa container by default, we spawn 
+  a shell inside the COSA container and add them manually for the initial clone:
   ```
   $ cosa shell
   [coreos-assembler]$ export RH_CA="..."
@@ -89,22 +88,6 @@ and later. For older versions, see the internal documentation.
   ```
   [coreos-assembler]$ exit
   ```
-
-- **For 4.11 and earlier only:**
-  - Clone the config repo (`openshift/os`) on the specific branch:
-    ```
-    $ cosa init --branch release-4.10 https://github.com/openshift/os.git
-    ```
-  - Clone the internal `redhat-coreos` repo with the correct branch:
-    ```
-    $ git clone --branch 4.10 "${RHCOS_REPO}"
-    ```
-  - Copy the repo files and the `content_sets.yaml` file from the
-    `redhat-coreos` repo into `src/config` (`openshift/os`):
-    ```
-    $ cp redhat-coreos/*.repo src/config/
-    $ cp redhat-coreos/content_sets.yaml src/config/
-    ```
 
 - Fetch packages and build RHCOS ostree container and QEMU image:
   ```
