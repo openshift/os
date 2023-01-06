@@ -35,11 +35,7 @@
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2080063
   arches:
     - s390x
-
-# This test does not affect RHEL 8.6 but we're keeping it for EL9
-- pattern: ext.config.shared.networking.hostname.fallback-hostname
-  osversion:
-    - rhel-8.6
+  snooze: 2023-01-25
 
 # Broken tests for EL9 under investigation
 - pattern: ext.config.shared.podman.rootless-systemd
@@ -51,13 +47,6 @@
 # Temporary to unblock COSA CI
 - pattern: ext.config.shared.clhm.network-device-info
   tracker: https://github.com/openshift/os/issues/1041
-
-# Remove this when fixed NetworkManager-1.41.4-2 is delivered to c9s
-- pattern: ext.config.shared.networking.mtu-on-bond-ignition
-  tracker: https://github.com/openshift/os/issues/1057
-  osversion:
-    - c9s
-  snooze: 2022-11-15
 
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1099
