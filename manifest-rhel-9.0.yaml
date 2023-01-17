@@ -114,7 +114,8 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - redhat-release
-
+ # See https://github.com/openshift/os/issues/1110
+ - device-mapper-multipath-0.8.7-7.el9_0.1
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
   # we always want the kernel from BaseOS
