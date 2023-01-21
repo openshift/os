@@ -24,6 +24,7 @@ ostree-layers:
   - overlay/15rhcos-rhel8-workarounds  # TODO conditionalize on rhel8
   - overlay/20platform-chrony
   - overlay/21dhcp-chrony
+  - overlay/25azure-udev-rules
   - overlay/25rhcos-azure-udev
 
 arch-include:
