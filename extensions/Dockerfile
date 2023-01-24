@@ -9,7 +9,7 @@ ADD . .
 ARG COSA
 ARG VARIANT
 RUN if [[ -z "$COSA" ]] ; then ci/get-ocp-repo.sh ; fi
-RUN if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIONS="extensions-${VARIANT}.yaml"; else MANIFEST="manifest.yaml"; EXTENSIONS="extensions.yaml"; fi && rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ "${MANIFEST}" "${EXTENSIONS}"
+RUN if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIONS="extensions-${VARIANT}.yaml"; else MANIFEST="manifest.yaml"; EXTENSIONS="extensions.yaml"; fi && rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ ./"${MANIFEST}" ./"${EXTENSIONS}"
 
 ## Creates the repo metadata for the extensions & builds the go binary.
 ## This uses Fedora as a lowest-common-denominator because it will work on
