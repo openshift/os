@@ -14,6 +14,14 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
 
+[extras-common]
+name=CentOS Stream 9 - Extras packages
+baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
+
 [nfv]
 name=CentOS Stream 9 - NFV
 baseurl=http://mirror.stream.centos.org/9-stream/NFV/$basearch/os

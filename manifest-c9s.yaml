@@ -24,6 +24,8 @@ ostree-layers:
 repos:
   - baseos
   - appstream
+  # For NFV & Virtualization SIG GPG keys
+  - extras-common
   - sig-nfv
   # Include RHCOS 9 repo for oc, hyperkube, cri-o, conmon-rs
   - rhel-9.0-server-ose-4.13
@@ -120,6 +122,9 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
+ # GPG keys for NFV & Virtualization SIGs
+ - centos-release-virt-common
+ - centos-release-nfv-common
 
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
