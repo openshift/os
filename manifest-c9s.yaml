@@ -25,9 +25,10 @@ repos:
   - baseos
   - appstream
   - sig-nfv
-  - okd-copr
-  # Temporarily include RHCOS 9 repo for oc & hyperkube
+  # Include RHCOS 9 repo for oc, hyperkube, cri-o, conmon-rs
   - rhel-9.0-server-ose-4.13
+  # Use this repo to build SCOS with OKD SCOS packages
+  # - okd-copr
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "413.9.<date:%Y%m%d%H%M>"
@@ -132,7 +133,14 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
-  - repo: okd-copr
+  - repo: rhel-9.0-server-ose-4.13
     packages:
+      - conmon-rs
       - cri-o
       - cri-tools
+      - openshift-clients
+      - openshift-hyperkube
+  # - repo: okd-copr
+  #   packages:
+  #     - cri-o
+  #     - cri-tools
