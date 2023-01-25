@@ -9,11 +9,6 @@ ADD . .
 ARG COSA
 ARG VARIANT
 RUN if [[ -z "$COSA" ]] ; then ci/get-ocp-repo.sh ; fi
-RUN mkdir -p /usr/share/distribution-gpg-keys/centos
-RUN ln -s /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial /usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
-RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
-RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-NFV
-RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Virtualization
 RUN if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIONS="extensions-${VARIANT}.yaml"; else MANIFEST="manifest.yaml"; EXTENSIONS="extensions.yaml"; fi && rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ ./"${MANIFEST}" ./"${EXTENSIONS}"
 
 ## Creates the repo metadata for the extensions & builds the go binary.
