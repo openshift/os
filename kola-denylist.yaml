@@ -80,3 +80,6 @@
   tracker: https://github.com/openshift/os/issues/1096
   osversion:
     - rhel-9.0
+- pattern: rhcos.upgrade.from-ocp-rhcos/verify-no-pkg-downgrades
+  osversion:
+    - rhel-9.0
