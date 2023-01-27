@@ -27,6 +27,8 @@ repos:
   # For NFV & Virtualization SIG GPG keys
   - extras-common
   - sig-nfv
+  # Temporary repo for openvswitch on s390x
+  - copr:copr.fedorainfracloud.org:amoralej:openvswitch-s390x
   # Include RHCOS 9 repo for oc, hyperkube, cri-o, conmon-rs
   - rhel-9.0-server-ose-4.13
   # Use this repo to build SCOS with OKD SCOS packages
