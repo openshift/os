@@ -31,6 +31,12 @@ repos:
   # - rhel-9.2-fast-datapath
   # - rhel-9.2-server-ose-4.13
 
+arch-include:
+  s390x:
+    # Temporary repo for openvswitch on s390x
+    # See: https://lists.centos.org/pipermail/centos-devel/2023-January/142752.html
+    - openvswitch-s390x.yaml
+
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "413.92.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
