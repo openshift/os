@@ -3,6 +3,10 @@
 include:
   - fedora-coreos-config/manifests/shared-el9.yaml
 
+# EL9 specific overlays
+ostree-layers:
+  - overlay/07el9
+
 postprocess:
   # Collection of workarounds specific to EL9 variants
   - |

@@ -16,10 +16,6 @@ include:
 
 # Starting from here, everything should be specific to SCOS
 
-# SCOS specific overlays
-ostree-layers:
-  - overlay/07c9s
-
 # CentOS Stream 9 repos + internal repos for now
 repos:
   - baseos
