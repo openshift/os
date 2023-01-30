@@ -46,6 +46,12 @@
     - c9s
     - rhel-9.0
 
+# Temporary while we're using C9S
+- pattern: ext.config.version.rhel-matches-rhcos-build
+  tracker: ''
+  osversion:
+    - rhel-9.0
+
 # This test is broken
 - pattern: ext.config.shared.networking.default-network-behavior-change
   tracker: ''
