@@ -42,15 +42,14 @@
 # Broken tests for EL9 under investigation
 - pattern: ext.config.shared.podman.rootless-systemd
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2123246
-  osversion:
-    - c9s
-    - rhel-9.0
+
+# We're using some COPR stuff intentionally
+- pattern: ext.config.shared.content-origins
+  tracker: ''
 
 # Temporary while we're using C9S
 - pattern: ext.config.version.rhel-matches-rhcos-build
   tracker: ''
-  osversion:
-    - rhel-9.0
 
 # This test is broken
 - pattern: ext.config.shared.networking.default-network-behavior-change
