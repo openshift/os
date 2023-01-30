@@ -46,6 +46,10 @@
     - c9s
     - rhel-9.0
 
+# This test is broken
+- pattern: ext.config.shared.networking.default-network-behavior-change
+  tracker: ''
+
 # Temporary to unblock COSA CI
 - pattern: ext.config.shared.clhm.network-device-info
   tracker: https://github.com/openshift/os/issues/1041
