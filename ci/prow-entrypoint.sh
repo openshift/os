@@ -271,13 +271,13 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "rhcos-90-build-test-qemu")
+        "rhcos-92-build-test-qemu"|"rhcos-90-build-test-qemu")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
             kola_test_qemu
             ;;
-        "rhcos-90-build-test-metal" )
+        "rhcos-92-build-test-metal"|"rhcos-90-build-test-metal")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build

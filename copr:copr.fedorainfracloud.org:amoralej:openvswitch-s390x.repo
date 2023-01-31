@@ -1,0 +1,11 @@
+# See https://lists.centos.org/pipermail/centos-devel/2023-January/142752.html
+[copr:copr.fedorainfracloud.org:amoralej:openvswitch-s390x]
+name=Copr repo for openvswitch-s390x owned by amoralej
+baseurl=https://download.copr.fedorainfracloud.org/results/amoralej/openvswitch-s390x/centos-stream-9-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/amoralej/openvswitch-s390x/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1

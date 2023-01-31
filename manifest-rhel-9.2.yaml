@@ -1,12 +1,12 @@
-# Manifest for CentOS Stream CoreOS (SCOS)
+# Manifest for RHCOS based on RHEL 9.2 (C9S for now)
 
 rojig:
   license: MIT
-  name: scos
-  summary: OKD 4
+  name: rhcos
+  summary: OpenShift 4
 
 variables:
-  osversion: "c9s"
+  osversion: "rhel-9.2"
 
 # Include manifests common to all RHEL and CentOS Stream versions and manifest
 # common to RHEL 9 & C9S variants
@@ -14,22 +14,31 @@ include:
   - common.yaml
   - common-el9.yaml
 
-# Starting from here, everything should be specific to SCOS
+# Starting from here, everything should be specific to RHCOS based on RHEL 9.2
 
-# CentOS Stream 9 repos + internal repos for now
+# See "Notes about repositories" in `docs/development.md`
 repos:
   - baseos
   - appstream
   # For NFV & Virtualization SIG GPG keys
   - extras-common
   - sig-nfv
-  # OKD SCOS builds of cri-o & cri-tools
-  - okd-copr
-  # Include RHCOS 9 repo for oc, hyperkube and conmon-rs
+  # Include RHCOS 9.0 repo for oc, hyperkube, cri-o, conmon-rs
   - rhel-9.0-server-ose-4.13
+  # Uncomment and switch to the following once ready
+  # - rhel-9.2-baseos
+  # - rhel-9.2-appstream
+  # - rhel-9.2-fast-datapath
+  # - rhel-9.2-server-ose-4.13
+
+arch-include:
+  s390x:
+    # Temporary repo for openvswitch on s390x
+    # See: https://lists.centos.org/pipermail/centos-devel/2023-January/142752.html
+    - openvswitch-s390x.yaml
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "413.9.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "413.92.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
@@ -41,30 +50,31 @@ postprocess:
      set -xeo pipefail
 
      # Tweak /usr/lib/os-release
-     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.stream
+     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.rhel
      OCP_RELEASE="4.13"
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
      NAME="${NAME} CoreOS"
-     ID="scos"
+     ID="rhcos"
      ID_LIKE="rhel fedora"
      VERSION="${OSTREE_VERSION}"
      VERSION_ID="${OCP_RELEASE}"
      VARIANT="CoreOS"
      VARIANT_ID=coreos
      PLATFORM_ID="${PLATFORM_ID}"
-     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION}"
+     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION} (Plow)"
      ANSI_COLOR="${ANSI_COLOR}"
-     CPE_NAME="${CPE_NAME}::coreos"
+     CPE_NAME="${CPE_NAME%baseos}coreos"
      HOME_URL="${HOME_URL}"
-     DOCUMENTATION_URL="https://docs.okd.io/latest/welcome/index.html"
-     BUG_REPORT_URL="https://access.redhat.com/labs/rhir/"
+     DOCUMENTATION_URL="https://docs.openshift.com/container-platform/${OCP_RELEASE}/"
+     BUG_REPORT_URL="https://bugzilla.redhat.com/"
      REDHAT_BUGZILLA_PRODUCT="OpenShift Container Platform"
      REDHAT_BUGZILLA_PRODUCT_VERSION="${OCP_RELEASE}"
      REDHAT_SUPPORT_PRODUCT="OpenShift Container Platform"
      REDHAT_SUPPORT_PRODUCT_VERSION="${OCP_RELEASE}"
      OPENSHIFT_VERSION="${OCP_RELEASE}"
+     RHEL_VERSION="${VERSION_ID}"
      OSTREE_VERSION="${OSTREE_VERSION}"
      EOF
      )
@@ -101,8 +111,8 @@ postprocess:
      # See: https://projects.engineering.redhat.com/browse/COREOS-1029
      . /etc/os-release
      cat > /etc/motd <<EOF
-     CentOS Stream CoreOS $VERSION
-       Part of OKD ${OPENSHIFT_VERSION}, SCOS is a Kubernetes native operating system
+     Red Hat Enterprise Linux CoreOS $VERSION
+       Part of OpenShift ${OPENSHIFT_VERSION}, RHCOS is a Kubernetes native operating system
        managed by the Machine Config Operator (\`clusteroperator/machine-config\`).
 
      WARNING: Direct SSH access to machines is not recommended; instead,
@@ -112,29 +122,36 @@ postprocess:
      ---
      EOF
 
-# Packages that are only in SCOS and not in RHCOS or that have special
-# constraints that do not apply to RHCOS
+# Packages that are only in RHCOS and not in SCOS or that have special
+# constraints that do not apply to SCOS
 packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
+ # TODO: Uncomment when ready
+ # - redhat-release
  # GPG keys for NFV & Virtualization SIGs
  - centos-release-virt-common
  - centos-release-nfv-common
 
-# Packages pinned to specific repos in SCOS 9
+# Packages pinned to specific repos in RHCOS 9
 repo-packages:
   # We always want the kernel from BaseOS
+  # - repo: rhel-9.0-baseos
   - repo: baseos
     packages:
       - kernel
+  # - repo: rhel-9.0-appstream
   - repo: appstream
     packages:
-      # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
+      # We want the one shipping in RHEL, not the equivalently versioned one in RHAOS
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
-  - repo: okd-copr
+  - repo: rhel-9.0-server-ose-4.13
     packages:
+      - conmon-rs
       - cri-o
       - cri-tools
+      - openshift-clients
+      - openshift-hyperkube
