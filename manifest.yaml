@@ -350,10 +350,6 @@ packages:
  - libsemanage-2.9-8.el8
 
 repo-packages:
-  # we always want the kernel from BaseOS
-  - repo: rhel-8.6-baseos
-    packages:
-      - kernel
   # we want the one shipping in RHEL, not the equivalently versioned one in RHAOS
   - repo: rhel-8.6-appstream
     packages:
