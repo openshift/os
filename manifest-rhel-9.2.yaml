@@ -22,7 +22,6 @@ repos:
   - appstream
   # For NFV & Virtualization SIG GPG keys
   - extras-common
-  - sig-nfv
   # Include RHCOS 9.0 repo for oc, hyperkube, cri-o, conmon-rs
   - rhel-9.0-server-ose-4.13
   # Uncomment and switch to the following once ready
@@ -36,6 +35,10 @@ arch-include:
     # Temporary repo for openvswitch on s390x
     # See: https://lists.centos.org/pipermail/centos-devel/2023-January/142752.html
     - openvswitch-s390x.yaml
+  # And for the other architectures, include CentOS sig-nfv
+  x86_64: openvswitch-non-s390x.yaml
+  ppc64le: openvswitch-non-s390x.yaml
+  aarch64: openvswitch-non-s390x.yaml
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "413.92.<date:%Y%m%d%H%M>"
