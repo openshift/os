@@ -142,6 +142,19 @@ $ curl -Ls https://releases-rhcos-art.apps.ocp-virt.prod.psi.redhat.com/storage/
 ]
 ```
 
+## Q: How do I manually find the extension RPMs?
+
+In 4.12 and earlier, the extension RPMs are shipped as part of the
+`machine-os-content` image (in the `/extensions` directory of the image). As above, you
+can use `oc adm release info` to get the `machine-os-content` image URL for a
+particular release, and then e.g. use `oc image extract` or `podman create` +
+`podman copy` to extract the RPMs.
+
+In 4.13 and later, extensions are shipped as a separate image. The image label is
+`rhel-coreos-8-extensions` and the RPMs are located in `/usr/share/rpm-ostree/extensions`.
+The container also works as an HTTP server serving repodata containing the extensions
+RPMs (port 9091).
+
 ## Q: How do I debug Ignition failures?
 
 Today, when Ignition fails, it will wait in an "emergency shell" for 5 minutes.
