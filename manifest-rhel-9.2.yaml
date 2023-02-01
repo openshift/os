@@ -133,9 +133,6 @@ packages:
  - centos-release
  # TODO: Uncomment when ready
  # - redhat-release
- # GPG keys for NFV & Virtualization SIGs
- - centos-release-virt-common
- - centos-release-nfv-common
 
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
