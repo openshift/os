@@ -1,7 +1,0 @@
-repos:
-  - sig-nfv
-
-packages:
- # GPG keys for NFV & Virtualization SIGs
- - centos-release-virt-common
- - centos-release-nfv-common
