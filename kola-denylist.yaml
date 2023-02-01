@@ -80,6 +80,7 @@
   tracker: https://github.com/openshift/os/issues/1096
   osversion:
     - rhel-9.0
-- pattern: rhcos.upgrade.from-ocp-rhcos/verify-no-pkg-downgrades
+- pattern: rhcos.upgrade.from-ocp-rhcos*
+  tracker: "Deny upgrades until we have a RHEL9 build for 4.12"
   osversion:
     - rhel-9.0
