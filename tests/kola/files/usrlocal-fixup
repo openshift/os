@@ -1,9 +1,10 @@
 #!/bin/bash
-
+## kola:
+##   exclusive: false
+#
 # This is RHCOS only
 # https://github.com/openshift/os/pull/672
 
-# kola: { "exclusive": false }
 set -xeuo pipefail
 
 . $KOLA_EXT_DATA/commonlib.sh

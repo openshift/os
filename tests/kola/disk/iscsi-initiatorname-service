@@ -1,10 +1,11 @@
 #!/bin/bash
-
+## kola:
+##   exclusive: false
+#
 # By default coreos-generate-iscsi-initiatorname.service is active on RHCOS,
 # inactive on FCOS
 # https://github.com/openshift/os/pull/453
 
-# kola: { "exclusive": false }
 set -xeuo pipefail
 
 . $KOLA_EXT_DATA/commonlib.sh

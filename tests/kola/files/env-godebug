@@ -1,6 +1,8 @@
 #!/bin/bash
-# kola: { "exclusive": false }
-# verify environment variable `GODEBUG=x509ignoreCN=0` in initrd
+## kola:
+##   exclusive: false
+#
+# Verify environment variable `GODEBUG=x509ignoreCN=0` in initrd
 # See:
 # - https://bugzilla.redhat.com/show_bug.cgi?id=1886134
 # - https://github.com/openshift/os/pull/441

@@ -1,12 +1,15 @@
 #!/bin/bash
+## kola:
+##   tags: "needs-internet"
+##   timeoutMin: 30
+#
 # Verify that replacing with an older centos kernel works, and that
 # replacing with kernel-rt works.
-## kola:
-##  tags: "needs-internet"
-##  timeoutMin: 30
+
 set -euo pipefail
 
 . $KOLA_EXT_DATA/commonlib.sh
+
 # Execute a command verbosely, i.e. echoing its arguments to stderr
 runv () {
     ( set -x ; "${@}" )
