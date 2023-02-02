@@ -2,10 +2,6 @@
 # https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
-repos:
-  # - rhel-9.0-nfv
-  - sig-virtualization
-
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
