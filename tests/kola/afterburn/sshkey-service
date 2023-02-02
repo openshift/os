@@ -7,10 +7,7 @@
 
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 if [ "$(systemctl is-enabled afterburn-sshkeys@.service)" = enabled ]; then
     fatal "Error: afterburn-sshkeys@ is enabled"

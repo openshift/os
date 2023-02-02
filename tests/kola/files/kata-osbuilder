@@ -8,10 +8,7 @@
 
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 config="/usr/lib/systemd/system-preset/45-rhcos-extensions.preset"
 

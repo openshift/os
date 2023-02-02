@@ -2,10 +2,7 @@
 # kola: { "exclusive": false }
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 if ! test -f /usr/bin/qemu-ga; then
   fatal "Error: missing qemu guest agent"

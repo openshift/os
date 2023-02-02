@@ -4,5 +4,7 @@
 ##  exclusive: false
 set -xeuo pipefail
 
+. $KOLA_EXT_DATA/commonlib.sh
+
 # See https://issues.redhat.com/browse/LOG-3117
 test -L /etc/localtime

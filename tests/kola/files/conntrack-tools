@@ -5,10 +5,7 @@
 # kola: { "exclusive": false }
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 if ! rpm --quiet -q conntrack-tools; then
     fatal "Error: conntrack-tools is not installed"

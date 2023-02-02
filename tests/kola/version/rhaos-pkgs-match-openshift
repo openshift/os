@@ -5,10 +5,7 @@
 # kola: { "exclusive": false }
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 # Check that rhaos packages do not match the OpenShift version
 if [[ $(rpm -qa | grep rhaos | grep -v $OPENSHIFT_VERSION) ]]; then

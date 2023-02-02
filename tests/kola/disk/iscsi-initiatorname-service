@@ -7,14 +7,7 @@
 # kola: { "exclusive": false }
 set -xeuo pipefail
 
-ok() {
-    echo "ok" "$@"
-}
-
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 if ! systemctl show -p ActiveState coreos-generate-iscsi-initiatorname.service | grep -q ActiveState=active; then
     fatal "Error: coreos-generate-iscsi-initiatorname.service not active"
