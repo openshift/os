@@ -37,6 +37,10 @@
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2080063
   arches:
     - s390x
+- pattern: luks.*
+  tracker: https://github.com/openshift/os/issues/1149
+  arches:
+   - ppc64le
 
 # Broken tests for EL9 under investigation
 - pattern: ext.config.shared.podman.rootless-systemd
