@@ -126,6 +126,11 @@ packages:
  # TODO: Uncomment when ready
  # - redhat-release
 
+arch-include:
+  x86_64: centos-virt.yaml
+  aarch64: centos-virt.yaml
+  ppc64le: centos-virt.yaml
+
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
   # - repo: rhel-9.0-appstream
