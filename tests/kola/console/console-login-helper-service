@@ -1,18 +1,12 @@
 #!/bin/bash
-
+## kola:
+##   exclusive: false
+#
 # This is RHCOS only
 
-# kola: { "exclusive": false }
 set -xeuo pipefail
 
-ok() {
-    echo "ok" "$@"
-}
-
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 # Check that we have the proper presets for console-login-helper-messages in RHCOS.
 # Versions of CLHM prior to v0.21 have `issuegen`-related systemd units.

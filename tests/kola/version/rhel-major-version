@@ -1,12 +1,12 @@
 #!/bin/bash
-# kola: { "exclusive": false }
+## kola:
+##   exclusive: false
+#
 # Ensure that only packages from the RHEL major version are included
+
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 variant="$(source /etc/os-release; echo "${ID}")"
 case "${variant}" in
