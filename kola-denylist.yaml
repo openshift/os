@@ -41,6 +41,7 @@
   tracker: https://github.com/openshift/os/issues/1149
   arches:
    - ppc64le
+   - aarch64
 
 # Broken tests for EL9 under investigation
 - pattern: ext.config.shared.podman.rootless-systemd
