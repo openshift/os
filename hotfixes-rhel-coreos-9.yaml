@@ -1,0 +1,5 @@
+hotfixes:
+  - osmajor: "8"
+    repo: rhel-8.6-appstream
+    packages:
+      - rpm-ostree # For https://issues.redhat.com/browse/OCPBUGS-7275

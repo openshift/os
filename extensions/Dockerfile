@@ -27,9 +27,10 @@ RUN mkdir /build
 RUN go build -o /build/webserver main.go
 RUN createrepo_c /usr/share/rpm-ostree/extensions/
 
-## Final container that has the extensions and webserver
+## Final container that has the extensions, hotfixes and webserver
 FROM registry.access.redhat.com/ubi9/ubi:latest
 COPY --from=builder /build/webserver /usr/bin/webserver
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
+COPY --from=os /os/hotfixes/ /usr/share/rpm-ostree/extensions/hotfixes/
 CMD ["./usr/bin/webserver"]
 EXPOSE 9091/tcp
