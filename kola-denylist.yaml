@@ -43,10 +43,6 @@
    - ppc64le
    - aarch64
 
-# Broken tests for EL9 under investigation
-- pattern: ext.config.shared.podman.rootless-systemd
-  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2123246
-
 # We're using some COPR stuff intentionally
 - pattern: ext.config.shared.content-origins
   tracker: ''
