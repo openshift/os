@@ -1,13 +1,13 @@
 #!/bin/bash
-# kola: { "exclusive": false }
+## kola:
+##   exclusive: false
+#
 # Check that the OS version (C9S, RHEL 9.0) matches the version stored in
 # /etc/os-release
+
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 ocp_version="$(source /etc/os-release; echo "${VERSION}")"
 variant="$(source /etc/os-release; echo "${ID}")"

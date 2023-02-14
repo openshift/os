@@ -1,15 +1,13 @@
 #!/bin/bash
-
+## kola:
+##   exclusive: false
+#
 # This is RHCOS only
 # https://github.com/openshift/os/pull/672
 
-# kola: { "exclusive": false }
 set -xeuo pipefail
 
-fatal() {
-    echo "$@" >&2
-    exit 1
-}
+. $KOLA_EXT_DATA/commonlib.sh
 
 if ! test -f /var/lib/.coreos-usrlocal-fixup.stamp; then
     fatal "Error: missing /var/lib/.coreos-usrlocal-fixup.stamp"

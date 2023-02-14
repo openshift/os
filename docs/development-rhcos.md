@@ -68,12 +68,12 @@ and later. For older versions, see the internal documentation.
 
   # Main developement branch, default version
   [coreos-assembler]$ cosa init \
-        --yumrepo "${RHCOS_REPO}" \
+        --yumrepos "${RHCOS_REPO}" \
         https://github.com/openshift/os.git
 
   # Main developement branch, selecting a specific variant
   [coreos-assembler]$ cosa init \
-        --yumrepo "${RHCOS_REPO}" \
+        --yumrepos "${RHCOS_REPO}" \
         --variant rhel-coreos-9 \
         https://github.com/openshift/os.git
 
@@ -81,7 +81,7 @@ and later. For older versions, see the internal documentation.
   [coreos-assembler]$ cosa init \
         --branch release-4.12 \
         --variant rhel-coreos-9 \
-        --yumrepo "${RHCOS_REPO}" \
+        --yumrepos "${RHCOS_REPO}" \
         https://github.com/openshift/os.git
   ```
   You can then close the temporary `cosa shell` environment:

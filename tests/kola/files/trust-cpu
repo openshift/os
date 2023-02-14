@@ -1,6 +1,7 @@
 #!/bin/bash
-# kola: { "exclusive": false }
-
+## kola:
+##   exclusive: false
+#
 # This is RHCOS only.
 # This test will start failing and can be removed when RHCOS
 # gets to kernel version 6.2+
