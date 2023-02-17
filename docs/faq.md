@@ -62,23 +62,32 @@ The other bit is related to the above - RHCOS has [code to propagate
 kernel commandline arguments](https://github.com/coreos/ignition-dracut/pull/89) to ifcfg files, FCOS doesn't have an equivalent
 of this for NetworkManager config files.
 
-## Q: How do I upgrade the OS?
+## Q: How do I upgrade the OS manually or outside of a cluster?
 
-OS upgrades are integrated with cluster upgrades; so you `oc adm upgrade`, use
-the console etc.  See also <https://github.com/openshift/machine-config-operator/blob/master/docs/OSUpgrades.md>
+By default, the operating system is upgraded [as part of cluster upgrades](https://docs.openshift.com/container-platform/4.12/updating/index.html).
 
-However, if you're a developer/tester and want to try something different; see
-this document <https://github.com/openshift/machine-config-operator/blob/master/docs/HACKING.md#hacking-on-machine-os-content>
+For testing/development flows, the OS can be upgraded manually.  As of OpenShift 4.12+,
+[OCP CoreOS Layering](https://docs.openshift.com/container-platform/4.12/post_installation_configuration/coreos-layering.html)
+was implemented.  As part of this, a huge change is that the host code (rpm-ostree) can now directly pull and upgrade from a container image.
 
-For example, to directly switch to the `machine-os-content` from a release image like
-<https://openshift-release.svc.ci.openshift.org/releasestream/4.2.0-0.nightly/release/4.2.0-0.nightly-2019-11-06-011942>
-You could do:
+The doc says "Use the oc adm release info --image-for rhel-coreos-8 command to obtain the base image used in your cluster." so e.g.:
 
-```bash
-$ oc adm release info --image-for=machine-os-content  quay.io/openshift-release-dev/ocp-release:4.2.10
-quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:02d810d3eb284e684bd20d342af3a800e955cccf0bb55e23ee0b434956221bdd
-$ pivot quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:02d810d3eb284e684bd20d342af3a800e955cccf0bb55e23ee0b434956221bdd
 ```
+$ oc adm release info --image-for=rhel-coreos-8 quay.io/openshift-release-dev/ocp-release:4.12.4-x86_64
+quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:329a8968765c2eca37d8cbd95ecab0400b5252a680eea9d279f41d7a8b4fdb93
+```
+
+Now, you can directly on a host system (which may not be joined to a cluster, just e.g. booted and provisioned with a SSH key),
+write your [OpenShift pull secret](https://console.redhat.com/openshift/downloads#tool-pull-secret) to `/etc/ostree/auth.json`
+(or `/run/ostree/auth.json`) - this step can be done via Ignition or manually.
+
+Then, you can [rebase to the target image](https://coreos.github.io/rpm-ostree/container/#rebasing-a-client-system):
+
+```
+$ rpm-ostree rebase --experimental ostree-unverified-registry:quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:329a8968765c2eca37d8cbd95ecab0400b5252a680eea9d279f41d7a8b4fdb93
+```
+
+This is particularly relevant because it's common for OCP/RHCOS to not publish new "bootimages" or disk images unless needed.
 
 ## Q: How do I see which RHEL and RHCOS version is in a release?
 
