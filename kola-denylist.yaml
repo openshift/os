@@ -58,6 +58,8 @@
 # Temporary to unblock COSA CI
 - pattern: ext.config.shared.clhm.network-device-info
   tracker: https://github.com/openshift/os/issues/1041
+  osversion:
+   - rhel-8.6
 
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1099
