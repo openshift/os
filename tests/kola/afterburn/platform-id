@@ -1,0 +1,60 @@
+#!/bin/bash
+## kola:
+##   platforms: aws gce
+#
+# Make sure afterburn with old ignition.platform.id kernel argument 
+# ec2 and gce works.
+# See https://issues.redhat.com/browse/OCPBUGS-7733
+
+set -xeuo pipefail
+
+. $KOLA_EXT_DATA/commonlib.sh
+
+platform=$(cmdline_arg ignition.platform.id)
+case "${AUTOPKGTEST_REBOOT_MARK:-}" in
+"")
+    case "${platform}" in
+        aws)
+            old_platform="ec2"
+            ;;
+        gcp)
+            old_platform="gce"
+            ;;
+        *) echo "unhandled platform ${platform} ?"; exit 1 ;;
+    esac
+    mount -o remount,rw /boot
+    # Replace ignition.platform.id to old platform id
+    sed -i "s/=${platform}/=${old_platform}/" /boot/loader/entries/*.conf
+    if ! grep -q "ignition.platform.id=${old_platform} " /boot/loader/entries/*.conf; then
+        fatal "Failed to update to ignition.platform.id=${old_platform}"
+    fi
+
+    ok "Update ignition.platform.id to ${old_platform}"
+    /tmp/autopkgtest-reboot rebooted
+    ;;
+rebooted)
+    systemctl start afterburn.service
+    meta=/run/metadata/afterburn
+    source "${meta}"
+
+    case "${platform}" in
+        ec2)
+            if [ -z "${AFTERBURN_AWS_INSTANCE_ID:-}" ]; then
+                fatal "Failed to get AFTERBURN_AWS_INSTANCE_ID keypair from ${meta}"
+            fi
+            ;;
+        gce)
+            # Check AFTERBURN_GCP_HOSTNAME instead as can not find INSTANCE_ID
+            if [ -z "${AFTERBURN_GCP_HOSTNAME:-}" ]; then
+                fatal "Failed to get AFTERBURN_GCP_HOSTNAME keypair from ${meta}"
+            fi
+            ;;
+        *) echo "unhandled platform ${platform} ?"; exit 1 ;;
+    esac
+    
+    ok "afterburn.service starts successfully with ignition.platform.id=${platform}"
+    ;;
+*)
+    fatal "Unexpected mark: ${AUTOPKGTEST_REBOOT_MARK}"
+    ;;
+esac
