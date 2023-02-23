@@ -154,6 +154,3 @@ repo-packages:
       - cri-tools
       - openshift-clients
       - openshift-hyperkube
-  - repo: rhel-9.0-fast-datapath
-    packages:
-      - openvswitch2.17

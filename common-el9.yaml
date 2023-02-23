@@ -49,4 +49,4 @@ postprocess:
 
 # Packages that are only for SCOS & RHCOS 9
 packages:
- - openvswitch2.17
+ - openvswitch3.1
