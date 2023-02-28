@@ -23,8 +23,9 @@ repos:
   # For NFV & Virtualization SIG GPG keys
   - extras-common
   - sig-nfv
-  # OKD SCOS builds of cri-o & cri-tools
+  # OKD SCOS builds of cri-o, cri-tools and conmon-rs
   - okd-copr
+  - podman-next-copr
   # Include RHCOS 9 repo for oc, hyperkube and conmon-rs
   - rhel-9.0-server-ose-4.13
 
@@ -134,7 +135,17 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
+      # We want the ones shipping in C9S, not the integrations builds from COPR
+      - aardvark-dns
+      - containers-common
+      - crun
+      - netavark
+      - podman
+      - skopeo
   - repo: okd-copr
     packages:
       - cri-o
       - cri-tools
+  - repo: podman-next-copr
+    packages:
+      - conmon-rs
