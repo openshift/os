@@ -61,3 +61,11 @@ gpgcheck=1
 repo_gpgcheck=0
 enabled=1
 gpgkey=https://download.copr.fedorainfracloud.org/results/@OKD/okd/pubkey.gpg
+
+[podman-next-copr]
+name=Copr repo for podman-next owned by rhcontainerbot
+baseurl=https://download.copr.fedorainfracloud.org/results/rhcontainerbot/podman-next/centos-stream+epel-next-9-$basearch/
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/rhcontainerbot/podman-next/pubkey.gpg
