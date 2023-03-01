@@ -42,6 +42,7 @@
   arches:
    - ppc64le
    - aarch64
+   - s390x
 
 # We're using some COPR stuff intentionally
 - pattern: ext.config.shared.content-origins
