@@ -73,16 +73,16 @@ prepare_repos() {
     # Figure out which version we're building
     rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
-    # Temporary workaround until we publish builds for other versions
-    if [[ "${rhelver}" == "86" ]]; then
-        prev_build_url="${REDIRECTOR_URL}/rhcos-${ocpver}/"
+    # Temporary workaround until we publish builds in the default path
+    if [[ "${rhelver}" == "92" ]]; then
+        prev_build_url="${REDIRECTOR_URL}/rhcos-${ocpver}-9.2/"
         # Fetch the previous build
         cosa buildfetch --url="${prev_build_url}"
     fi
 
     # Fetch the repos corresponding to the release we are building
     case "${rhelver}" in
-        86|90|92)
+        92)
             # 92 doesn't exist in release controller right now
             if [[ "${rhelver}" == "92" ]]; then rhelver=90; fi
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
@@ -243,26 +243,14 @@ main () {
             prepare_repos
             ;;
         "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
-            cosa_init "rhel-coreos-8"
+            cosa_init "rhel-coreos-9"
             cosa_build
             ;;
         "rhcos-cosa-prow-pr-ci")
             setup_user
-            cosa_init "rhel-coreos-8"
+            cosa_init "rhel-coreos-9"
             cosa_build
             kola_test_qemu
-            ;;
-        "rhcos-86-build-test-qemu")
-            setup_user
-            cosa_init "rhel-coreos-8"
-            cosa_build
-            kola_test_qemu
-            ;;
-        "rhcos-86-build-test-metal")
-            setup_user
-            cosa_init "rhel-coreos-8"
-            cosa_build
-            kola_test_metal
             ;;
         "rhcos-92-build-test-qemu"|"rhcos-90-build-test-qemu")
             setup_user
@@ -282,11 +270,15 @@ main () {
             cosa_build
             kola_test_qemu
             ;;
-        "scos-9-build-test-metal" )
+        "scos-9-build-test-metal")
             setup_user
             cosa_init "scos"
             cosa_build
             kola_test_metal
+            ;;
+        "rhcos-86-build-test-qemu"|"rhcos-86-build-test-metal")
+            # Disabled tests
+            exit 0
             ;;
         *)
             # This case ensures that we exhaustively list the tests that should
