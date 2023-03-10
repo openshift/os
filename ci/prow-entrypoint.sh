@@ -73,9 +73,9 @@ prepare_repos() {
     # Figure out which version we're building
     rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
-    # Temporary workaround until we publish builds for other versions
-    if [[ "${rhelver}" == "86" ]]; then
-        prev_build_url="${REDIRECTOR_URL}/rhcos-${ocpver}/"
+    # Temporary workaround until we publish builds in the default path
+    if [[ "${rhelver}" == "92" ]]; then
+        prev_build_url="${REDIRECTOR_URL}/rhcos-${ocpver}-9.2/"
         # Fetch the previous build
         cosa buildfetch --url="${prev_build_url}"
     fi
