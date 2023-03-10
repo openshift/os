@@ -243,12 +243,12 @@ main () {
             prepare_repos
             ;;
         "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
-            cosa_init "rhel-coreos-8"
+            cosa_init "rhel-coreos-9"
             cosa_build
             ;;
         "rhcos-cosa-prow-pr-ci")
             setup_user
-            cosa_init "rhel-coreos-8"
+            cosa_init "rhel-coreos-9"
             cosa_build
             kola_test_qemu
             ;;
