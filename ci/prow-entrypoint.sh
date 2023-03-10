@@ -269,7 +269,7 @@ main () {
             cosa_build
             kola_test_qemu
             ;;
-        "scos-9-build-test-metal" )
+        "scos-9-build-test-metal")
             setup_user
             cosa_init "scos"
             cosa_build
