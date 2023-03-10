@@ -82,7 +82,7 @@ prepare_repos() {
 
     # Fetch the repos corresponding to the release we are building
     case "${rhelver}" in
-        86|90|92)
+        92)
             # 92 doesn't exist in release controller right now
             if [[ "${rhelver}" == "92" ]]; then rhelver=90; fi
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
@@ -270,7 +270,7 @@ main () {
             cosa_build
             kola_test_qemu
             ;;
-        "scos-9-build-test-metal" )
+        "scos-9-build-test-metal")
             setup_user
             cosa_init "scos"
             cosa_build
