@@ -3,18 +3,12 @@
 # see: https://github.com/coreos/coreos-assembler/pull/866.
 - pattern: skip-console-warnings
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2164765
-- pattern: fips.enable*
-  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1782026
-  arches:
-   - s390x
 - pattern: coreos.ignition.journald-log
   tracker: https://github.com/coreos/coreos-assembler/issues/1173
-- pattern: coreos.ignition.mount.*
-  tracker: https://bugzilla.redhat.com/show_bug.cgi?id=1899990
-  arches:
-  - s390x
 - pattern: ext.config.shared.ignition.stable-boot
   tracker: https://bugzilla.redhat.com/show_bug.cgi?id=2075085
+  osversion:
+   - rhel-8.6
   arches:
   - s390x
 - pattern: ext.config.shared.kdump.crash
