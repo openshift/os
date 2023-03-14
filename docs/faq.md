@@ -89,6 +89,15 @@ $ rpm-ostree rebase --experimental ostree-unverified-registry:quay.io/openshift-
 
 This is particularly relevant because it's common for OCP/RHCOS to not publish new "bootimages" or disk images unless needed.
 
+### Outside of release image pull specs
+
+At the current time, these floating tags are available:
+
+ - quay.io/openshift-release-dev/ocp-v4.0-art-dev:4.13-9.2
+ - quay.io/openshift-release-dev/ocp-v4.0-art-dev:4.12
+
+This may change in the future.
+
 ## Q: How do I see which RHEL and RHCOS version is in a release?
 
 Like above, but add `oc image info`:
