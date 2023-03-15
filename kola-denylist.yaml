@@ -60,5 +60,3 @@
 
 - pattern: ext.config.shared.ignition.resource.remote
   tracker: https://github.com/openshift/os/issues/1190
-  osversion:
-   - rhel-8.6
