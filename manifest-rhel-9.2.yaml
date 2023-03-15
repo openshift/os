@@ -25,19 +25,19 @@ repos:
   # We need the published 9.0 openvswitch since it has s390x
   - rhel-9.0-fast-datapath
   # Include RHCOS 9.0 repo for oc, hyperkube, cri-o, conmon-rs
-  - rhel-9.0-server-ose-4.13
+  - rhel-9.0-server-ose-4.14
   # Uncomment and switch to the following once ready
   # - rhel-9.2-baseos
   # - rhel-9.2-appstream
   # - rhel-9.2-fast-datapath
-  # - rhel-9.2-server-ose-4.13
+  # - rhel-9.2-server-ose-4.14
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "413.92.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "414.92.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.13"
+mutate-os-release: "4.14"
 
 postprocess:
   - |
@@ -46,7 +46,7 @@ postprocess:
 
      # Tweak /usr/lib/os-release
      grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.rhel
-     OCP_RELEASE="4.13"
+     OCP_RELEASE="4.14"
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
@@ -156,7 +156,7 @@ repo-packages:
       - ignition
       - ostree
       - rpm-ostree
-  - repo: rhel-9.0-server-ose-4.13
+  - repo: rhel-9.0-server-ose-4.14
     packages:
       - conmon-rs
       - cri-o
