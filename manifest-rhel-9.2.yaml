@@ -147,6 +147,15 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
+      # RHCOS packages that are now part of RHEL and that will have to be
+      # explicitely removed from this list if they have to come from the RHAOS
+      # repo again.
+      - afterburn
+      - console-login-helper-messages-issuegen console-login-helper-messages-profile
+      - coreos-installer coreos-installer-bootinfra
+      - ignition
+      - ostree
+      - rpm-ostree
   - repo: rhel-9.0-server-ose-4.13
     packages:
       - conmon-rs
