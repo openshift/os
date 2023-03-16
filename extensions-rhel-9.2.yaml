@@ -52,6 +52,7 @@ extensions:
   sandboxed-containers:
     architectures:
       - x86_64
+      - s390x
     repos:
       # - rhel-9.0-appstream
       - sig-virtualization
