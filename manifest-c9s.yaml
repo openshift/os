@@ -12,7 +12,6 @@ variables:
 # common to RHEL 9 & C9S variants
 include:
   - common.yaml
-  - common-el9.yaml
 
 # Starting from here, everything should be specific to SCOS
 

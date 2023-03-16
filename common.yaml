@@ -6,6 +6,7 @@ include:
   - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
+  - fedora-coreos-config/manifests/shared-el9.yaml
   # RHCOS owned packages
   - rhcos-packages.yaml
 
@@ -14,6 +15,7 @@ ostree-layers:
   - overlay/01fcos
   - overlay/02fcos-nouveau
   - overlay/05rhcos
+  - overlay/07el9
   - overlay/06gcp-routes
   - overlay/15rhcos-networkmanager-dispatcher
   - overlay/15rhcos-tuned-bits
@@ -165,6 +167,43 @@ postprocess:
             done
         done
     done
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+
+     # FIXME: Why is this only broken here?  NM isn't removing the link?
+     sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
+
+     # crio should stop hardcoding things in their config file!
+     # We are apparently somehow pulling in a conmon override in RHCOS
+     # that contains /usr/libexec/crio/conmon - WHY?
+     # sed -i '/conmon.*=/d' /etc/crio/crio.conf
+     # Oh right but the MCO overrides that too so...
+     mkdir -p /usr/libexec/crio
+     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
+
+     # Enable tmp-on-tmpfs by default because we don't want to have things leak
+     # across reboots, it increases alignment with FCOS, and also fixes the
+     # Live ISO. First, verify that RHEL is still disabling.
+     grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
+     echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
+     echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+     # See https://issues.redhat.com/browse/LOG-3117
+     # Something changed between rhel8 and rhel9 to not generate this by default
+     # but we have containers that expect it to be mounted so for now let's continue
+     # generating it.
+     ln -sr /usr/share/zoneinfo/UTC /etc/localtime
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # Backport https://github.com/dracutdevs/dracut/commit/25a92885a9519701cc480298c2b082e2e2bf5ebe
+    s=/usr/lib/dracut/modules.d/95nvmf/nvmf-autoconnect.sh
+    if test -f "$s"; then
+      chmod a+x "$s"
+    fi
 
 remove-files:
   # We don't ship man(1) or info(1)
@@ -229,6 +268,7 @@ packages:
  - nfs-utils
  - dnsmasq
  - NetworkManager-ovs
+ - openvswitch3.1
  # needed for rpm-ostree today
  - polkit
  # Extra runtime
