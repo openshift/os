@@ -37,6 +37,10 @@
    - ppc64le
    - aarch64
    - s390x
+- pattern: ext.config.shared.systemd.default-unit-timeouts
+  tracker: 'https://github.com/coreos/fedora-coreos-config/pull/2247'
+  osversion:
+   - rhel-8.6
 
 # We're using some COPR stuff intentionally
 - pattern: ext.config.shared.content-origins
