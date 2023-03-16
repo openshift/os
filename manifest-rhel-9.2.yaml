@@ -1,4 +1,4 @@
-# Manifest for RHCOS based on RHEL 9.2 (C9S for now)
+# Manifest for RHCOS based on RHEL 9.2
 
 rojig:
   license: MIT
@@ -17,26 +17,17 @@ include:
 
 # See "Notes about repositories" in `docs/development.md`
 repos:
-  - baseos
-  - appstream
-  # For NFV & Virtualization SIG GPG keys
-  - extras-common
-  # We need the published 9.0 openvswitch since it has s390x
-  - rhel-9.0-fast-datapath
-  # Include RHCOS 9.0 repo for oc, hyperkube, cri-o, conmon-rs
-  - rhel-9.0-server-ose-4.13
-  # Uncomment and switch to the following once ready
-  # - rhel-9.2-baseos
-  # - rhel-9.2-appstream
-  # - rhel-9.2-fast-datapath
-  # - rhel-9.2-server-ose-4.13
+  - rhel-9.2-baseos
+  - rhel-9.2-appstream
+  - rhel-9.2-fast-datapath
+  - rhel-9.2-server-ose-4.13
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "413.92.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "414.92.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.13"
+mutate-os-release: "4.14"
 
 postprocess:
   - |
@@ -45,7 +36,7 @@ postprocess:
 
      # Tweak /usr/lib/os-release
      grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.rhel
-     OCP_RELEASE="4.13"
+     OCP_RELEASE="4.14"
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
@@ -115,32 +106,17 @@ postprocess:
 
      ---
      EOF
-  - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-     # We need to work in disconnected environments by default, and default-enabled
-     # repos will be attempted to be fetched by rpm-ostree when doing node-local
-     # kernel overrides today for e.g. kernel-rt.
-     for x in /etc/yum.repos.d/*.repo; do sed -i -e s,enabled=1,enabled=0, $x; done
 
 # Packages that are only in RHCOS and not in SCOS or that have special
 # constraints that do not apply to SCOS
 packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
- - centos-release
- # TODO: Uncomment when ready
- # - redhat-release
-
-arch-include:
-  x86_64: centos-virt.yaml
-  aarch64: centos-virt.yaml
-  ppc64le: centos-virt.yaml
+ - redhat-release
 
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
-  # - repo: rhel-9.0-appstream
-  - repo: appstream
+  - repo: rhel-9.0-appstream
     packages:
       # We want the one shipping in RHEL, not the equivalently versioned one in RHAOS
       - nss-altfiles

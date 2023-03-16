@@ -38,7 +38,7 @@ extensions:
     architectures:
       - x86_64
     repos:
-      - nfv
+      - rhel-9.2-nfv
     packages:
       - kernel-rt-core
       - kernel-rt-kvm
@@ -53,7 +53,6 @@ extensions:
     architectures:
       - x86_64
     repos:
-      # - rhel-9.0-appstream
-      - sig-virtualization
+      - rhel-9.2-appstream
     packages:
       - kata-containers

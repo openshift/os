@@ -1,7 +1,0 @@
-# In RHEL, there is only one production key.
-# In CentOS, we need a separate package for the separate keys.
-# Now, we can't just include this *unconditionally* since it
-# doesn't exist for s390x.
-packages:
- # GPG keys for NFV & Virtualization SIGs
- - centos-release-virt-common
