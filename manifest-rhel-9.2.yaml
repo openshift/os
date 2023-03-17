@@ -128,4 +128,5 @@ repo-packages:
       - openshift-clients
       - openshift-hyperkube
       # Use legacy coreos/toolbox until we're ready to use containers/toolbox
-      - toolbox
+      # See https://github.com/openshift/os/pull/1202#issuecomment-1474312602
+      # - toolbox
