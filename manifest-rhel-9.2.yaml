@@ -116,11 +116,11 @@ packages:
 
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
-  - repo: rhel-9.0-appstream
+  - repo: rhel-9.2-appstream
     packages:
       # We want the one shipping in RHEL, not the equivalently versioned one in RHAOS
       - nss-altfiles
-  - repo: rhel-9.0-server-ose-4.13
+  - repo: rhel-9.2-server-ose-4.13
     packages:
       - conmon-rs
       - cri-o
