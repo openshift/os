@@ -26,7 +26,7 @@ repos:
   - okd-copr
   - podman-next-copr
   # Include RHCOS 9 repo for oc, hyperkube and conmon-rs
-  - rhel-9-server-ose-4.14
+  - rhel-9.2-server-ose-4.14
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "414.9.<date:%Y%m%d%H%M>"
