@@ -83,15 +83,13 @@ prepare_repos() {
     # Fetch the repos corresponding to the release we are building
     case "${rhelver}" in
         92)
-            # 92 doesn't exist in release controller right now
-            if [[ "${rhelver}" == "92" ]]; then rhelver=90; fi
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
             cat src/config/ocp.repo
             ;;
         *)
             # Assume C9S/SCOS if the version does not match known values for RHEL
             # Temporary workaround until we have all packages for SCOS
-            curl --fail -L "http://base-${ocpver_mut}-rhel90.ocp.svc.cluster.local" -o "src/config/tmp.repo"
+            curl --fail -L "http://base-${ocpver_mut}-rhel92.ocp.svc.cluster.local" -o "src/config/tmp.repo"
             awk '/rhel-9-server-ose-4.14/,/^$/' "src/config/tmp.repo" > "src/config/ocp90.repo"
             cat src/config/ocp90.repo
             rm "src/config/tmp.repo"
