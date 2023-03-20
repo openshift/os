@@ -84,7 +84,9 @@ prepare_repos() {
     case "${rhelver}" in
         92)
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
-            cat src/config/ocp.repo
+            # Work around podman not being built in 4.14
+            curl --fail -L "http://base-4-13-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp-prev.repo"
+            cat src/config/ocp{,-prev}.repo
             ;;
         *)
             # Assume C9S/SCOS if the version does not match known values for RHEL
