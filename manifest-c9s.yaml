@@ -12,7 +12,6 @@ variables:
 # common to RHEL 9 & C9S variants
 include:
   - common.yaml
-  - common-el9.yaml
 
 # Starting from here, everything should be specific to SCOS
 
@@ -27,7 +26,7 @@ repos:
   - okd-copr
   - podman-next-copr
   # Include RHCOS 9 repo for oc, hyperkube and conmon-rs
-  - rhel-9.0-server-ose-4.13
+  - rhel-9.2-server-ose-4.13
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "413.9.<date:%Y%m%d%H%M>"
@@ -112,6 +111,13 @@ postprocess:
 
      ---
      EOF
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+     # We need to work in disconnected environments by default, and default-enabled
+     # repos will be attempted to be fetched by rpm-ostree when doing node-local
+     # kernel overrides today for e.g. kernel-rt.
+     for x in /etc/yum.repos.d/*.repo; do sed -i -e s,enabled=1,enabled=0, $x; done
 
 # Packages that are only in SCOS and not in RHCOS or that have special
 # constraints that do not apply to RHCOS
