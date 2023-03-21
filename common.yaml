@@ -77,11 +77,10 @@ postprocess:
      EOF
      fi
 
-     # TEMPORARY: Fix file permission for cpictl until fix is backported to RHEL 8.6
-     # See https://bugzilla.redhat.com/show_bug.cgi?id=2024102
+     # TEMPORARY: Remove /usr/etc/zkey/ group write permissions
+     # See https://github.com/openshift/os/issues/1209
      if [ "$(uname -m)" == "s390x" ]; then
-     [ "$(stat -c '%a' /usr/lib/s390-tools/cpictl)" == "755" ] && echo "Permission for /usr/lib/s390-tools/cpictl is fixed, remove temporary hack"
-     chmod 755 /usr/lib/s390-tools/cpictl
+     chmod -R g-w /usr/etc/zkey
      fi
 
      # Nuke network.service from orbit
