@@ -16,10 +16,6 @@
   arches:
   - ppc64le
 
-# Temporary while we're using C9S
-- pattern: ext.config.version.rhel-matches-rhcos-build
-  tracker: ''
-
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1099
 
