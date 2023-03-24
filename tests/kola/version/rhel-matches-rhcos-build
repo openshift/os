@@ -2,7 +2,7 @@
 ## kola:
 ##   exclusive: false
 #
-# Check that the OS version (C9S, RHEL 9.0) matches the version stored in
+# Check that the OS version (C9S, RHEL 9.x) matches the version stored in
 # /etc/os-release
 
 set -xeuo pipefail
@@ -13,9 +13,11 @@ ocp_version="$(source /etc/os-release; echo "${VERSION}")"
 variant="$(source /etc/os-release; echo "${ID}")"
 case "${variant}" in
     "scos")
+        # on SCOS, this is just "9"
         osver="$(source /usr/lib/os-release.stream; echo "${VERSION_ID}")"
         ;;
     "rhcos")
+        # on RHCOS, this is e.g. "9.2"; we convert to "92"
         osver="$(source /usr/lib/os-release.rhel; echo "${VERSION_ID}" | sed 's/\.//')"
         ;;
     "*")
