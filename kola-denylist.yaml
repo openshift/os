@@ -57,3 +57,9 @@
 
 - pattern: ext.config.shared.multipath.multipathd-service-fix
   tracker: https://github.com/openshift/os/issues/1213
+
+# lift when systemd in c9s has the compat patch
+- pattern: ext.config.systemd.journal-compat
+  tracker: https://github.com/openshift/os/pull/1230
+  osversion:
+  - c9s
