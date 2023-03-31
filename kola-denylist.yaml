@@ -24,3 +24,7 @@
 
 - pattern: ext.config.shared.multipath.multipathd-service-fix
   tracker: https://github.com/openshift/os/issues/1213
+
+- pattern: ext.config.shared.networking.nmstate.*
+  tracker: https://github.com/openshift/os/issues/1228
+  snooze: 2023-04-17
