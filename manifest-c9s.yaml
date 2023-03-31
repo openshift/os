@@ -143,11 +143,6 @@ repo-packages:
       - toolbox
       # We want the ones shipping in C9S, not the integrations builds from COPR
       - aardvark-dns
-      - containers-common
-      - crun
-      - netavark
-      - podman
-      - skopeo
   - repo: okd-copr
     packages:
       - cri-o
