@@ -48,6 +48,7 @@ extensions:
       - kernel-rt-modules
       - kernel-rt-modules-extra
       - kernel-rt-devel
+    match-base-evr: kernel
   # https://github.com/openshift/machine-config-operator/pull/2456
   # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
   # GRPA-3123
