@@ -14,3 +14,5 @@
 - pattern: rhcos.upgrade.from-ocp-rhcos
   tracker: https://github.com/openshift/os/issues/857
   snooze: 2022-06-27
+- pattern: ext.config.shared.chrony.dhcp-propagation
+  tracker: https://github.com/openshift/os/issues/1233
