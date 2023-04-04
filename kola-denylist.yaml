@@ -25,3 +25,13 @@
 - pattern: ext.config.shared.networking.nmstate.*
   tracker: https://github.com/openshift/os/issues/1228
   snooze: 2023-04-17
+
+- pattern: iso-live-login.uefi-secure
+  tracker: https://github.com/openshift/os/issues/1237
+  osversion:
+  - c9s
+
+- pattern: iso-as-disk.uefi-secure
+  tracker: https://github.com/openshift/os/issues/1237
+  osversion:
+  - c9s
