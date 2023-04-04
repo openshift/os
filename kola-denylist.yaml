@@ -22,9 +22,6 @@
 - pattern: rhcos.network.*
   tracker: https://github.com/coreos/coreos-assembler/issues/3376
 
-- pattern: ext.config.shared.multipath.multipathd-service-fix
-  tracker: https://github.com/openshift/os/issues/1213
-
 - pattern: ext.config.shared.networking.nmstate.*
   tracker: https://github.com/openshift/os/issues/1228
   snooze: 2023-04-17
