@@ -195,14 +195,6 @@ postprocess:
      # but we have containers that expect it to be mounted so for now let's continue
      # generating it.
      ln -sr /usr/share/zoneinfo/UTC /etc/localtime
-  - |
-    #!/usr/bin/env bash
-    set -xeuo pipefail
-    # Backport https://github.com/dracutdevs/dracut/commit/25a92885a9519701cc480298c2b082e2e2bf5ebe
-    s=/usr/lib/dracut/modules.d/95nvmf/nvmf-autoconnect.sh
-    if test -f "$s"; then
-      chmod a+x "$s"
-    fi
 
 remove-files:
   # We don't ship man(1) or info(1)
