@@ -49,44 +49,29 @@ and later. For older versions, see the internal documentation.
   $ cd rhcos-4.11
   ```
 
-- Get the following values from the internal documentation:
+- Make sure that you have setup the internal Red Hat root certificate on your
+  host system. See the internal documentation. Ask COSA to use those
+  certificates:
   ```
-  export RH_CA="..."
-  export RHCOS_REPO="..."
+  $ export COREOS_ASSEMBLER_ADD_CERTS='y'
   ```
 
-- Clone the config repo (`openshift/os`), passing as argument the internal Git 
-  repo which includes the RPM repo configs and optionaly the specific branch. 
-  As the Red Hat CA are not included in the cosa container by default, we spawn 
-  a shell inside the COSA container and add them manually for the initial clone:
+- Get the following value from the internal documentation:
   ```
-  $ cosa shell
-  [coreos-assembler]$ export RH_CA="..."
-  [coreos-assembler]$ export RHCOS_REPO="..."
-  [coreos-assembler]$ sudo curl -kL -o /etc/pki/ca-trust/source/anchors/Red_Hat_IT_Root_CA.crt "${RH_CA}"
-  [coreos-assembler]$ sudo update-ca-trust
+  $ export RHCOS_REPO="..."
+  ```
 
+- Clone the config repo (`openshift/os`), passing as argument the internal Git
+  repo which includes the RPM repo configs and optionaly the specific branch:
+  ```
   # Main developement branch, default version
-  [coreos-assembler]$ cosa init \
-        --yumrepos "${RHCOS_REPO}" \
-        https://github.com/openshift/os.git
+  $ cosa init --yumrepos "${RHCOS_REPO}" https://github.com/openshift/os.git
 
   # Main developement branch, selecting a specific variant
-  [coreos-assembler]$ cosa init \
-        --yumrepos "${RHCOS_REPO}" \
-        --variant rhel-coreos-9 \
-        https://github.com/openshift/os.git
+  $ cosa init --yumrepos "${RHCOS_REPO}" --variant rhel-9.2 https://github.com/openshift/os.git
 
   # Specific release branch, selecting a specific variant
-  [coreos-assembler]$ cosa init \
-        --branch release-4.12 \
-        --variant rhel-coreos-9 \
-        --yumrepos "${RHCOS_REPO}" \
-        https://github.com/openshift/os.git
-  ```
-  You can then close the temporary `cosa shell` environment:
-  ```
-  [coreos-assembler]$ exit
+  $ cosa init --yumrepos "${RHCOS_REPO}" --variant rhel-9.2 --branch release-4.13 https://github.com/openshift/os.git
   ```
 
 - Fetch packages and build RHCOS ostree container and QEMU image:
