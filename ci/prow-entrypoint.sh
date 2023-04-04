@@ -130,19 +130,7 @@ kola_test_metal() {
     cosa compress --artifact=metal --artifact=metal4k
 
     # Run all testiso scenarios on metal artifact
-    kola testiso -S --scenarios pxe-install,pxe-offline-install,iso-install,iso-offline-install,iso-live-login,iso-as-disk,miniso-install --output-dir tmp/kola-metal
-
-    # Run only the iso-install scenario to sanity-check the metal4k media
-    kola testiso -S --qemu-native-4k --qemu-multipath --scenarios iso-install --output-dir tmp/kola-metal4k
-
-    # Run some uefi & secure boot tests
-    if [[ "$(uname -i)" == "x86_64" ]] || [[ "$(uname -i)" == "aarch64" ]]; then
-        mkdir -p tmp/kola-uefi
-        kola testiso -S --qemu-firmware uefi --scenarios iso-live-login,iso-as-disk --output-dir tmp/kola-uefi/insecure
-        if [[ "$(uname -i)" == "x86_64" ]]; then
-            kola testiso -S --qemu-firmware uefi-secure --scenarios iso-live-login,iso-as-disk --output-dir tmp/kola-uefi/secure
-        fi
-    fi
+    kola testiso -S --output-dir tmp/kola-metal
 }
 
 # Ensure that we can create all platform images for COSA CI
