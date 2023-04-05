@@ -20,7 +20,6 @@ repos:
   - rhel-9.2-baseos
   - rhel-9.2-appstream
   - rhel-9.2-fast-datapath
-  - rhel-9.2-server-ose-4.12  # FIXME: Drop when conmon-rs is fixed
   - rhel-9.2-server-ose-4.13
 
 # We include hours/minutes to avoid version number reuse
@@ -121,15 +120,12 @@ repo-packages:
     packages:
       # We want the one shipping in RHEL, not the equivalently versioned one in RHAOS
       - nss-altfiles
-  - repo: rhel-9.2-server-ose-4.12
-    packages:
-      - conmon-rs # FIXME drop when conmon-rs is built in 4.13
   - repo: rhel-9.2-server-ose-4.13
     packages:
+      - conmon-rs
       - cri-o
       - cri-tools
       - openshift-clients
       - openshift-hyperkube
       # Use legacy coreos/toolbox until we're ready to use containers/toolbox
-      # See https://github.com/openshift/os/pull/1202#issuecomment-1474312602
-      # - toolbox
+      - toolbox
