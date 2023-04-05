@@ -1,0 +1,20 @@
+# NVMe by-id/ symlinks changed wrt leading spaces from RHEL8 to RHEL9:
+# https://issues.redhat.com/browse/OCPBUGS-11375
+# https://github.com/systemd/systemd/issues/27155
+
+# This rule adds back the previous symlinks for backwards compatibility.
+
+# They're the same as the regular rules in 60-persistent-storage.rules, except
+# they don't include the `OPTIONS="string_escape=replace"` directive.
+
+ACTION=="remove", GOTO="persistent_storage_nvme_compat_end"
+ENV{UDEV_DISABLE_PERSISTENT_STORAGE_RULES_FLAG}=="1", GOTO="persistent_storage_nvme_compat_end"
+SUBSYSTEM!="block", GOTO="persistent_storage_nvme_compat_end"
+
+KERNEL=="nvme*[0-9]n*[0-9]", ENV{DEVTYPE}=="disk", ENV{ID_MODEL}=="?*", ENV{ID_SERIAL_SHORT}=="?*", \
+  ENV{ID_SERIAL}="$env{ID_MODEL}_$env{ID_SERIAL_SHORT}", SYMLINK+="disk/by-id/nvme-$env{ID_SERIAL}"
+
+KERNEL=="nvme*[0-9]n*[0-9]p*[0-9]", ENV{DEVTYPE}=="partition", ENV{ID_MODEL}=="?*", ENV{ID_SERIAL_SHORT}=="?*", \
+  ENV{ID_SERIAL}="$env{ID_MODEL}_$env{ID_SERIAL_SHORT}", SYMLINK+="disk/by-id/nvme-$env{ID_SERIAL}-part%n"
+
+LABEL="persistent_storage_nvme_compat_end"
