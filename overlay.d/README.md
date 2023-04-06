@@ -39,9 +39,23 @@ lands in downstream packages. See upstream thread:
 https://listengine.tuxfamily.org/chrony.tuxfamily.org/chrony-dev/2020/05/msg00022.html
 
 25rhcos-azure-udev
--------------
+------------------
 
 We want to provide Azure udev rules as part of the initrd, so that Ignition
 is able to detect disks and act on them. The WALinuxAgent-udev has been
 changed to install udev rules into the initramfs, but that change isn't
 in el8 yet. This can be dropped when moving to el9.
+
+30rhcos-nvme-compat-udev
+------------------------
+
+NVMe by-id/ symlinks changed wrt leading spaces from RHEL8 to RHEL9:
+https://issues.redhat.com/browse/OCPBUGS-11375
+https://github.com/systemd/systemd/issues/27155
+
+This overlay ships a rule that adds back the previous symlinks for backwards
+compatibility. TBD when we can drop this, e.g. by having layered software use
+the `eui` links instead or pivoting to GPT partition UUIDs. Customers may have
+also manually typed the old symlink in their Ignition configs and other k8s
+resources though. Those would require some communication before we can rip this
+out.
