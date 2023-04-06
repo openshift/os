@@ -3,6 +3,8 @@
 ##   exclusive: true
 ##   additionalDisks: ["1G:channel=nvme,serial=    foobar"]
 ##   platforms: qemu
+##   # qemu on s390x does not support nvme emulation
+##   architectures: "!s390x"
 #
 # By default coreos-generate-iscsi-initiatorname.service is active on RHCOS,
 # inactive on FCOS
