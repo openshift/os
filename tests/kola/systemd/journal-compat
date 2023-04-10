@@ -1,0 +1,22 @@
+#!/bin/bash
+## kola:
+##   # Since we pull a container image
+##   tags: "needs-internet" 
+##   timeoutMin: 30
+#
+# Verify that rhel8 journalctl can still read our journals https://issues.redhat.com/browse/OCPBUGS-11492
+
+set -euo pipefail
+
+. $KOLA_EXT_DATA/commonlib.sh
+
+cd $(mktemp -d)
+
+# The string Linux should match the kernel boot
+podman run --privileged --net=none -v /var/log:/var/log:ro --rm quay.io/centos/centos:stream8 journalctl -D /var/log/journal --grep="Linux" > journal.txt 2>err.txt
+if grep -qF 'uses an unsupported feature' err.txt; then
+    fatal "Got unsupported feature trying to read journal"
+fi
+if ! grep -F "Linux" journal.txt; then
+    fatal "Failed to read journal"
+fi
