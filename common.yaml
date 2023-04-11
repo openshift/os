@@ -19,6 +19,7 @@ ostree-layers:
   - overlay/06gcp-routes
   - overlay/15rhcos-networkmanager-dispatcher
   - overlay/15rhcos-tuned-bits
+  - overlay/15rhcos-journald-backcompat
   - overlay/20platform-chrony
   - overlay/21dhcp-chrony
   - overlay/25azure-udev-rules
