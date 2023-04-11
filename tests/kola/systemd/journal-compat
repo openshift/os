@@ -13,7 +13,7 @@ set -euo pipefail
 cd $(mktemp -d)
 
 # The string Linux should match the kernel boot
-podman run --privileged --net=none -v /var/log:/var/log:ro --rm quay.io/centos/centos:stream8 journalctl -D /var/log/journal --grep="Linux" > journal.txt 2>err.txt
+podman run --privileged --net=none -v /var/log:/var/log:ro --rm registry.access.redhat.com/ubi8/ubi:latest journalctl -D /var/log/journal --grep="Linux" > journal.txt 2>err.txt
 if grep -qF 'uses an unsupported feature' err.txt; then
     fatal "Got unsupported feature trying to read journal"
 fi
