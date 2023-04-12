@@ -1,0 +1,24 @@
+#!/bin/bash
+## kola:
+##   exclusive: false
+#
+# Verify OpenSSH config options
+# See: https://github.com/openshift/os/pull/1251
+# See: https://github.com/openshift/os/issues/1216
+# See: https://issues.redhat.com/browse/OCPBUGS-11613
+
+set -euo pipefail
+
+. $KOLA_EXT_DATA/commonlib.sh
+
+if [[ "$(sshd -T | grep 'passwordauthentication')" != "passwordauthentication no" ]]; then
+    fatal "PasswordAuthentication not set to 'no'"
+fi
+
+if [[ "$(sshd -T | grep 'permitrootlogin')" != "permitrootlogin no" ]]; then
+    fatal "PermitRootLogin not set to 'no'"
+fi
+
+if [[ "$(sshd -T | grep 'clientaliveinterval')" != "clientaliveinterval 180" ]]; then
+    fatal "ClientAliveInterval not set to '180'"
+fi
