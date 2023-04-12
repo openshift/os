@@ -61,5 +61,13 @@
 # lift when systemd in c9s has the compat patch
 - pattern: ext.config.systemd.journal-compat
   tracker: https://github.com/openshift/os/pull/1230
+
+- pattern: iso-live-login.uefi-secure
+  tracker: https://github.com/openshift/os/issues/1237
+  osversion:
+  - c9s
+
+- pattern: iso-as-disk.uefi-secure
+  tracker: https://github.com/openshift/os/issues/1237
   osversion:
   - c9s

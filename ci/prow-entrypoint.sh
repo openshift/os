@@ -116,7 +116,19 @@ cosa_build() {
 # Build QEMU image and run all kola tests
 kola_test_qemu() {
     cosa buildextend-qemu
-    cosa kola --basic-qemu-scenarios
+
+    # Skip Secure Boot tests on SCOS for now
+    # See: https://github.com/openshift/os/issues/1237
+    if [[ -f "src/config.json" ]]; then
+        variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
+    else
+        variant="default"
+    fi
+    if [[ "${variant}" != "scos" ]]; then
+        cosa kola --basic-qemu-scenarios
+    else
+        cosa kola --basic-qemu-scenarios --skip-secure-boot
+    fi
     kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
     cosa kola run --parallel 2
 }
