@@ -63,13 +63,6 @@ postprocess:
      #!/usr/bin/env bash
      set -xeo pipefail
 
-     # Disable PasswordAuthentication in SSH
-     sed -i "s|^PasswordAuthentication yes$|PasswordAuthentication no|g" /etc/ssh/sshd_config
-     # Disable root login because don't do that.
-     sed -i "s|^PermitRootLogin yes$|PermitRootLogin no|g" /etc/ssh/sshd_config
-     # Enable ClientAliveInterval and set to 180 per https://bugzilla.redhat.com/show_bug.cgi?id=1701050
-     sed -i "s|^#ClientAliveInterval 0$|ClientAliveInterval 180|g" /etc/ssh/sshd_config
-
      # TEMPORARY: Create /etc/vmware-tools/tools.conf to ensure RHCOS shows up properly in VMWare
      # See https://jira.coreos.com/browse/RHCOS-258
      if [ "$(uname -m)" == "x86_64" ]; then
