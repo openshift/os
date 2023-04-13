@@ -129,7 +129,19 @@ RHCOS/OCP version | RHEL version
 
 ## Q: How do I determine what version of an RPM is included in an RHCOS release?
 
-Key packages such as the kernel are exposed as metadata properties:
+Since OpenShift 4.12, the operating system is shipped as a bootable container image.  See [layering docs](https://docs.openshift.com/container-platform/4.12/post_installation_configuration/coreos-layering.html#coreos-layering).
+
+For example, you can do:
+
+```bash
+$ podman run --rm -ti $(oc adm release info --image-for=rhel-coreos-8 quay.io/openshift-release-dev/ocp-release:4.12.13-x86_64) rpm -q kernel
+kernel-4.18.0-372.51.1.el8_6.x86_64
+$
+```
+
+(Note in OpenShift 4.13+, the image name is `rhel-coreos`)
+
+For older releases using `machine-os-content`, key packages such as the kernel are exposed as metadata properties:
 
 ```bash
 $ oc image info (oc adm release info --image-for=machine-os-content quay.io/openshift-release-dev/ocp-release:4.9.0-rc.1-x86_64) | grep com.coreos.rpm
