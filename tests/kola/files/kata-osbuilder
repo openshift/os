@@ -1,13 +1,11 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-#
-# Check that `kata-osbuilder-generate.service` as part of the default presets
-# - defined in /usr/lib/systemd/system-preset/45-rhcos-extensions.preset
-#
-# See:
-# - https://bugzilla.redhat.com/show_bug.cgi?id=1941342
-# - https://github.com/openshift/os/pull/524
+##   description: Verify `kata-osbuilder-generate.service` is 
+##     part of the default presets, defined in 
+##     /usr/lib/systemd/system-preset/45-rhcos-extensions.preset
+##     https://bugzilla.redhat.com/show_bug.cgi?id=1941342
+##     https://github.com/openshift/os/pull/524
 
 set -xeuo pipefail
 

@@ -1,10 +1,9 @@
 #!/bin/bash
 ## kola:
 ##   platforms: aws gcp
-#
-# Make sure afterburn with old ignition.platform.id kernel argument 
-# ec2 and gce works.
-# See https://issues.redhat.com/browse/OCPBUGS-7733
+##   description: Verify afterburn works with old kernel argument 
+##     ignition.platform.id=ec2/gce.
+##     https://issues.redhat.com/browse/OCPBUGS-7733
 
 set -xeuo pipefail
 

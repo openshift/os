@@ -1,5 +1,9 @@
 #!/bin/bash
-# Test for https://issues.redhat.com/browse/OCPBUGS-595
+## kola:
+##   description: Verify SELinux policy is rebuilt on 8.[0-6] 
+##     on first boot.
+##     https://issues.redhat.com/browse/OCPBUGS-595
+##     https://github.com/openshift/os/pull/962
 
 set -xeuo pipefail
 

@@ -1,9 +1,8 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-#
-# Check that the OS version (C9S, RHEL 9.x) matches the version stored in
-# /etc/os-release
+##   description: Verify that the OS version (C9S, RHEL 9.x) matches  
+##     the version stored in /etc/os-release.
 
 set -xeuo pipefail
 
