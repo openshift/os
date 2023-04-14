@@ -1,6 +1,6 @@
 #!/bin/bash
 ## kola:
-##   platforms: aws gce
+##   platforms: aws gcp
 #
 # Make sure afterburn with old ignition.platform.id kernel argument 
 # ec2 and gce works.
