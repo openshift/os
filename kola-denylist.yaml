@@ -24,7 +24,7 @@
 
 - pattern: ext.config.shared.networking.nmstate.*
   tracker: https://github.com/openshift/os/issues/1228
-  snooze: 2023-04-17
+  snooze: 2023-05-08
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
