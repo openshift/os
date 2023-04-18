@@ -122,6 +122,7 @@ repo-packages:
       - nss-altfiles
   - repo: rhel-9.2-server-ose-4.13
     packages:
+      - container-selinux
       - conmon-rs
       - cri-o
       - cri-tools
