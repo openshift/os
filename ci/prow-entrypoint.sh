@@ -115,7 +115,7 @@ kola_test_qemu() {
     cosa buildextend-qemu
     cosa kola --basic-qemu-scenarios
     # kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
-    # cosa kola run --parallel 2
+    cosa kola run --denylist-test rhcos.upgrade.from-ocp-rhcos --parallel 2
 }
 
 # Build metal, metal4k & live images and run kola tests
