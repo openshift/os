@@ -24,6 +24,7 @@ ostree-layers:
   - overlay/21dhcp-chrony
   - overlay/25azure-udev-rules
   - overlay/30rhcos-nvme-compat-udev
+  - overlay/30gcp-udev-rules
 
 arch-include:
   x86_64:
