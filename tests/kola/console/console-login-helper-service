@@ -1,15 +1,17 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-#
-# This is RHCOS only
+##   description: >
+##     Verify that we have the proper presets for 
+##     console-login-helper-messages in RHCOS.
+##     Verify versions of CLHM prior to v0.21 have `issuegen`-related  
+##     systemd units.
+##     This is RHCOS only.
 
 set -xeuo pipefail
 
 . $KOLA_EXT_DATA/commonlib.sh
 
-# Check that we have the proper presets for console-login-helper-messages in RHCOS.
-# Versions of CLHM prior to v0.21 have `issuegen`-related systemd units.
 if test -f /usr/lib/systemd/system/console-login-helper-messages-issuegen.service; then
   if ! systemctl is-enabled console-login-helper-messages-issuegen.path; then
     fatal "Error: console-login-helper-messages-issuegen.path required but not enabled"

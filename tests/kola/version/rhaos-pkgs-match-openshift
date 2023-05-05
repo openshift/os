@@ -1,14 +1,14 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-#
-# This is RHCOS only
+##   description: Verify that packages coming from the rhaos 
+##     branches match the OpenShift version.
+##     This is RHCOS only.
 
 set -xeuo pipefail
 
 . $KOLA_EXT_DATA/commonlib.sh
 
-# Check that rhaos packages do not match the OpenShift version
 if [[ $(rpm -qa | grep rhaos | grep -v $OPENSHIFT_VERSION) ]]; then
     fatal "Error: rhaos packages do not match OpenShift version"
 fi

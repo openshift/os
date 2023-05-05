@@ -3,8 +3,8 @@
 ##   # Since we pull a container image
 ##   tags: "needs-internet" 
 ##   timeoutMin: 30
-#
-# Verify that rhel8 journalctl can still read our journals https://issues.redhat.com/browse/OCPBUGS-11492
+##   description: Verify that rhel8 journalctl can still read our journals.
+##     https://issues.redhat.com/browse/OCPBUGS-11492
 
 set -euo pipefail
 

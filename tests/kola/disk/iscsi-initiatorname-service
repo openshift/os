@@ -1,10 +1,9 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-#
-# By default coreos-generate-iscsi-initiatorname.service is active on RHCOS,
-# inactive on FCOS
-# https://github.com/openshift/os/pull/453
+##   description: Verify coreos-generate-iscsi-initiatorname.service 
+##     is enabled by default on RHCOS (disabled on FCOS).
+##     https://github.com/openshift/os/pull/453
 
 set -xeuo pipefail
 

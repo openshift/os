@@ -5,10 +5,9 @@
 ##   platforms: qemu
 ##   # qemu on s390x does not support nvme emulation
 ##   architectures: "!s390x"
-#
-# By default coreos-generate-iscsi-initiatorname.service is active on RHCOS,
-# inactive on FCOS
-# https://github.com/openshift/os/pull/453
+##   description: Verify that we are compatible with the old symlinks 
+##     for NVME disks.
+##     https://github.com/openshift/os/pull/1243
 
 set -xeuo pipefail
 

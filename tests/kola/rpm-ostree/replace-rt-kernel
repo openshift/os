@@ -2,9 +2,8 @@
 ## kola:
 ##   tags: "needs-internet"
 ##   timeoutMin: 30
-#
-# Verify that replacing with an older centos kernel works, and that
-# replacing with kernel-rt works.
+##   description: Verify replacing the current kernel with an 
+##     older centos kernel and replacing with kernel-rt.
 
 set -euo pipefail
 

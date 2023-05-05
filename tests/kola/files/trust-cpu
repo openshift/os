@@ -1,18 +1,18 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-#
-# This is RHCOS only.
-# This test will start failing and can be removed when RHCOS
-# gets to kernel version 6.2+
-# https://github.com/coreos/fedora-coreos-tracker/issues/1369
-# https://github.com/coreos/fedora-coreos-config/pull/2155
+##   description: Verify CONFIG_RANDOM_TRUST_CPU is enabled by default.
+##     This is RHCOS only.
+##     This test will start failing and can be removed when RHCOS
+##     gets to kernel version 6.2+
+##     https://github.com/coreos/fedora-coreos-tracker/issues/1369
+##     https://github.com/coreos/fedora-coreos-config/pull/2155
+##     https://bugzilla.redhat.com/show_bug.cgi?id=1830280  
 
 set -xeuo pipefail
 
 . $KOLA_EXT_DATA/commonlib.sh
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1830280
 case "$(arch)" in
     x86_64)
         config=$(grep ^CONFIG_RANDOM_TRUST_CPU /lib/modules/$(uname -r)/config)

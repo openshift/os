@@ -1,11 +1,11 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-#
-# Verify OpenSSH config options
-# See: https://github.com/openshift/os/pull/1251
-# See: https://github.com/openshift/os/issues/1216
-# See: https://issues.redhat.com/browse/OCPBUGS-11613
+##   description: Verify OpenSSH config options are expected.
+##     See
+##     - https://github.com/openshift/os/pull/1251
+##     - https://github.com/openshift/os/issues/1216
+##     - https://issues.redhat.com/browse/OCPBUGS-11613
 
 set -euo pipefail
 
