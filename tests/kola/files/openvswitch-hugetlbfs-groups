@@ -1,0 +1,13 @@
+#!/bin/bash
+## kola:
+##   exclusive: false
+##   architectures: "x86_64 ppc64le"
+##   description: Verify openvswitch user is in the hugetlbfs group.
+
+set -xeuo pipefail
+
+. $KOLA_EXT_DATA/commonlib.sh
+
+if ! sudo getent group hugetlbfs | grep openvswitch; then
+  fatal "openvswitch user is not in hugetlbfs group"
+fi
