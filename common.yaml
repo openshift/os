@@ -1,9 +1,9 @@
 # We inherit from Fedora CoreOS' base configuration
 include:
+  - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
   - fedora-coreos-config/manifests/networking-tools.yaml
-  - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
   - fedora-coreos-config/manifests/shared-el9.yaml
