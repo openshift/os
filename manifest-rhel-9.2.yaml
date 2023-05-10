@@ -108,6 +108,9 @@ postprocess:
      ---
      EOF
 
+     # Tweak dependencies of systemd-user-sessions.service to not rely on network.
+     sed -i 's/^After=.*/After=nss-user-lookup.target home.mount/' /usr/lib/systemd/system/systemd-user-sessions.service
+
 # Packages that are only in RHCOS and not in SCOS or that have special
 # constraints that do not apply to SCOS
 packages:
