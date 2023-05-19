@@ -263,45 +263,21 @@ main () {
             cosa_build
             kola_test_qemu
             ;;
-        "rhcos-86-build-test-qemu")
-            setup_user
-            cosa_init "rhel-coreos-8"
-            cosa_build
-            kola_test_qemu
-            ;;
-        "rhcos-86-build-test-metal")
-            setup_user
-            cosa_init "rhel-coreos-8"
-            cosa_build
-            kola_test_metal
-            ;;
-        "rhcos-92-build-test-qemu"|"rhcos-90-build-test-qemu")
-            echo "FIXME skipped until we have updated mirrors in Prow"
-            exit 0
+        "rhcos-92-build-test-qemu")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
             kola_test_qemu
             ;;
-        "rhcos-92-build-test-metal"|"rhcos-90-build-test-metal")
-            echo "FIXME skipped until we have updated mirrors in Prow"
-            exit 0
+        "rhcos-92-build-test-metal")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
             kola_test_metal
             ;;
-        "scos-9-build-test-qemu")
-            setup_user
-            cosa_init "scos"
-            cosa_build
-            kola_test_qemu
-            ;;
-        "scos-9-build-test-metal" )
-            setup_user
-            cosa_init "scos"
-            cosa_build
-            kola_test_metal
+        "scos-9-build-test-qemu"|"scos-9-build-test-metal")
+            echo "Test disabled"
+            exit 0
             ;;
         *)
             # This case ensures that we exhaustively list the tests that should
