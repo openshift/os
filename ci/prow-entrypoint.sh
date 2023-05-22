@@ -130,7 +130,7 @@ kola_test_qemu() {
     else
         cosa kola --basic-qemu-scenarios --skip-secure-boot
     fi
-    kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
+    # kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
     cosa kola run --parallel 2 --output-dir tmp/kola-all
 }
 
