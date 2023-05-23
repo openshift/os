@@ -128,7 +128,6 @@ kola_test_qemu() {
     else
         cosa kola --basic-qemu-scenarios --skip-secure-boot
     fi
-    # kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
     cosa kola run --parallel 2 --output-dir tmp/kola-all
 }
 
@@ -230,7 +229,7 @@ validate() {
     exit 0
 }
 
-main () {
+main() {
     if [[ "${#}" -lt 1 ]]; then
         echo "This script is expected to be called by Prow with the name of the build phase or test to run"
         exit 1
@@ -286,10 +285,6 @@ main () {
             cosa_build
             kola_test_metal
             ;;
-        "rhcos-86-build-test-qemu"|"rhcos-86-build-test-metal")
-            # Disabled tests
-            exit 0
-            ;;
         *)
             # This case ensures that we exhaustively list the tests that should
             # pass for a PR. To add a new test in openshift/os:
@@ -303,4 +298,3 @@ main () {
 }
 
 main "${@}"
-
