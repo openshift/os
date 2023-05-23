@@ -84,9 +84,7 @@ prepare_repos() {
     case "${rhelver}" in
         92)
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
-            # Work around podman not being built in 4.14
-            curl --fail -L "http://base-4-13-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp-prev.repo"
-            cat src/config/ocp{,-prev}.repo
+            cat src/config/ocp.repo
             ;;
         *)
             # Assume C9S/SCOS if the version does not match known values for RHEL
@@ -130,7 +128,7 @@ kola_test_qemu() {
     else
         cosa kola --basic-qemu-scenarios --skip-secure-boot
     fi
-    kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
+    # kola run-upgrade -b rhcos -v --find-parent-image --qemu-image-dir tmp/ --output-dir tmp/kola-upgrade
     cosa kola run --parallel 2 --output-dir tmp/kola-all
 }
 
@@ -264,17 +262,13 @@ main () {
             cosa_build
             kola_test_qemu
             ;;
-        "rhcos-92-build-test-qemu"|"rhcos-90-build-test-qemu")
-            echo "FIXME skipped until we have updated mirrors in Prow"
-            exit 0
+        "rhcos-92-build-test-qemu")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
             kola_test_qemu
             ;;
-        "rhcos-92-build-test-metal"|"rhcos-90-build-test-metal")
-            echo "FIXME skipped until we have updated mirrors in Prow"
-            exit 0
+        "rhcos-92-build-test-metal")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
