@@ -8,7 +8,7 @@ include:
   - fedora-coreos-config/manifests/shared-workarounds.yaml
   - fedora-coreos-config/manifests/shared-el9.yaml
   # RHCOS owned packages
-  - rhcos-packages.yaml
+  - packages-rhcos.yaml
 
 # Layers common to all versions of RHCOS and SCOS
 ostree-layers:
