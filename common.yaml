@@ -8,7 +8,7 @@ include:
   - fedora-coreos-config/manifests/shared-workarounds.yaml
   - fedora-coreos-config/manifests/shared-el9.yaml
   # RHCOS owned packages
-  - rhcos-packages.yaml
+  - packages-rhcos.yaml
 
 # Layers common to all versions of RHCOS and SCOS
 ostree-layers:
@@ -248,14 +248,9 @@ packages:
  - container-selinux
  # Needed for newer rpm-ostree
  - "'skopeo >= 2:1.7.0'"
- - cri-o cri-tools
- # Not yet in RHEL, dev preview in Openshift
- - conmon-rs
  # Networking
  - nfs-utils
  - dnsmasq
- - NetworkManager-ovs
- - openvswitch3.1
  # needed for rpm-ostree today
  - polkit
  # Extra runtime
@@ -277,10 +272,6 @@ packages:
  # https://bugzilla.redhat.com/show_bug.cgi?id=1900759
  - qemu-guest-agent
  # BELOW HERE ARE PACKAGES NOT IN RHEL
- # OpenShift OKD
- #- origin-node origin-hyperkube origin-clients
- # OpenShift
- - openshift-hyperkube openshift-clients
  # Gluster - Used for Openshift e2e gluster testcases
  # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
  - glusterfs-fuse
