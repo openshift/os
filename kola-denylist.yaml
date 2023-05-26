@@ -19,10 +19,6 @@
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1099
 
-- pattern: ext.config.shared.networking.nmstate.*
-  tracker: https://github.com/openshift/os/issues/1228
-  snooze: 2023-05-29
-
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
