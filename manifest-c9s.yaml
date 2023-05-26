@@ -20,13 +20,13 @@ include:
 repos:
   - baseos
   - appstream
-  # For NFV & Virtualization SIG GPG keys
+  # CentOS Extras Common repo for SIG RPM GPG keys
   - extras-common
+  # CentOS NFV SIG repo for openvswitch
   - sig-nfv
-  # OKD SCOS builds of cri-o, cri-tools and conmon-rs
-  - okd-copr
-  - podman-next-copr
-  # Include RHCOS 9 repo for oc, hyperkube and conmon-rs
+  # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
+  - sig-cloud-okd
+  # Include RHCOS 9 repo for oc, hyperkube
   - rhel-9.2-server-ose-4.14
 
 # We include hours/minutes to avoid version number reuse
@@ -126,9 +126,10 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
- # GPG keys for NFV & Virtualization SIGs
- - centos-release-virt-common
+ # RPM GPG keys for CentOS SIG repos
+ - centos-release-cloud-common
  - centos-release-nfv-common
+ - centos-release-virt-common
 
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
@@ -142,17 +143,3 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
-      # We want the ones shipping in C9S, not the integrations builds from COPR
-      - aardvark-dns
-      - containers-common
-      - crun
-      - netavark
-      - podman
-      - skopeo
-  - repo: okd-copr
-    packages:
-      - cri-o
-      - cri-tools
-  - repo: podman-next-copr
-    packages:
-      - conmon-rs
