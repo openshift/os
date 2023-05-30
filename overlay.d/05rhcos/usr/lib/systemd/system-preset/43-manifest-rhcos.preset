@@ -20,3 +20,6 @@ enable logrotate.timer
 # removed once RHCOS catches up to CLHM v0.21+.
 enable console-login-helper-messages-issuegen.service
 enable console-login-helper-messages-issuegen.path
+# Enable nmstate. We can drop this when it is in
+# /usr/lib/systemd/system-preset/90-default.preset
+enable nmstate.service
