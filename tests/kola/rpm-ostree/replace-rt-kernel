@@ -21,17 +21,18 @@ baseurl=
 case "${major}" in
     8)
         # TODO: why the heck does centos only support insecure http?!?
+        # TODO: Fix centos8 path
         baseurl=http://mirror.centos.org/centos/8-stream/
-        # TODO avoid hardcoding versions
-        target_kver=4.18.0-383.el8
-        target_kver_rt=4.18.0-394.rt7.179.el8
+        repo_url=??
+        target_kver=$(runv curl -sSLf ${baseurl}BaseOS/${basearch}/os/Packages/ | runv grep -o 'href=".*">' | runv grep -Po '(?<=kernel-core-).*?\.el8' | runv head -1)
+        target_kver_rt=$(runv curl -sSLf ${baseurl}RT/${basearch}/os/Packages/ | runv grep -o 'href=".*">' | runv grep -Po '(?<=kernel-rt-core-).*?\.el8' | runv tail -1)
         ;;
     9)
         # TODO: why the heck does centos only support insecure http?!?
         baseurl=http://mirror.stream.centos.org/9-stream/
-        # TODO avoid hardcoding versions
-        target_kver=5.14.0-196.el9
-        target_kver_rt=5.14.0-201.rt14.202.el9
+        repo_url=https://raw.githubusercontent.com/openshift/os/bf4383e4929ad9abb67d508a7ffa7cf45e8de5ca/c9s.repo
+        target_kver=$(runv curl -sSLf ${baseurl}BaseOS/${basearch}/os/Packages/ | runv grep -o 'href=".*">' | runv grep -Po '(?<=kernel-core-).*?\.el9' | runv head -1)
+        target_kver_rt=$(runv curl -sSLf ${baseurl}RT/${basearch}/os/Packages/ | runv grep -o 'href=".*">' | runv grep -Po '(?<=kernel-rt-core-).*?\.el9' | runv tail -1)
         ;;
     *)  fatal "Unhandled RHEL_VERSION=${rhelver}"
         ;;
@@ -46,7 +47,7 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     fi
     tmpdir=$(mktemp -d -p /var/tmp)
     pushd "${tmpdir}"
-    runv curl -sSLf --remote-name-all "${baseurl}/BaseOS/${basearch}/os/Packages/kernel"{,-core,-modules,-modules-extra}"-${target_kver}.${basearch}.rpm"
+    runv curl -sSLf --remote-name-all "${baseurl}/BaseOS/${basearch}/os/Packages/kernel"{,-core,-modules,-modules-extra,-modules-core}"-${target_kver}.${basearch}.rpm"
     runv rpm-ostree override replace ./*.rpm
     popd
     rm "${tmpdir}" -rf
@@ -69,13 +70,13 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
         x86_64)
             tmpdir=$(mktemp -d -p /var/tmp)
             pushd "${tmpdir}"
+            #setup repos
+            runv rm -rf /etc/yum.repos.d/*
+            runv curl -v "${repo_url}" -o /etc/yum.repos.d/cs.repo
+            runv sed -i 's/gpgcheck=1/gpgcheck=0/g' /etc/yum.repos.d/cs.repo
             runv rpm-ostree override reset -a
-            runv curl -sSLf --remote-name-all "${baseurl}/NFV/${basearch}/os/Packages/kernel-rt"{-core,-modules,-modules-extra,-kvm}"-${target_kver_rt}.${basearch}.rpm"
-            args=()
-            for x in ./*.rpm; do
-                args+=(--install ./"${x}")
-            done
-            runv rpm-ostree override remove kernel{,-core,-modules,-modules-extra} "${args[@]}"
+            args=(--install kernel-rt)
+            runv rpm-ostree override remove kernel{,-core,-modules,-modules-extra,-modules-core} "${args[@]}"
             rm "${tmpdir}" -rf
             runv /tmp/autopkgtest-reboot 2
             ;;
@@ -85,7 +86,7 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     ;;
 2)
     case $(uname -r) in
-        "${target_kver_rt}.${basearch}") echo "ok kernel-rt" ;;
+        "${target_kver_rt}.${basearch}+rt") echo "ok kernel-rt" ;;
         *)
            uname -r
            rpm -q kernel-rt
