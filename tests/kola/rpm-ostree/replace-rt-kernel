@@ -2,6 +2,9 @@
 ## kola:
 ##   tags: "needs-internet"
 ##   timeoutMin: 30
+##   # We've seen some OOM when 1024M is used in similar tests:
+##   # https://github.com/coreos/fedora-coreos-tracker/issues/1506
+##   minMemory: 2048
 ##   description: Verify replacing the current kernel with an 
 ##     older centos kernel and replacing with kernel-rt.
 
@@ -15,68 +18,51 @@ runv () {
 }
 
 basearch=$(arch)
-rhelver=$(. /usr/lib/os-release && echo "${RHEL_VERSION}")
-major=$(echo "${rhelver}" | cut -f 1 -d .)
+major=$(. /usr/lib/os-release && echo "${CPE_NAME}" | grep -Eo '[0-9]{1,2}')
 baseurl=
 case "${major}" in
-    8)
-        # TODO: why the heck does centos only support insecure http?!?
-        baseurl=http://mirror.centos.org/centos/8-stream/
-        # TODO avoid hardcoding versions
-        target_kver=4.18.0-383.el8
-        target_kver_rt=4.18.0-394.rt7.179.el8
-        ;;
     9)
-        # TODO: why the heck does centos only support insecure http?!?
-        baseurl=http://mirror.stream.centos.org/9-stream/
-        # TODO avoid hardcoding versions
-        target_kver=5.14.0-196.el9
-        target_kver_rt=5.14.0-201.rt14.202.el9
+        baseurl=https://mirror.stream.centos.org/9-stream/
+        repo_url=https://raw.githubusercontent.com/openshift/os/master/c9s.repo
         ;;
-    *)  fatal "Unhandled RHEL_VERSION=${rhelver}"
+    *)  fatal "Unhandled major RHEL/SCOS VERSION=${major}"
         ;;
 esac
 
+# setup repos
+runv rm -rf /etc/yum.repos.d/*
+runv curl -sSLf "${repo_url}" -o /etc/yum.repos.d/cs.repo
+runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+runv sed -i 's|^gpgkey.*|gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official|' /etc/yum.repos.d/cs.repo
+
 case "${AUTOPKGTEST_REBOOT_MARK:-}" in
 "")
-    echo "Testing overriding with previous CentOS Stream kernel"
-    kver=$(uname -r)
-    if test "${kver}" = "${target_kver}"; then
-        fatal "Already in ${target_kver}"
-    fi
-    tmpdir=$(mktemp -d -p /var/tmp)
-    pushd "${tmpdir}"
-    runv curl -sSLf --remote-name-all "${baseurl}/BaseOS/${basearch}/os/Packages/kernel"{,-core,-modules,-modules-extra}"-${target_kver}.${basearch}.rpm"
-    runv rpm-ostree override replace ./*.rpm
-    popd
-    rm "${tmpdir}" -rf
+    echo "Testing overriding with CentOS Stream kernel"
+    runv rpm-ostree override replace --experimental --from repo=baseos kernel{,-core,-modules,-modules-extra,-modules-core}
     runv /tmp/autopkgtest-reboot 1
     ;;
 1)
-    case $(uname -r) in
-        "${target_kver}.${basearch}")
+    case $(rpm -qi kernel-core | grep Vendor) in
+        *"CentOS")
             echo "ok kernel override"
             ;;
         *)
             runv uname -r
-            runv rpm -q kernel
-            fatal "Failed to apply kernel override to ${target_kver}"
+            runv rpm -qi kernel-core
+            fatal "Failed to apply kernel override"
             ;;
     esac
 
     echo "Testing overriding with CentOS Stream RT kernel"
     case $basearch in
         x86_64)
-            tmpdir=$(mktemp -d -p /var/tmp)
-            pushd "${tmpdir}"
             runv rpm-ostree override reset -a
-            runv curl -sSLf --remote-name-all "${baseurl}/NFV/${basearch}/os/Packages/kernel-rt"{-core,-modules,-modules-extra,-kvm}"-${target_kver_rt}.${basearch}.rpm"
+            kernel_pkgs=("kernel-rt-core" "kernel-rt-modules" "kernel-rt-modules-extra" "kernel-rt-modules-core")
             args=()
-            for x in ./*.rpm; do
-                args+=(--install ./"${x}")
+            for x in ${kernel_pkgs}; do
+                args+=(--install "${x}")
             done
-            runv rpm-ostree override remove kernel{,-core,-modules,-modules-extra} "${args[@]}"
-            rm "${tmpdir}" -rf
+            runv rpm-ostree override remove kernel{,-core,-modules,-modules-extra,-modules-core} "${args[@]}"
             runv /tmp/autopkgtest-reboot 2
             ;;
         *) echo "note: no kernel-rt for $basearch"; exit 0
@@ -85,11 +71,11 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     ;;
 2)
     case $(uname -r) in
-        "${target_kver_rt}.${basearch}") echo "ok kernel-rt" ;;
+        *".${basearch}+rt") echo "ok kernel-rt" ;;
         *)
            uname -r
            rpm -q kernel-rt
-           fatal "Failed to apply kernel override to ${target_kver_rt}"
+           fatal "Failed to apply rt kernel override"
         ;;
     esac
     ;;
