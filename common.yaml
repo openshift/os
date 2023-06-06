@@ -6,7 +6,6 @@ include:
   - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
-  - fedora-coreos-config/manifests/shared-el9.yaml
   # RHCOS owned packages
   - packages-rhcos.yaml
 
@@ -15,7 +14,6 @@ ostree-layers:
   - overlay/01fcos
   - overlay/02fcos-nouveau
   - overlay/05rhcos
-  - overlay/07el9
   - overlay/06gcp-routes
   - overlay/15rhcos-networkmanager-dispatcher
   - overlay/15rhcos-tuned-bits
