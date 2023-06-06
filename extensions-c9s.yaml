@@ -6,6 +6,11 @@ repos:
   - sig-virtualization
 
 extensions:
+  # https://github.com/coreos/fedora-coreos-tracker/issues/1504
+  ipsec:
+    packages:
+      - libreswan
+      - NetworkManager-libreswan
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
     packages:
