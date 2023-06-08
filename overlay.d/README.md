@@ -59,3 +59,19 @@ the `eui` links instead or pivoting to GPT partition UUIDs. Customers may have
 also manually typed the old symlink in their Ignition configs and other k8s
 resources though. Those would require some communication before we can rip this
 out.
+
+30gcp-udev-rules
+-------------------
+
+Add udev rules and scripts needed from google-guest-configs [1] for disk
+configuration in GCP, such as local SSD controllers (nvme and scsi).
+
+The udev rules are also needed in the initramfs [2] and are delivered here via a dracut
+module.
+
+The google-compute-engine-guest-configs-udev package that exists in Fedora delivers
+these files. We should drop this module when it exists in RHEL too.
+
+[1] https://github.com/GoogleCloudPlatform/guest-configs/tree/master/src/lib/udev
+[2] https://issues.redhat.com/browse/OCPBUGS-10942
+[3] https://bugzilla.redhat.com/show_bug.cgi?id=2182865
