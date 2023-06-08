@@ -1,1 +1,5 @@
-disable iscsid.socket
+# force disable until the following patches are in c9s/el9:
+# https://src.fedoraproject.org/rpms/iscsi-initiator-utils/c/1e689cd0c6667eca838c85975a1b7a070209e5ad
+# https://src.fedoraproject.org/rpms/fedora-release/pull-request/246
+# then it'll be off by default and we won't need this
+disable iscsi.service
