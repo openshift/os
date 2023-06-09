@@ -20,7 +20,7 @@ RUN if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIO
 ## Creates the repo metadata for the extensions & builds the go binary.
 ## This uses Fedora as a lowest-common-denominator because it will work on
 ## current p8/s390x.  See https://github.com/openshift/os/issues/1000
-FROM quay.io/fedora/fedora:37 as builder
+FROM quay.io/fedora/fedora:38 as builder
 COPY --from=os /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 RUN dnf install -y createrepo_c golang
 ADD extensions/repo-server/main.go .
