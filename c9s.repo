@@ -20,7 +20,7 @@ baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-c
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Extras
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
 
 [nfv]
 name=CentOS Stream 9 - NFV
