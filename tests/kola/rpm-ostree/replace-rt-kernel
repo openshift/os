@@ -19,11 +19,8 @@ runv () {
 
 basearch=$(arch)
 major=$(. /usr/lib/os-release && echo "${CPE_NAME}" | grep -Eo '[0-9]{1,2}')
-baseurl=
 case "${major}" in
     9)
-        baseurl=https://mirror.stream.centos.org/9-stream/
-        repo_url=https://raw.githubusercontent.com/openshift/os/master/c9s.repo
         ;;
     *)  fatal "Unhandled major RHEL/SCOS VERSION=${major}"
         ;;
@@ -31,9 +28,25 @@ esac
 
 # setup repos
 runv rm -rf /etc/yum.repos.d/*
-runv curl -sSLf "${repo_url}" -o /etc/yum.repos.d/cs.repo
 runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
-runv sed -i 's|^gpgkey.*|gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official|' /etc/yum.repos.d/cs.repo
+runv cat > /etc/yum.repos.d/cs.repo << EOF
+[baseos]
+name=CentOS Stream 9 - BaseOS
+baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/BaseOS/\$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+
+[nfv]
+name=CentOS Stream 9 - NFV
+baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/NFV/\$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+
+EOF
 
 case "${AUTOPKGTEST_REBOOT_MARK:-}" in
 "")

@@ -14,11 +14,6 @@
   arches:
   - ppc64le
 
-- pattern: ext.config.rpm-ostree.replace-rt-kernel
-  tracker: https://github.com/openshift/os/issues/1315
-  osversion:
-  - c9s
-
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
