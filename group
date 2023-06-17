@@ -42,5 +42,3 @@ nfsnobody:x:65534:
 kube:x:994:
 sshd:x:74:
 chrony:x:992:
-openvswitch:x:800:
-hugetlbfs:x:801:
