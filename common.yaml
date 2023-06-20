@@ -192,6 +192,17 @@ postprocess:
      # but we have containers that expect it to be mounted so for now let's continue
      # generating it.
      ln -sr /usr/share/zoneinfo/UTC /etc/localtime
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+     # Add the hugetlbfs group to the openvswitch user if the openvswitch-hugetlbfs.conf
+     # sysusers fragment exists. The usermod used to happen in the RPM scriptlets but
+     # that stopped working in the sysusers conversion. We still need need to investigate
+     # it further. https://github.com/openshift/os/issues/1274#issuecomment-1595860275
+     if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
+         usermod -a -G hugetlbfs openvswitch
+     fi
+
 
 remove-files:
   # We don't ship man(1) or info(1)
