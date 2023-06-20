@@ -38,6 +38,10 @@ runv sed -i 's|^gpgkey.*|gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Offic
 case "${AUTOPKGTEST_REBOOT_MARK:-}" in
 "")
     echo "Testing overriding with CentOS Stream kernel"
+    # Disable all repos except baseos and appstream as not all of them have support for all RHCOS supported architectures
+    runv sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/cs.repo
+    runv sed -i '/\[baseos\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
+    runv sed -i '/\[appstream\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
     runv rpm-ostree override replace --experimental --from repo=baseos kernel{,-core,-modules,-modules-extra,-modules-core}
     runv /tmp/autopkgtest-reboot 1
     ;;
@@ -56,6 +60,9 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     echo "Testing overriding with CentOS Stream RT kernel"
     case $basearch in
         x86_64)
+            # Enable nfv and rt repos
+            runv sed -i '/\[nfv\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
+            runv sed -i '/\[rt\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
             runv rpm-ostree override reset -a
             kernel_pkgs=("kernel-rt-core" "kernel-rt-modules" "kernel-rt-modules-extra" "kernel-rt-modules-core")
             args=()
