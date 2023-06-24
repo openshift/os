@@ -194,8 +194,8 @@ postprocess:
      set -xeo pipefail
      # Add the hugetlbfs group to the openvswitch user if the openvswitch-hugetlbfs.conf
      # sysusers fragment exists. The usermod used to happen in the RPM scriptlets but
-     # that stopped working in the sysusers conversion. We still need need to investigate
-     # it further. https://github.com/openshift/os/issues/1274#issuecomment-1595860275
+     # that stopped working in the sysusers conversion. We should be able to drop this
+     # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
      if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
          usermod -a -G hugetlbfs openvswitch
      fi
