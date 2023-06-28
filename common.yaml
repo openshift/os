@@ -38,6 +38,8 @@ arch-include:
 
 documentation: false
 
+ima: true
+
 postprocess:
   - |
      #!/usr/bin/env bash
@@ -313,3 +315,6 @@ remove-from-packages:
   # by MCD or kubelet.  See above.
   - - conntrack-tools
     - /usr/lib/systemd/system
+  # Fix IMA issues
+  - - systemd-libs
+    - /usr/share/licenses/systemd/LICENSE.LGPL2.1
