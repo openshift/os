@@ -57,5 +57,6 @@ extensions:
   sandboxed-containers:
     architectures:
       - x86_64
+      - s390x
     packages:
       - kata-containers
