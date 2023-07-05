@@ -3,6 +3,10 @@
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
 extensions:
+  # https://issues.redhat.com/browse/RFE-4177
+  wasm:
+    packages:
+      - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
   ipsec:
     packages:
