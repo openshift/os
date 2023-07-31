@@ -65,6 +65,10 @@ firstboot() {
 }
 
 finish() {
+    if [ "$(</proc/sys/crypto/fips_enabled)" -ne 1 ]; then
+        fatal "FIPS mode is not enabled."
+    fi
+
     # This is analogous to Anaconda's `chroot /sysroot fips-mode-setup`. Though
     # of course, since our approach is "Ignition replaces Anaconda", we have to
     # do it on firstboot ourselves. The key part here is that we do this
