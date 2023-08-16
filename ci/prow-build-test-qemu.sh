@@ -4,7 +4,7 @@ set -xeuo pipefail
 # entrypoint for PRs to this repo, as well as for PRs on other repos,
 # mainly coreos-assembler.  It assumes that `cosa init` has been run.
 
-REDIRECTOR_URL="https://rhcos-redirector.apps.art.xq1c.p1.openshiftapps.com/art/storage/releases/"
+REDIRECTOR_URL="https://rhcos.mirror.openshift.com/art/storage/prod/streams"
 
 # record information about cosa + rpm-ostree
 if test -d /cosa; then
@@ -29,7 +29,7 @@ fi
 # to X-Y format
 ocpver=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]')
 ocpver_mut=$(rpm-ostree compose tree --print-only src/config/manifest.yaml | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-prev_build_url=${REDIRECTOR_URL}/rhcos-${ocpver}/
+prev_build_url="${REDIRECTOR_URL}/${ocpver}/builds/"
 curl -L http://base-"${ocpver_mut}"-rhel8.ocp.svc.cluster.local > src/config/ocp.repo
 cosa buildfetch --url=${prev_build_url}
 cosa fetch
