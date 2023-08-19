@@ -4,7 +4,7 @@ set -xeuo pipefail
 # Main script acting as entrypoint for all Prow jobs building RHCOS images
 
 # Global variables
-REDIRECTOR_URL="https://rhcos-redirector.apps.art.xq1c.p1.openshiftapps.com/art/storage/releases/"
+REDIRECTOR_URL="https://rhcos.mirror.openshift.com/art/storage/prod/streams"
 
 # This function is used to update the /etc/passwd file within the COSA container
 # at test-time. The need for this comes from the fact that OpenShift will run a
@@ -73,9 +73,9 @@ prepare_repos() {
     # Figure out which version we're building
     rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
-    # Temporary workaround until we publish builds for other versions
+    # Temporary workaround until we publish builds in the default path
     if [[ "${rhelver}" == "86" ]]; then
-        prev_build_url="${REDIRECTOR_URL}/rhcos-${ocpver}/"
+        prev_build_url="${REDIRECTOR_URL}/${ocpver}/builds/"
         # Fetch the previous build
         cosa buildfetch --url="${prev_build_url}"
     fi
