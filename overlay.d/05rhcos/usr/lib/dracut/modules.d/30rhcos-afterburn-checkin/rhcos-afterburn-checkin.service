@@ -30,6 +30,12 @@ After=ignition-fetch.service
 # across reboots, so defer it until after the kargs reboot.
 After=coreos-kargs-reboot.service
 
+# There is race condition about checkin and coreos-ignition-unique-boot.
+# Removal of the virtual CD might cause Unique Boot Filesystem 
+# service failed, as could not find `/dev/sr0`, so make sure checkin 
+# finished before we start it.
+Before=coreos-ignition-unique-boot.service
+
 # Run before switching root.
 Before=initrd.target
 
