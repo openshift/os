@@ -30,6 +30,8 @@ After=ignition-fetch.service
 # across reboots, so defer it until after the kargs reboot.
 After=coreos-kargs-reboot.service
 
+Before=ignition-disks.service
+
 # Run before switching root.
 Before=initrd.target
 
