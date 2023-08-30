@@ -23,6 +23,7 @@ ostree-layers:
   - overlay/25azure-udev-rules
   - overlay/30rhcos-nvme-compat-udev
   - overlay/30gcp-udev-rules
+  - overlay/30lvmdevices
 
 arch-include:
   x86_64:
