@@ -74,3 +74,12 @@ extensions:
       - sig-virtualization
     packages:
       - kata-containers
+  # https://issues.redhat.com/browse/COS-2402
+  kernel-64k:
+    architectures:
+      - aarch64
+    packages:
+      - kernel-64k-core
+      - kernel-64k-modules
+      - kernel-64k-modules-core
+      - kernel-64k-modules-extra
