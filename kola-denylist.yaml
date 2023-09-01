@@ -27,3 +27,9 @@
   tracker: https://github.com/coreos/coreos-assembler/issues/2725
   arches:
   - ppc64le
+- pattern: ext.config.shared.chrony.dhcp-propagation
+  tracker: https://github.com/openshift/os/issues/1352
+  snooze: 2023-09-22
+  arches:
+  - s390x
+  - ppc64le
