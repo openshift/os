@@ -89,7 +89,7 @@ sysroot_bwrap() {
       mount --bind /$mnt /mnt/bwrap/$mnt
     done
     touch /mnt/bwrap/run/ostree-booted
-    mount --bind /sysroot /mnt/bwrap/sysroot
+    mount --rbind /sysroot /mnt/bwrap/sysroot
     chroot /mnt/bwrap env --chdir /sysroot bwrap \
         --unshare-pid --unshare-uts --unshare-ipc --unshare-net \
         --unshare-cgroup-try --dev /dev --proc /proc --chdir / \
