@@ -25,6 +25,8 @@ install() {
         "$systemdsystemunitdir/rhcos-fips.service"
     inst_simple "$moddir/rhcos-fips-finish.service" \
         "$systemdsystemunitdir/rhcos-fips-finish.service"
+    inst_simple "$moddir/rhcos-fips-dracut-boot-fix.service" \
+        "$systemdsystemunitdir/rhcos-fips-dracut-boot-fix.service"
 
     # Unconditionally include /etc/system-fips in the initrd. This has no
     # practical effect if fips=1 isn't also enabled. OTOH, it is a *requirement*
