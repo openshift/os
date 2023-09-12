@@ -9,6 +9,8 @@ Before=initrd.target
 # we want to run after Ignition drops its files
 After=ignition-files.service
 
+Wants=rhcos-fips-dracut-boot-fix.service
+
 # See comment about this in ignition-complete.target.
 OnFailure=emergency.target
 OnFailureJobMode=isolate
