@@ -27,14 +27,14 @@ repos:
   # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
   - sig-cloud-okd
   # Include RHCOS 9 repo for oc, hyperkube
-  - rhel-9.2-server-ose-4.14
+  - rhel-9.2-server-ose-4.15
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "414.9.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "415.9.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.14"
+mutate-os-release: "4.15"
 
 postprocess:
   - |
@@ -43,7 +43,7 @@ postprocess:
 
      # Tweak /usr/lib/os-release
      grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.stream
-     OCP_RELEASE="4.14"
+     OCP_RELEASE="4.15"
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
