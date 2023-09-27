@@ -49,9 +49,11 @@ and later. For older versions, see the internal documentation.
   $ cd rhcos-4.11
   ```
 
-- Make sure that you have setup the internal Red Hat root certificate on your
-  host system. See the internal documentation. Ask COSA to use those
-  certificates:
+- Make sure that you have setup the latest internal Red Hat root certificates
+  on your host system. See the internal documentation.
+
+- Make sure that you have the latest `cosa` alias from the
+  [documentation][cosa-alias]. Then ask COSA to use those certificates:
   ```
   $ export COREOS_ASSEMBLER_ADD_CERTS='y'
   ```
