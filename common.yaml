@@ -38,9 +38,6 @@ documentation: false
 initramfs-args:
   - "--add"
   - "iscsi"
-  - "ignition"
-  - "--add"
-  - "fips"
 
 postprocess:
   - |
