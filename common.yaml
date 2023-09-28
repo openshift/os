@@ -36,13 +36,8 @@ arch-include:
 
 documentation: false
 initramfs-args:
-  - "--no-hostonly"
   - "--omit-drivers"
   - "nouveau"
-  - "--omit"
-  # we don't need root-on-NFS
-  # see upstream: https://github.com/coreos/fedora-coreos-config/pull/60
-  - "nfs"
   - "--add"
   - "iscsi"
   - "ignition"
@@ -55,8 +50,6 @@ initramfs-args:
  ## XXX: Temporarily use overlay.d/05rhcos/usr/lib/dracut/modules.d/29rhcos-need-network-manager/module-setup.sh
  #- "--add"
  #- "network-manager"
-  - "--omit"
-  - "network-legacy"
 
 postprocess:
   - |
