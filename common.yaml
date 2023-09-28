@@ -36,8 +36,6 @@ arch-include:
 
 documentation: false
 initramfs-args:
-  - "--omit-drivers"
-  - "nouveau"
   - "--add"
   - "iscsi"
   - "ignition"
