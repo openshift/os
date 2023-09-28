@@ -43,11 +43,6 @@ initramfs-args:
   - "ifcfg"
   - "--add"
   - "fips"
-  # The current default in RHEL8 is network-legacy
- ## XXX: This does not work for now: https://github.com/dracutdevs/dracut/issues/798
- ## XXX: Temporarily use overlay.d/05rhcos/usr/lib/dracut/modules.d/29rhcos-need-network-manager/module-setup.sh
- #- "--add"
- #- "network-manager"
 
 postprocess:
   - |
