@@ -40,8 +40,6 @@ initramfs-args:
   - "iscsi"
   - "ignition"
   - "--add"
-  - "ifcfg"
-  - "--add"
   - "fips"
 
 postprocess:
