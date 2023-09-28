@@ -35,9 +35,6 @@ arch-include:
     - fedora-coreos-config/manifests/bootupd.yaml
 
 documentation: false
-initramfs-args:
-  - "--add"
-  - "iscsi"
 
 postprocess:
   - |
