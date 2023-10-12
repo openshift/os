@@ -292,6 +292,80 @@ Currently, non-default multipath configurations for the primary disk cannot be s
 
 If the device is connected to the host via a HBA then it'll show up transparently as a local disk and should work fine. We do not currently support booting from an iSCSI device where the OS is the initiator. iSCSI on secondary disks should be fine.
 
+## Q: How do I configure a secondary block device via Ignition/MC if the name varies on each node?
+
+First, verify that there isn't a `/dev/disk/by-*` symlink which works for your needs. If not, a few approaches exist:
+- If this is a fresh install and you're using the live environment to install RHCOS, as part of the install flow you can inspect the machine (by hand, or scripted) to imperatively figure out what the block device should be according to your own heuristics (e.g. "the only multipath device there is", or "the only NVMe block device"). You can then e.g. "render" the final Ignition config with the device path to pass to `coreos-installer` or directly partition it and optionally format it and use a consistent partition (and optionally filesystem) label that will be available to use in the generic Ignition config.
+- In the most generic case, you will have to set up the block device completely outside of Ignition. This means having your Ignition config write out a script (and a systemd unit that executes it) that does the probing in the real root to select the right block device and format it. You should still be able to write out the mount unit via Ignition. Here's an example Butane config that leverages environment files in the mount unit to dynamically select the device:
+
+```yaml
+variant: fcos
+version: 1.4.0
+systemd:
+  units:
+    - name: find-secondary-device.service
+      enabled: true
+      contents: |
+        [Unit]
+        DefaultDependencies=false
+        After=systemd-udev-settle.service
+        Before=local-fs-pre.target
+        ConditionPathExists=!/etc/secondary-dev.env
+
+        # break boot if we fail
+        OnFailure=emergency.target
+        OnFailureJobMode=isolate
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/etc/find-secondary-device
+
+        [Install]
+        WantedBy=multi-user.target
+    - name: var-lib-foobar.mount
+      enabled: true
+      contents: |
+        [Unit]
+        Before=local-fs.target
+
+        [Mount]
+        EnvironmentFile=/etc/secondary-dev.env
+        What=$VAR_LIB_FOOBAR_DEV
+        Where=/var/lib/foobar
+        Type=xfs
+
+        [Install]
+        RequiredBy=local-fs.target
+storage:
+  files:
+    # put in /etc since /var isn't mounted yet when we need to run this
+    - path: /etc/find-secondary-device
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          set -xeuo pipefail
+
+          # example heuristic logic for finding the block device
+          for serial in foobar bazboo; do
+            blkdev=/dev/disk/by-id/virtio-$serial
+            if [ -b "$blkdev" ]; then
+              mkfs.xfs -f "$blkdev"
+              echo "Found secondary block device $blkdev" >&2
+              echo "VAR_LIB_FOOBAR_DEV=$blkdev" > /etc/secondary-dev.env
+              exit
+            fi
+          done
+
+          echo "Couldn't find secondary block device!" >&2
+          exit 1
+```
+
+Note this approach uses `After=systemd-udev-settle.service` which is not usually desirable as it may slow down boot. Another related approach is writing a udev rule to create a more stable symlink instead of this dynamic systemd service + script approach.
+
+The larger issue tracking machine-specific MachineConfigs is at https://github.com/openshift/machine-config-operator/issues/1720.
+
 ## Q: Does RHCOS support the use of `NetworkManager` keyfiles?  Does RHCOS support the use of `ifcfg` files?
 
 Starting with RHCOS 4.6, it is possible to use either `NetworkManager` keyfiles or `ifcfg` files for configuring host networking.  It is strongly preferred to use `NetworkManager` keyfiles.
