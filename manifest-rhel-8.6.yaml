@@ -147,8 +147,6 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - redhat-release
- # RHEL7 compatibility
- - compat-openssl10
  # SCOS package name does not include a version number
  - openvswitch3.1
  # https://github.com/openshift/os/issues/1036

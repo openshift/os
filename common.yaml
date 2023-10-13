@@ -160,6 +160,8 @@ exclude-packages:
   # See: https://bugzilla.redhat.com/show_bug.cgi?id=1930468
   # See: https://bugzilla.redhat.com/show_bug.cgi?id=1800901
   - dhcp-client
+  # https://issues.redhat.com/browse/COS-2461
+  - compat-openssl10
 
 # Try to maintain this list ordering by "in RHEL, then not in RHEL".
 # To verify, disable all repos except the ootpa ones and then comment
