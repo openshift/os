@@ -37,7 +37,7 @@ postprocess:
      set -xeo pipefail
 
      # Tweak /usr/lib/os-release
-     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.stream
+     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.rhel
      OCP_RELEASE="4.15"
      (
      . /etc/os-release
