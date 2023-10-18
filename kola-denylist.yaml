@@ -10,8 +10,26 @@
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
   - c9s
+  - rhel-9.4
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
   - c9s
+  - rhel-9.4
+
+- pattern: ext.config.rpm-ostree.replace-rt-kernel
+  tracker: https://github.com/openshift/os/issues/1383
+  osversion:
+  - rhel-9.4
+
+- pattern: ext.config.shared.content-origins
+  tracker: https://github.com/openshift/os/issues/1387#issuecomment-1769313807
+  osversion:
+  - rhel-9.4
+
+- pattern: ext.config.version.rhel-matches-rhcos-build
+  tracker: https://github.com/openshift/os/issues/1387#issuecomment-1769313807
+  osversion:
+  - rhel-9.4
+
