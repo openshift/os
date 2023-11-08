@@ -21,3 +21,6 @@ vmware-hw-version: 15
 aws-imdsv2-only: false
 aws-volume-type: "gp2"
 aws-x86-boot-mode: "legacy-bios"
+
+# add the requisite OCP metadata to our container image
+ostree-container-inject-openshift-cvo-labels: true
