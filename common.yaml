@@ -1,5 +1,6 @@
 # We inherit from Fedora CoreOS' base configuration
 include:
+  - fedora-coreos-config/manifests/kernel.yaml
   - fedora-coreos-config/manifests/system-configuration.yaml
   - fedora-coreos-config/manifests/ignition-and-ostree.yaml
   - fedora-coreos-config/manifests/file-transfer.yaml
