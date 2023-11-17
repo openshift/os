@@ -33,3 +33,8 @@
   osversion:
   - rhel-9.4
 
+- pattern: pxe-*.ppcfw
+  tracker: https://github.com/coreos/coreos-assembler/issues/3370
+  # nb: testiso doesn't read this, so it's just for consistency
+  arches:
+    - ppc64le
