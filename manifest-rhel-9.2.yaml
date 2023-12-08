@@ -21,14 +21,14 @@ repos:
   - rhel-9.2-baseos
   - rhel-9.2-appstream
   - rhel-9.2-fast-datapath
-  - rhel-9.2-server-ose-4.15
+  - rhel-9.2-server-ose-4.16
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "415.92.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "416.92.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.15"
+mutate-os-release: "4.16"
 
 postprocess:
   - |
@@ -37,7 +37,7 @@ postprocess:
 
      # Tweak /usr/lib/os-release
      grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.rhel
-     OCP_RELEASE="4.15"
+     OCP_RELEASE="4.16"
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
@@ -121,7 +121,7 @@ repo-packages:
     packages:
       # We want the one shipping in RHEL, not the equivalently versioned one in RHAOS
       - nss-altfiles
-  - repo: rhel-9.2-server-ose-4.15
+  - repo: rhel-9.2-server-ose-4.16
     packages:
       - conmon-rs
       - cri-o
