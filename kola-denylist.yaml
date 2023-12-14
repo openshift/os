@@ -4,47 +4,40 @@
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1315
   osversion:
-  - c9s
+    - c9s
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
-  - c9s
-  - rhel-9.4
+    - c9s
+    - rhel-9.4
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
-  - c9s
-  - rhel-9.4
+    - c9s
+    - rhel-9.4
 
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1383
   osversion:
-  - rhel-9.4
+    - rhel-9.4
 
 - pattern: ext.config.shared.content-origins
   tracker: https://github.com/openshift/os/issues/1387#issuecomment-1769313807
   osversion:
-  - rhel-9.4
+    - rhel-9.4
 
 - pattern: ext.config.version.rhel-matches-rhcos-build
   tracker: https://github.com/openshift/os/issues/1387#issuecomment-1769313807
   osversion:
-  - rhel-9.4
+    - rhel-9.4
 
 - pattern: pxe-*.ppcfw
   tracker: https://github.com/coreos/coreos-assembler/issues/3370
   # nb: testiso doesn't read this, so it's just for consistency
   arches:
     - ppc64le
-
-- pattern: coreos.unique.boot.failure
-  tracker: https://github.com/coreos/coreos-assembler/issues/3669
-  snooze: 2023-12-13
-  warn: true
-  arches:
-    - aarch64
 
 - pattern: coreos.ignition.failure
   tracker: https://github.com/coreos/coreos-assembler/issues/3670
