@@ -277,6 +277,12 @@ coreos-installer install --append-karg rd.multipath=default --append-karg root=/
 
 If your environment permits it, it's also possible to turn on multipath as a day-2 operation using a MachineConfig object which appends the same kernel arguments. Note however that in some setups, any I/O to non-optimized paths will result in I/O errors. And since there is no guarantee which path the host may select prior to turning on multipath, this may break the system. In these cases, you must enable multipathing at installation time.
 
+## Q: How do I manually mount the `coreos-luks-root-nocrypt` root partition?
+
+Old versions of RHCOS have a "dummy cryptsetup" when LUKS is not enabled.  It is set up via `dm-linear` which creates a block device that skips the unused LUKS header.
+
+You can see [this code](https://github.com/openshift/os/blob/f73c9a15334ca41afb7a7d68fc9d838ab1c3e369/overlay.d/05rhcos/usr/libexec/coreos-cryptfs#L141-L143) for how it's mounted, and run those commands to do so outside of a booted host.
+
 ## Q: Does RHCOS support multipath on secondary disks?
 
 Yes, however setting this up is currently awkward to do. You must set everything up through Ignition units. The following kola test which creates a filesystem on a multipathed device and mounts it at `/var/lib/containers` shows how to do this:
