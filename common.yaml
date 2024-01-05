@@ -25,6 +25,7 @@ ostree-layers:
   - overlay/30rhcos-nvme-compat-udev
   - overlay/30gcp-udev-rules
   - overlay/30lvmdevices
+  - overlay/40grub
 
 arch-include:
   x86_64:
