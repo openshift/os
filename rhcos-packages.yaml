@@ -19,9 +19,3 @@ packages:
   # for kdump:
   # https://github.com/coreos/fedora-coreos-tracker/issues/622
   - kexec-tools
-
-# See https://github.com/coreos/bootupd
-packages-x86_64:
-   - bootupd
-packages-aarch64:
-   - bootupd

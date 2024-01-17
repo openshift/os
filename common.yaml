@@ -242,6 +242,8 @@ packages:
  - kernel-modules-extra
  # Audit
  - audit
+ # Bootloader updater
+ - bootupd
  # Containers
  - containernetworking-plugins
  # Pinned due to cosa on Fedora not honoring RHEL 8 modules as expected
