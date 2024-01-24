@@ -7,3 +7,4 @@ packages:
   # The packages below are present in CentOS Stream/RHEL,
   # and depend on one or more of the above.
   - NetworkManager-ovs
+  - ose-aws-ecr-image-credential-provider
