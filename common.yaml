@@ -313,3 +313,9 @@ remove-from-packages:
   # by MCD or kubelet.  See above.
   - - conntrack-tools
     - /usr/lib/systemd/system
+  # Suspect that these do not need to be in RHCOS, just testing to see what the outcome is from removing them
+  # in terms of reduced ostree image size mostly
+  - - openshift-hyperkube
+    - /usr/bin/kube-apiserver
+    - /usr/bin/kube-controller-manager
+    - /usr/bin/kube-scheduler
