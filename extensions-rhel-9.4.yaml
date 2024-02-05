@@ -2,9 +2,6 @@
 # https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
-repos:
-  - sig-virtualization
-
 extensions:
   # https://issues.redhat.com/browse/RFE-4177
   wasm:
