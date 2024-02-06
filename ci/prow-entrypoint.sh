@@ -86,6 +86,11 @@ prepare_repos() {
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
             cat src/config/ocp.repo
             ;;
+        94)
+            # For now, the 9.4 variant is mostly C9S, but we do still need some packages from 9.2 repos
+            curl --fail -L "http://base-${ocpver_mut}-rhel92.ocp.svc.cluster.local" -o "src/config/ocp.repo"
+            cat src/config/ocp.repo
+            ;;
         *)
             # Assume C9S/SCOS if the version does not match known values for RHEL
             # Temporary workaround until we have all packages for SCOS
@@ -261,13 +266,13 @@ main() {
             cosa_build
             kola_test_qemu
             ;;
-        "rhcos-92-build-test-qemu")
+        "rhcos-9-build-test-qemu")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
             kola_test_qemu
             ;;
-        "rhcos-92-build-test-metal")
+        "rhcos-9-build-test-metal")
             setup_user
             cosa_init "rhel-coreos-9"
             cosa_build
