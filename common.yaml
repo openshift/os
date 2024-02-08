@@ -261,6 +261,8 @@ packages:
  - authselect
  # https://bugzilla.redhat.com/show_bug.cgi?id=1900759
  - qemu-guest-agent
+ # passwd was obsoleted by shadow-utils in F40+, but still needed here
+ - passwd
  # BELOW HERE ARE PACKAGES NOT IN RHEL
  # Gluster - Used for Openshift e2e gluster testcases
  # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
