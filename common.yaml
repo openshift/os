@@ -7,6 +7,7 @@ include:
   - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
+  - fedora-coreos-config/manifests/bootupd.yaml
   # RHCOS owned packages
   - packages-rhcos.yaml
 
@@ -27,14 +28,10 @@ ostree-layers:
   - overlay/30lvmdevices
   - overlay/40grub
 
-arch-include:
-  x86_64:
-    - fedora-coreos-config/manifests/grub2-removals.yaml
-    - fedora-coreos-config/manifests/bootupd.yaml
-  ppc64le: fedora-coreos-config/manifests/grub2-removals.yaml
-  aarch64:
-    - fedora-coreos-config/manifests/grub2-removals.yaml
-    - fedora-coreos-config/manifests/bootupd.yaml
+conditional-include:
+  - if: basearch != "s390x"
+    # And remove some cruft from grub2
+    include: fedora-coreos-config/manifests/grub2-removals.yaml
 
 documentation: false
 
@@ -232,6 +229,8 @@ packages:
  - kernel-modules-extra
  # Audit
  - audit
+ # Bootloader updater
+ - bootupd
  # Containers
  - containernetworking-plugins
  # Pinned due to cosa on Fedora not honoring RHEL 8 modules as expected
