@@ -8,3 +8,5 @@ packages:
   # and depend on one or more of the above.
   - NetworkManager-ovs
   - ose-aws-ecr-image-credential-provider
+  - ose-azure-acr-image-credential-provider
+  - ose-gcp-gcr-image-credential-provider
