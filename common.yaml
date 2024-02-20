@@ -197,7 +197,6 @@ packages:
  - bootupd
  # Containers
  - containernetworking-plugins
- # Pinned due to cosa on Fedora not honoring RHEL 8 modules as expected
  - container-selinux
  # Needed for newer rpm-ostree
  - "'skopeo >= 2:1.7.0'"
@@ -226,7 +225,6 @@ packages:
  - qemu-guest-agent
  # passwd was obsoleted by shadow-utils in F40+, but still needed here
  - passwd
- # BELOW HERE ARE PACKAGES NOT IN RHEL
  # Gluster - Used for Openshift e2e gluster testcases
  # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
  - glusterfs-fuse
