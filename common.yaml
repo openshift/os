@@ -242,6 +242,8 @@ packages:
  - WALinuxAgent-udev
  # Provide fips-mode-setup which is needed by rhcos-fips.sh
  - crypto-policies-scripts
+ # For semanage
+ - policycoreutils-python-utils
 
 packages-x86_64:
   # Temporary add of open-vm-tools. Should be removed when containerized
