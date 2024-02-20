@@ -36,35 +36,41 @@ conditional-include:
 documentation: false
 
 postprocess:
+  # TEMPORARY: Create /etc/vmware-tools/tools.conf to ensure RHCOS shows up properly in VMWare
+  # See https://jira.coreos.com/browse/RHCOS-258
   - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    if [ "$(uname -m)" == "x86_64" ]; then
+      cat > /etc/vmware-tools/tools.conf <<'EOF'
+    [guestosinfo]
+    short-name = rhel8-64
+    EOF
+    fi
 
-     # TEMPORARY: Create /etc/vmware-tools/tools.conf to ensure RHCOS shows up properly in VMWare
-     # See https://jira.coreos.com/browse/RHCOS-258
-     if [ "$(uname -m)" == "x86_64" ]; then
-     cat > /etc/vmware-tools/tools.conf <<'EOF'
-     [guestosinfo]
-     short-name = rhel8-64
-     EOF
-     fi
+ # TEMPORARY: Remove /usr/etc/zkey/ group write permissions
+ # See https://github.com/openshift/os/issues/1209
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    if [ "$(uname -m)" == "s390x" ]; then
+      chmod -R g-w /usr/etc/zkey
+    fi
 
-     # TEMPORARY: Remove /usr/etc/zkey/ group write permissions
-     # See https://github.com/openshift/os/issues/1209
-     if [ "$(uname -m)" == "s390x" ]; then
-     chmod -R g-w /usr/etc/zkey
-     fi
+  # Nuke network.service from orbit
+  # https://github.com/openshift/os/issues/117
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    rm -rf /etc/rc.d/init.d/network /etc/rc.d/rc*.d/*network
 
-     # Nuke network.service from orbit
-     # https://github.com/openshift/os/issues/117
-     rm -rf /etc/rc.d/init.d/network /etc/rc.d/rc*.d/*network
+    # We're not using resolved yet
+    rm -f /usr/lib/systemd/system/systemd-resolved.service
 
-     # We're not using resolved yet
-     rm -f /usr/lib/systemd/system/systemd-resolved.service
+  # manually modify SELinux booleans that are needed for OCP use cases
   - |
     #!/usr/bin/env bash
     set -xeuo pipefail
-    # manually modify SELinux booleans that are needed for OCP use cases
     semanage boolean --modify --on container_use_cephfs      # RHBZ#1694045
     semanage boolean --modify --on virt_use_samba            # RHBZ#1754825
 
@@ -139,45 +145,52 @@ postprocess:
         done
     done
   - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
+    #!/usr/bin/env bash
+    set -xeo pipefail
 
-     # FIXME: Why is this only broken here?  NM isn't removing the link?
-     sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
+    # FIXME: Why is this only broken here?  NM isn't removing the link?
+    sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
 
-     # crio should stop hardcoding things in their config file!
-     # We are apparently somehow pulling in a conmon override in RHCOS
-     # that contains /usr/libexec/crio/conmon - WHY?
-     # sed -i '/conmon.*=/d' /etc/crio/crio.conf
-     # Oh right but the MCO overrides that too so...
-     mkdir -p /usr/libexec/crio
-     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
-
-     # Enable tmp-on-tmpfs by default because we don't want to have things leak
-     # across reboots, it increases alignment with FCOS, and also fixes the
-     # Live ISO. First, verify that RHEL is still disabling.
-     grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
-     echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
-     echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
   - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-     # See https://issues.redhat.com/browse/LOG-3117
-     # Something changed between rhel8 and rhel9 to not generate this by default
-     # but we have containers that expect it to be mounted so for now let's continue
-     # generating it.
-     ln -sr /usr/share/zoneinfo/UTC /etc/localtime
-  - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-     # Add the hugetlbfs group to the openvswitch user if the openvswitch-hugetlbfs.conf
-     # sysusers fragment exists. The usermod used to happen in the RPM scriptlets but
-     # that stopped working in the sysusers conversion. We should be able to drop this
-     # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
-     if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
-         usermod -a -G hugetlbfs openvswitch
-     fi
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # crio should stop hardcoding things in their config file!
+    # We are apparently somehow pulling in a conmon override in RHCOS
+    # that contains /usr/libexec/crio/conmon - WHY?
+    # sed -i '/conmon.*=/d' /etc/crio/crio.conf
+    # Oh right but the MCO overrides that too so...
+    mkdir -p /usr/libexec/crio
+    ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
 
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # Enable tmp-on-tmpfs by default because we don't want to have things leak
+    # across reboots, it increases alignment with FCOS, and also fixes the
+    # Live ISO. First, verify that RHEL is still disabling.
+    grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
+    echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
+    echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
+
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # See https://issues.redhat.com/browse/LOG-3117
+    # Something changed between rhel8 and rhel9 to not generate this by default
+    # but we have containers that expect it to be mounted so for now let's continue
+    # generating it.
+    ln -sr /usr/share/zoneinfo/UTC /etc/localtime
+
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # Add the hugetlbfs group to the openvswitch user if the openvswitch-hugetlbfs.conf
+    # sysusers fragment exists. The usermod used to happen in the RPM scriptlets but
+    # that stopped working in the sysusers conversion. We should be able to drop this
+    # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
+    if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
+        usermod -a -G hugetlbfs openvswitch
+    fi
 
 remove-files:
   # We don't ship man(1) or info(1)
