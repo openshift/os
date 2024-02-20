@@ -67,33 +67,6 @@ postprocess:
     # We're not using resolved yet
     rm -f /usr/lib/systemd/system/systemd-resolved.service
 
-  # manually modify SELinux booleans that are needed for OCP use cases
-  - |
-    #!/usr/bin/env bash
-    set -xeuo pipefail
-    semanage boolean --modify --on container_use_cephfs      # RHBZ#1694045
-    semanage boolean --modify --on virt_use_samba            # RHBZ#1754825
-
-  # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/812
-  # https://bugzilla.redhat.com/show_bug.cgi?id=1796537
-  - |
-    #!/usr/bin/bash
-    mkdir -p /usr/share/containers/oci/hooks.d
-
-  # This is part of e.g. fedora-repos in Fedora; we now want to include it by default
-  # so that the MCO can use it by default and not trip over SELinux issues trying
-  # to create it.
-  - |
-    #!/usr/bin/bash
-    mkdir -p /etc/yum.repos.d
-
-  # These enable librhsm which enables host subscriptions to work in containers
-  # https://github.com/rpm-software-management/librhsm/blob/fcd972cbe7c8a3907ba9f091cd082b1090231492/rhsm/rhsm-context.c#L30
-  - |
-    #!/usr/bin/bash
-    ln -sr /run/secrets/etc-pki-entitlement /etc/pki/entitlement-host
-    ln -sr /run/secrets/rhsm /etc/rhsm-host
-
   # This updates the PAM configuration to reference all of the SSSD modules.
   # Removes the `authselect` binary afterwards since `authselect` does not play well with `nss-altfiles`
   # (https://github.com/pbrezina/authselect/issues/48).
@@ -153,17 +126,6 @@ postprocess:
 
   - |
     #!/usr/bin/env bash
-    set -xeo pipefail
-    # crio should stop hardcoding things in their config file!
-    # We are apparently somehow pulling in a conmon override in RHCOS
-    # that contains /usr/libexec/crio/conmon - WHY?
-    # sed -i '/conmon.*=/d' /etc/crio/crio.conf
-    # Oh right but the MCO overrides that too so...
-    mkdir -p /usr/libexec/crio
-    ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
-
-  - |
-    #!/usr/bin/env bash
     set -xeuo pipefail
     # Enable tmp-on-tmpfs by default because we don't want to have things leak
     # across reboots, it increases alignment with FCOS, and also fixes the
@@ -180,17 +142,6 @@ postprocess:
     # but we have containers that expect it to be mounted so for now let's continue
     # generating it.
     ln -sr /usr/share/zoneinfo/UTC /etc/localtime
-
-  - |
-    #!/usr/bin/env bash
-    set -xeo pipefail
-    # Add the hugetlbfs group to the openvswitch user if the openvswitch-hugetlbfs.conf
-    # sysusers fragment exists. The usermod used to happen in the RPM scriptlets but
-    # that stopped working in the sysusers conversion. We should be able to drop this
-    # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
-    if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
-        usermod -a -G hugetlbfs openvswitch
-    fi
 
 remove-files:
   # We don't ship man(1) or info(1)

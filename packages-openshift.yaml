@@ -10,3 +10,63 @@ packages:
   - ose-aws-ecr-image-credential-provider
   - ose-azure-acr-image-credential-provider
   - ose-gcp-gcr-image-credential-provider
+
+postprocess:
+  # This is part of e.g. fedora-repos in Fedora; we now want to include it by default
+  # so that the MCO can use it by default and not trip over SELinux issues trying
+  # to create it.
+  - |
+    #!/usr/bin/bash
+    set -euo pipefail
+    mkdir -p /etc/yum.repos.d
+
+    # If there *are* repos built-in (e.g. c9s), disable them.
+    # We need to work in disconnected environments by default, and default-enabled
+    # repos will be attempted to be fetched by rpm-ostree when doing node-local
+    # kernel overrides today for e.g. kernel-rt.
+    for x in $(find /etc/yum.repos.d/ -name '*.repo'); do
+      sed -i -e s,enabled=1,enabled=0, $x
+    done
+
+  # These enable librhsm which enables host subscriptions to work in containers
+  # https://github.com/rpm-software-management/librhsm/blob/fcd972cbe7c8a3907ba9f091cd082b1090231492/rhsm/rhsm-context.c#L30
+  - |
+    #!/usr/bin/bash
+    set -euo pipefail
+    ln -sr /run/secrets/etc-pki-entitlement /etc/pki/entitlement-host
+    ln -sr /run/secrets/rhsm /etc/rhsm-host
+
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # manually modify SELinux booleans that are needed for OCP use cases
+    semanage boolean --modify --on container_use_cephfs      # RHBZ#1694045
+    semanage boolean --modify --on virt_use_samba            # RHBZ#1754825
+
+  # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/812
+  # https://bugzilla.redhat.com/show_bug.cgi?id=1796537
+  - |
+    #!/usr/bin/bash
+    mkdir -p /usr/share/containers/oci/hooks.d
+
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # Add the hugetlbfs group to the openvswitch user if the openvswitch-hugetlbfs.conf
+    # sysusers fragment exists. The usermod used to happen in the RPM scriptlets but
+    # that stopped working in the sysusers conversion. We should be able to drop this
+    # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
+    if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
+        usermod -a -G hugetlbfs openvswitch
+    fi
+
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # crio should stop hardcoding things in their config file!
+    # We are apparently somehow pulling in a conmon override in RHCOS
+    # that contains /usr/libexec/crio/conmon - WHY?
+    # sed -i '/conmon.*=/d' /etc/crio/crio.conf
+    # Oh right but the MCO overrides that too so...
+    mkdir -p /usr/libexec/crio
+    ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
