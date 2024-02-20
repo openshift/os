@@ -115,7 +115,6 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
- - bootc
 
 # Packages pinned to specific repos in SCOS 9
 repo-packages:

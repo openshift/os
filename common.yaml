@@ -210,6 +210,8 @@ packages:
  # Common tools used by scripts and admins interactively
  - rsync tmux
  - nmap-ncat strace
+ # Future update manager on the client-side
+ - bootc
  # Editors
  - nano
  # Red Hat CA certs

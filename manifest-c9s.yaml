@@ -123,7 +123,6 @@ packages:
  - centos-release-cloud-common
  - centos-release-nfv-common
  - centos-release-virt-common
- - bootc
 
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
