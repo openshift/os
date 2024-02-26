@@ -123,12 +123,7 @@ kola_test_qemu() {
 
     # Skip Secure Boot tests on SCOS for now
     # See: https://github.com/openshift/os/issues/1237
-    if [[ -f "src/config.json" ]]; then
-        variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
-    else
-        variant="default"
-    fi
-    if [[ "${variant}" != "scos" ]]; then
+    if rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-release"; then
         cosa kola --basic-qemu-scenarios
     else
         cosa kola --basic-qemu-scenarios --skip-secure-boot
