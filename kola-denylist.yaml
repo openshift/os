@@ -5,13 +5,13 @@
   tracker: https://github.com/openshift/os/issues/1237
   snooze: 2024-03-18
   osversion:
-  - rhel-9.4
+    - rhel-9.4
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   snooze: 2024-03-18
   osversion:
-  - rhel-9.4
+    - rhel-9.4
 
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1315
@@ -21,12 +21,12 @@
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
-  - c9s
+    - c9s
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
-  - c9s
+    - c9s
 
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1383
