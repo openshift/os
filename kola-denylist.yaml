@@ -1,6 +1,8 @@
 # This file documents currently known-to-fail kola tests. It is consumed by
 # coreos-assembler to automatically skip some tests. For more information,
 # see: https://github.com/coreos/coreos-assembler/pull/866.
+
+# RHEL 9.4 with CentOS Stream test snooze
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   snooze: 2024-03-18
@@ -12,21 +14,6 @@
   snooze: 2024-03-18
   osversion:
     - rhel-9.4
-
-- pattern: ext.config.rpm-ostree.replace-rt-kernel
-  tracker: https://github.com/openshift/os/issues/1315
-  osversion:
-    - c9s
-
-- pattern: iso-live-login.uefi-secure
-  tracker: https://github.com/openshift/os/issues/1237
-  osversion:
-    - c9s
-
-- pattern: iso-as-disk.uefi-secure
-  tracker: https://github.com/openshift/os/issues/1237
-  osversion:
-    - c9s
 
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1383
@@ -46,6 +33,23 @@
   osversion:
     - rhel-9.4
 
+# CentOS Stream specific indefinite snooze
+- pattern: iso-live-login.uefi-secure
+  tracker: https://github.com/openshift/os/issues/1237
+  osversion:
+    - c9s
+
+- pattern: iso-as-disk.uefi-secure
+  tracker: https://github.com/openshift/os/issues/1237
+  osversion:
+    - c9s
+
+- pattern: ext.config.rpm-ostree.replace-rt-kernel
+  tracker: https://github.com/openshift/os/issues/1315
+  osversion:
+    - c9s
+
+# Other failing tests
 - pattern: pxe-*.ppcfw
   tracker: https://github.com/coreos/coreos-assembler/issues/3370
   # nb: testiso doesn't read this, so it's just for consistency
