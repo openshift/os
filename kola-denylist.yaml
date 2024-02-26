@@ -13,12 +13,6 @@
   osversion:
   - rhel-9.4
 
-- pattern: basic
-  tracker: https://github.com/openshift/os/issues/1237
-  snooze: 2024-02-26
-  osversion:
-  - rhel-9.4
-
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1315
   osversion:
