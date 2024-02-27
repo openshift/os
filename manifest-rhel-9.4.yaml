@@ -21,7 +21,7 @@ repos:
   - baseos
   - appstream
   - rhel-9.2-fast-datapath
-  # Include RHCOS 9 repo for oc, hyperkube
+  # Include RHCOS 9 repo for oc, kubelet
   - rhel-9.2-server-ose-4.16
 
 # We include hours/minutes to avoid version number reuse
@@ -139,4 +139,4 @@ repo-packages:
       - cri-o
       - cri-tools
       - openshift-clients
-      - openshift-hyperkube
+      - openshift-kubelet

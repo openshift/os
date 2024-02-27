@@ -127,6 +127,6 @@ repo-packages:
       - cri-o
       - cri-tools
       - openshift-clients
-      - openshift-hyperkube
+      - openshift-kubelet
       # Use legacy coreos/toolbox until we're ready to use containers/toolbox
       - toolbox
