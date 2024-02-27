@@ -124,11 +124,11 @@ kola_test_qemu() {
     # Skip Secure Boot tests on SCOS for now
     # See: https://github.com/openshift/os/issues/1237
     if rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-release"; then
-        cosa kola --basic-qemu-scenarios
+        cosa kola --basic-qemu-scenarios --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
     else
-        cosa kola --basic-qemu-scenarios --skip-secure-boot
+        cosa kola --basic-qemu-scenarios --skip-secure-boot --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
     fi
-    cosa kola run --parallel 2 --output-dir tmp/kola-all
+    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola
 }
 
 # Build metal, metal4k & live images and run kola tests
@@ -143,7 +143,7 @@ kola_test_metal() {
     cosa compress --artifact=metal --artifact=metal4k
 
     # Run all testiso scenarios on metal artifact
-    kola testiso -S --output-dir tmp/kola-metal
+    kola testiso -S --output-dir ${ARTIFACT_DIR:-/tmp}/kola-testiso
 }
 
 # Ensure that we can create all platform images for COSA CI
