@@ -33,10 +33,6 @@ conditional-include:
     # And remove some cruft from grub2
     include: fedora-coreos-config/manifests/grub2-removals.yaml
 
-# we want derivations to be able to type `dnf install ...` for a unified
-# experience
-cliwrap: true
-
 documentation: false
 
 postprocess:
