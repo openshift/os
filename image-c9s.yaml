@@ -8,7 +8,8 @@ deploy-via-container: true
 # defaulting to `ip=dhcp,dhcp6 rd.neednet=1` when it doesn't see this key.
 ignition-network-kcmdline: []
 
-# In OKD, keep OpenShift metadata on our container image, but xref https://github.com/openshift/os/issues/1047
+# add the requisite OCP metadata to our container image
+# but xref https://github.com/openshift/os/issues/1047
 ostree-container-inject-openshift-cvo-labels: true
 
 # vmware-secure-boot changes the EFI secure boot option.
