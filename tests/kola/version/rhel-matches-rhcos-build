@@ -3,6 +3,7 @@
 ##   exclusive: false
 ##   description: Verify that the OS version (C9S, RHEL 9.x) matches  
 ##     the version stored in /etc/os-release.
+##   tags: openshift
 
 set -xeuo pipefail
 

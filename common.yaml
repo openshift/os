@@ -36,57 +36,36 @@ conditional-include:
 documentation: false
 
 postprocess:
-  - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-
-     # TEMPORARY: Create /etc/vmware-tools/tools.conf to ensure RHCOS shows up properly in VMWare
-     # See https://jira.coreos.com/browse/RHCOS-258
-     if [ "$(uname -m)" == "x86_64" ]; then
-     cat > /etc/vmware-tools/tools.conf <<'EOF'
-     [guestosinfo]
-     short-name = rhel8-64
-     EOF
-     fi
-
-     # TEMPORARY: Remove /usr/etc/zkey/ group write permissions
-     # See https://github.com/openshift/os/issues/1209
-     if [ "$(uname -m)" == "s390x" ]; then
-     chmod -R g-w /usr/etc/zkey
-     fi
-
-     # Nuke network.service from orbit
-     # https://github.com/openshift/os/issues/117
-     rm -rf /etc/rc.d/init.d/network /etc/rc.d/rc*.d/*network
-
-     # We're not using resolved yet
-     rm -f /usr/lib/systemd/system/systemd-resolved.service
+  # TEMPORARY: Create /etc/vmware-tools/tools.conf to ensure RHCOS shows up properly in VMWare
+  # See https://jira.coreos.com/browse/RHCOS-258
   - |
     #!/usr/bin/env bash
-    set -xeuo pipefail
-    # manually modify SELinux booleans that are needed for OCP use cases
-    semanage boolean --modify --on container_use_cephfs      # RHBZ#1694045
-    semanage boolean --modify --on virt_use_samba            # RHBZ#1754825
+    set -xeo pipefail
+    if [ "$(uname -m)" == "x86_64" ]; then
+      cat > /etc/vmware-tools/tools.conf <<'EOF'
+    [guestosinfo]
+    short-name = rhel8-64
+    EOF
+    fi
 
-  # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/812
-  # https://bugzilla.redhat.com/show_bug.cgi?id=1796537
+ # TEMPORARY: Remove /usr/etc/zkey/ group write permissions
+ # See https://github.com/openshift/os/issues/1209
   - |
-    #!/usr/bin/bash
-    mkdir -p /usr/share/containers/oci/hooks.d
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    if [ "$(uname -m)" == "s390x" ]; then
+      chmod -R g-w /usr/etc/zkey
+    fi
 
-  # This is part of e.g. fedora-repos in Fedora; we now want to include it by default
-  # so that the MCO can use it by default and not trip over SELinux issues trying
-  # to create it.
+  # Nuke network.service from orbit
+  # https://github.com/openshift/os/issues/117
   - |
-    #!/usr/bin/bash
-    mkdir -p /etc/yum.repos.d
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    rm -rf /etc/rc.d/init.d/network /etc/rc.d/rc*.d/*network
 
-  # These enable librhsm which enables host subscriptions to work in containers
-  # https://github.com/rpm-software-management/librhsm/blob/fcd972cbe7c8a3907ba9f091cd082b1090231492/rhsm/rhsm-context.c#L30
-  - |
-    #!/usr/bin/bash
-    ln -sr /run/secrets/etc-pki-entitlement /etc/pki/entitlement-host
-    ln -sr /run/secrets/rhsm /etc/rhsm-host
+    # We're not using resolved yet
+    rm -f /usr/lib/systemd/system/systemd-resolved.service
 
   # This updates the PAM configuration to reference all of the SSSD modules.
   # Removes the `authselect` binary afterwards since `authselect` does not play well with `nss-altfiles`
@@ -139,45 +118,30 @@ postprocess:
         done
     done
   - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
+    #!/usr/bin/env bash
+    set -xeo pipefail
 
-     # FIXME: Why is this only broken here?  NM isn't removing the link?
-     sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
+    # FIXME: Why is this only broken here?  NM isn't removing the link?
+    sed -i '/etc.resolv/d' /usr/lib/tmpfiles.d/etc.conf
 
-     # crio should stop hardcoding things in their config file!
-     # We are apparently somehow pulling in a conmon override in RHCOS
-     # that contains /usr/libexec/crio/conmon - WHY?
-     # sed -i '/conmon.*=/d' /etc/crio/crio.conf
-     # Oh right but the MCO overrides that too so...
-     mkdir -p /usr/libexec/crio
-     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
-
-     # Enable tmp-on-tmpfs by default because we don't want to have things leak
-     # across reboots, it increases alignment with FCOS, and also fixes the
-     # Live ISO. First, verify that RHEL is still disabling.
-     grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
-     echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
-     echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
   - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-     # See https://issues.redhat.com/browse/LOG-3117
-     # Something changed between rhel8 and rhel9 to not generate this by default
-     # but we have containers that expect it to be mounted so for now let's continue
-     # generating it.
-     ln -sr /usr/share/zoneinfo/UTC /etc/localtime
-  - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-     # Add the hugetlbfs group to the openvswitch user if the openvswitch-hugetlbfs.conf
-     # sysusers fragment exists. The usermod used to happen in the RPM scriptlets but
-     # that stopped working in the sysusers conversion. We should be able to drop this
-     # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
-     if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
-         usermod -a -G hugetlbfs openvswitch
-     fi
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # Enable tmp-on-tmpfs by default because we don't want to have things leak
+    # across reboots, it increases alignment with FCOS, and also fixes the
+    # Live ISO. First, verify that RHEL is still disabling.
+    grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
+    echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
+    echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
 
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # See https://issues.redhat.com/browse/LOG-3117
+    # Something changed between rhel8 and rhel9 to not generate this by default
+    # but we have containers that expect it to be mounted so for now let's continue
+    # generating it.
+    ln -sr /usr/share/zoneinfo/UTC /etc/localtime
 
 remove-files:
   # We don't ship man(1) or info(1)
@@ -233,7 +197,6 @@ packages:
  - bootupd
  # Containers
  - containernetworking-plugins
- # Pinned due to cosa on Fedora not honoring RHEL 8 modules as expected
  - container-selinux
  # Needed for newer rpm-ostree
  - "'skopeo >= 2:1.7.0'"
@@ -247,6 +210,8 @@ packages:
  # Common tools used by scripts and admins interactively
  - rsync tmux
  - nmap-ncat strace
+ # Future update manager on the client-side
+ - bootc
  # Editors
  - nano
  # Red Hat CA certs
@@ -262,7 +227,6 @@ packages:
  - qemu-guest-agent
  # passwd was obsoleted by shadow-utils in F40+, but still needed here
  - passwd
- # BELOW HERE ARE PACKAGES NOT IN RHEL
  # Gluster - Used for Openshift e2e gluster testcases
  # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
  - glusterfs-fuse
@@ -280,6 +244,8 @@ packages:
  - WALinuxAgent-udev
  # Provide fips-mode-setup which is needed by rhcos-fips.sh
  - crypto-policies-scripts
+ # For semanage
+ - policycoreutils-python-utils
 
 packages-x86_64:
   # Temporary add of open-vm-tools. Should be removed when containerized

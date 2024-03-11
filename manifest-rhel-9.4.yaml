@@ -108,13 +108,6 @@ postprocess:
 
      ---
      EOF
-  - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-     # We need to work in disconnected environments by default, and default-enabled
-     # repos will be attempted to be fetched by rpm-ostree when doing node-local
-     # kernel overrides today for e.g. kernel-rt.
-     for x in /etc/yum.repos.d/*.repo; do sed -i -e s,enabled=1,enabled=0, $x; done
 
 # Packages that are only in RHCOS and not in SCOS or that have special
 # constraints that do not apply to SCOS
@@ -122,7 +115,6 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
- - bootc
 
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
