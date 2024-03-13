@@ -1,3 +1,13 @@
+repos:
+  # c9s doesn't have all the OCP RPMs yet
+  - rhel-9.2-server-ose-4.16
+  - rhel-9.2-fast-datapath
+  # these duplicate manifest-rhel-9.4.yaml and manifest-c9s.yaml, which
+  # `include` us, but in the layering path we don't go through rpm-ostree and
+  # directly apply this manifest
+  - baseos
+  - appstream
+
 packages:
   # The packages below are required by OpenShift/OKD
   # but are not present in CentOS Stream and RHEL.

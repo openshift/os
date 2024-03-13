@@ -10,6 +10,9 @@ set -xeuo pipefail
 
 variant="$(source /etc/os-release; echo "${ID}")"
 case "${variant}" in
+    "centos")
+        osver="$(source /etc/os-release; echo "${VERSION_ID}")"
+        ;;
     "scos")
         osver="$(source /usr/lib/os-release.stream; echo "${VERSION}")"
         ;;

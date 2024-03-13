@@ -1,9 +1,9 @@
-# Manifest for CentOS Stream CoreOS (SCOS)
+# Manifest for CentOS Stream 9 CoreOS Base
 
 rojig:
   license: MIT
   name: scos
-  summary: OKD 4
+  summary: CentOS Stream 9 CoreOS
 
 variables:
   osversion: "c9s"
@@ -12,13 +12,6 @@ variables:
 # common to RHEL 9 & C9S variants
 include:
   - common.yaml
-  - packages-openshift.yaml
-  # Order *after* packages-openshift.yaml because we want to affect
-  # postprocess scripts in it. Confusingly, rpm-ostree include semantics
-  # means that postprocess scripts in latter includes happen before earlier
-  # ones and it's probably too risky to change that now. See also comment in
-  # scos-os-release.yaml
-  - scos-os-release.yaml
 
 # Starting from here, everything should be specific to SCOS
 
@@ -26,42 +19,29 @@ include:
 repos:
   - baseos
   - appstream
-  # CentOS Extras Common repo for SIG RPM GPG keys
-  - extras-common
-  # CentOS NFV SIG repo for openvswitch
-  - sig-nfv
-  # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
-  - sig-cloud-okd
-  # Include RHCOS 9 repo for oc, hyperkube
-  - rhel-9.2-server-ose-4.16
 
-# We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "416.9.<date:%Y%m%d%H%M>"
-# This ensures we're semver-compatible which OpenShift wants
-automatic-version-suffix: "-"
-# Keep this is sync with the version in postprocess
-mutate-os-release: "4.16"
+# Match the format of c9s compose IDs. This field will be driven in the pipeline
+# anyway to match exactly the same compose ID we're composing with so the value
+# here is purely for developer builds.
+automatic-version-prefix: "9-<date:%Y%m%d>.dev"
 
-# Packages that are only in SCOS and not in RHCOS or that have special
-# constraints that do not apply to RHCOS
+mutate-os-release: "9"
+
+# Mark the OS as of the CoreOS variant.
+# XXX: should be part of a centos-release subpackage instead
+postprocess:
+  - |
+     #!/usr/bin/bash
+     set -euo pipefail
+     cat >> /usr/lib/os-release <<EOF
+     VARIANT=CoreOS
+     VARIANT_ID=coreos
+     EOF
+
+     # And put "CoreOS" in NAME and PRETTY_NAME
+     sed -i -e 's/^NAME="\(.*\)"/NAME="\1 CoreOS"/' /usr/lib/os-release
+     . /usr/lib/os-release
+     sed -i -e "s/^PRETTY_NAME=.*/PRETTY_NAME=\"$NAME $VERSION\"/" /usr/lib/os-release
+
 packages:
- # We include the generic release package and tweak the os-release info in a
- # post-proces script
  - centos-release
- # RPM GPG keys for CentOS SIG repos
- - centos-release-cloud-common
- - centos-release-nfv-common
- - centos-release-virt-common
-
-# Packages pinned to specific repos in SCOS 9
-repo-packages:
-  # We always want the kernel from BaseOS
-  - repo: baseos
-    packages:
-      - kernel
-  - repo: appstream
-    packages:
-      # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
-      - nss-altfiles
-      # Use the new containers/toolbox
-      - toolbox
