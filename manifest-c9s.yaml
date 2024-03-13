@@ -42,8 +42,7 @@ postprocess:
      set -xeo pipefail
 
      # Tweak /usr/lib/os-release
-     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.stream
-     OCP_RELEASE="4.16"
+     grep -v -e "OSTREE_VERSION" -e "OPENSHIFT_VERSION" /etc/os-release > /usr/lib/os-release.stream
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
@@ -51,7 +50,7 @@ postprocess:
      ID="scos"
      ID_LIKE="rhel fedora"
      VERSION="${OSTREE_VERSION}"
-     VERSION_ID="${OCP_RELEASE}"
+     VERSION_ID="${OPENSHIFT_VERSION}"
      VARIANT="CoreOS"
      VARIANT_ID=coreos
      PLATFORM_ID="${PLATFORM_ID}"
@@ -62,10 +61,10 @@ postprocess:
      DOCUMENTATION_URL="https://docs.okd.io/latest/welcome/index.html"
      BUG_REPORT_URL="https://access.redhat.com/labs/rhir/"
      REDHAT_BUGZILLA_PRODUCT="OpenShift Container Platform"
-     REDHAT_BUGZILLA_PRODUCT_VERSION="${OCP_RELEASE}"
+     REDHAT_BUGZILLA_PRODUCT_VERSION="${OPENSHIFT_VERSION}"
      REDHAT_SUPPORT_PRODUCT="OpenShift Container Platform"
-     REDHAT_SUPPORT_PRODUCT_VERSION="${OCP_RELEASE}"
-     OPENSHIFT_VERSION="${OCP_RELEASE}"
+     REDHAT_SUPPORT_PRODUCT_VERSION="${OPENSHIFT_VERSION}"
+     OPENSHIFT_VERSION="${OPENSHIFT_VERSION}"
      OSTREE_VERSION="${OSTREE_VERSION}"
      EOF
      )
@@ -94,24 +93,6 @@ postprocess:
      rm -f /etc/issue /etc/issue.net
      ln -s /usr/lib/issue /etc/issue
      ln -s /usr/lib/issue /etc/issue.net
-
-     # Let's have a non-boring motd, just like CL (although theirs is more subdued
-     # nowadays compared to early versions with ASCII art).  One thing we do here
-     # is add --- as a "separator"; the idea is that any "dynamic" information should
-     # be below that.
-     # See: https://projects.engineering.redhat.com/browse/COREOS-1029
-     . /etc/os-release
-     cat > /etc/motd <<EOF
-     CentOS Stream CoreOS $VERSION
-       Part of OKD ${OPENSHIFT_VERSION}, SCOS is a Kubernetes native operating system
-       managed by the Machine Config Operator (\`clusteroperator/machine-config\`).
-
-     WARNING: Direct SSH access to machines is not recommended; instead,
-     make configuration changes via \`machineconfig\` objects:
-       https://docs.openshift.com/container-platform/${OPENSHIFT_VERSION}/architecture/architecture-rhcos.html
-
-     ---
-     EOF
 
 # Packages that are only in SCOS and not in RHCOS or that have special
 # constraints that do not apply to RHCOS
