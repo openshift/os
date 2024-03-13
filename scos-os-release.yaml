@@ -1,0 +1,63 @@
+# This manifest modifies `/etc/os-release` to contain SCOS information. It
+# should no longer be necessary in the future when the base SCOS image is pure
+# CentOS. For now, we split it out so that it can be executed before the bits in
+# `packages-openshift.yaml` which rely on some of the fields set here to update
+# `/etc/motd`.
+
+postprocess:
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+
+     # Tweak /usr/lib/os-release
+     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.stream
+     OCP_RELEASE="4.16"
+     (
+     . /etc/os-release
+     cat > /usr/lib/os-release <<EOF
+     NAME="${NAME} CoreOS"
+     ID="scos"
+     ID_LIKE="rhel fedora"
+     VERSION="${OSTREE_VERSION}"
+     VERSION_ID="${OCP_RELEASE}"
+     VARIANT="CoreOS"
+     VARIANT_ID=coreos
+     PLATFORM_ID="${PLATFORM_ID}"
+     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION}"
+     ANSI_COLOR="${ANSI_COLOR}"
+     CPE_NAME="${CPE_NAME}::coreos"
+     HOME_URL="${HOME_URL}"
+     DOCUMENTATION_URL="https://docs.okd.io/latest/welcome/index.html"
+     BUG_REPORT_URL="https://access.redhat.com/labs/rhir/"
+     REDHAT_BUGZILLA_PRODUCT="OpenShift Container Platform"
+     REDHAT_BUGZILLA_PRODUCT_VERSION="${OCP_RELEASE}"
+     REDHAT_SUPPORT_PRODUCT="OpenShift Container Platform"
+     REDHAT_SUPPORT_PRODUCT_VERSION="${OCP_RELEASE}"
+     OSTREE_VERSION="${OSTREE_VERSION}"
+     EOF
+     )
+     rm -f /etc/os-release
+     ln -s ../usr/lib/os-release /etc/os-release
+
+     # Tweak /etc/system-release, /etc/system-release-cpe & /etc/redhat-release
+     (
+     . /etc/os-release
+     cat > /usr/lib/system-release-cpe <<EOF
+     ${CPE_NAME}
+     EOF
+     cat > /usr/lib/system-release <<EOF
+     ${NAME} release ${VERSION_ID}
+     EOF
+     rm -f /etc/system-release-cpe /etc/system-release /etc/redhat-release
+     ln -s /usr/lib/system-release-cpe /etc/system-release-cpe
+     ln -s /usr/lib/system-release /etc/system-release
+     ln -s /usr/lib/system-release /etc/redhat-release
+     )
+
+     # Tweak /usr/lib/issue
+     cat > /usr/lib/issue <<EOF
+     \S \S{VERSION_ID}
+     EOF
+     rm -f /etc/issue /etc/issue.net
+     ln -s /usr/lib/issue /etc/issue
+     ln -s /usr/lib/issue /etc/issue.net
