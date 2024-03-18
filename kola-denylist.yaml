@@ -5,37 +5,37 @@
 # RHEL 9.4 with CentOS Stream test snooze
 - pattern: basic
   tracker: https://github.com/openshift/os/issues/1237
-  snooze: 2024-03-18
+  snooze: 2024-04-01
   osversion:
     - rhel-9.4
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
-  snooze: 2024-03-18
+  snooze: 2024-04-01
   osversion:
     - rhel-9.4
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
-  snooze: 2024-03-18
+  snooze: 2024-04-01
   osversion:
     - rhel-9.4
 
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1383
-  snooze: 2024-03-18
+  snooze: 2024-04-01
   osversion:
     - rhel-9.4
 
 - pattern: ext.config.shared.content-origins
   tracker: https://github.com/openshift/os/issues/1387#issuecomment-1769313807
-  snooze: 2024-03-18
+  snooze: 2024-04-01
   osversion:
     - rhel-9.4
 
 - pattern: ext.config.version.rhel-matches-rhcos-build
   tracker: https://github.com/openshift/os/issues/1387#issuecomment-1769313807
-  snooze: 2024-03-18
+  snooze: 2024-04-01
   osversion:
     - rhel-9.4
 
