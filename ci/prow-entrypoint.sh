@@ -121,24 +121,13 @@ cosa_build() {
 kola_test_qemu() {
     cosa buildextend-qemu
 
-    # Skip Secure Boot tests on SCOS for now
-    # See: https://github.com/openshift/os/issues/1237
     # Due to the changes in https://github.com/coreos/coreos-assembler/pull/3652
     # we need to check if the basic.nvme is available in the list of tests
-    local args=""
     local manifest="src/config/manifest.yaml"
-    if cosa kola list --json | jq -r '.[].Name' | grep -q "basic.nvme"; then
-        if rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-release"; then
-            args+="--denylist-test *.uefi-secure"
-        fi
-    else
-        if ! rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-release"; then
-            cosa kola --basic-qemu-scenarios --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
-        else
-            cosa kola --basic-qemu-scenarios --skip-secure-boot --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
-        fi
+    if ! cosa kola list --json | jq -r '.[].Name' | grep -q "basic.nvme"; then
+        cosa kola --basic-qemu-scenarios --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
     fi
-    cosa kola run ${args} --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola
+    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola
 }
 
 # Build metal, metal4k & live images and run kola tests
