@@ -1,9 +1,9 @@
-# Manifest for CentOS Stream CoreOS (SCOS)
+# Manifest for CentOS Stream 9 CoreOS Base
 
 rojig:
   license: MIT
   name: scos
-  summary: OKD 4
+  summary: CentOS Stream 9 CoreOS
 
 variables:
   osversion: "c9s"
@@ -12,7 +12,6 @@ variables:
 # common to RHEL 9 & C9S variants
 include:
   - common.yaml
-  - packages-openshift.yaml
 
 # Starting from here, everything should be specific to SCOS
 
@@ -20,119 +19,29 @@ include:
 repos:
   - baseos
   - appstream
-  # CentOS Extras Common repo for SIG RPM GPG keys
-  - extras-common
-  # CentOS NFV SIG repo for openvswitch
-  - sig-nfv
-  # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
-  - sig-cloud-okd
-  # Include RHCOS 9 repo for oc, hyperkube
-  - rhel-9.2-server-ose-4.16
 
-# We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "416.9.<date:%Y%m%d%H%M>"
-# This ensures we're semver-compatible which OpenShift wants
-automatic-version-suffix: "-"
-# Keep this is sync with the version in postprocess
-mutate-os-release: "4.16"
+# Match the format of c9s compose IDs. This field will be driven in the pipeline
+# anyway to match exactly the same compose ID we're composing with so the value
+# here is purely for developer builds.
+automatic-version-prefix: "9-<date:%Y%m%d>.dev"
 
+mutate-os-release: "9"
+
+# Mark the OS as of the CoreOS variant.
+# XXX: should be part of a centos-release subpackage instead
 postprocess:
   - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-
-     # Tweak /usr/lib/os-release
-     grep -v "OSTREE_VERSION" /etc/os-release > /usr/lib/os-release.stream
-     OCP_RELEASE="4.16"
-     (
-     . /etc/os-release
-     cat > /usr/lib/os-release <<EOF
-     NAME="${NAME} CoreOS"
-     ID="scos"
-     ID_LIKE="rhel fedora"
-     VERSION="${OSTREE_VERSION}"
-     VERSION_ID="${OCP_RELEASE}"
-     VARIANT="CoreOS"
+     #!/usr/bin/bash
+     set -euo pipefail
+     cat >> /usr/lib/os-release <<EOF
+     VARIANT=CoreOS
      VARIANT_ID=coreos
-     PLATFORM_ID="${PLATFORM_ID}"
-     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION}"
-     ANSI_COLOR="${ANSI_COLOR}"
-     CPE_NAME="${CPE_NAME}::coreos"
-     HOME_URL="${HOME_URL}"
-     DOCUMENTATION_URL="https://docs.okd.io/latest/welcome/index.html"
-     BUG_REPORT_URL="https://access.redhat.com/labs/rhir/"
-     REDHAT_BUGZILLA_PRODUCT="OpenShift Container Platform"
-     REDHAT_BUGZILLA_PRODUCT_VERSION="${OCP_RELEASE}"
-     REDHAT_SUPPORT_PRODUCT="OpenShift Container Platform"
-     REDHAT_SUPPORT_PRODUCT_VERSION="${OCP_RELEASE}"
-     OPENSHIFT_VERSION="${OCP_RELEASE}"
-     OSTREE_VERSION="${OSTREE_VERSION}"
-     EOF
-     )
-     rm -f /etc/os-release
-     ln -s ../usr/lib/os-release /etc/os-release
-
-     # Tweak /etc/system-release, /etc/system-release-cpe & /etc/redhat-release
-     (
-     . /etc/os-release
-     cat > /usr/lib/system-release-cpe <<EOF
-     ${CPE_NAME}
-     EOF
-     cat > /usr/lib/system-release <<EOF
-     ${NAME} release ${VERSION_ID}
-     EOF
-     rm -f /etc/system-release-cpe /etc/system-release /etc/redhat-release
-     ln -s /usr/lib/system-release-cpe /etc/system-release-cpe
-     ln -s /usr/lib/system-release /etc/system-release
-     ln -s /usr/lib/system-release /etc/redhat-release
-     )
-
-     # Tweak /usr/lib/issue
-     cat > /usr/lib/issue <<EOF
-     \S \S{VERSION_ID}
-     EOF
-     rm -f /etc/issue /etc/issue.net
-     ln -s /usr/lib/issue /etc/issue
-     ln -s /usr/lib/issue /etc/issue.net
-
-     # Let's have a non-boring motd, just like CL (although theirs is more subdued
-     # nowadays compared to early versions with ASCII art).  One thing we do here
-     # is add --- as a "separator"; the idea is that any "dynamic" information should
-     # be below that.
-     # See: https://projects.engineering.redhat.com/browse/COREOS-1029
-     . /etc/os-release
-     cat > /etc/motd <<EOF
-     CentOS Stream CoreOS $VERSION
-       Part of OKD ${OPENSHIFT_VERSION}, SCOS is a Kubernetes native operating system
-       managed by the Machine Config Operator (\`clusteroperator/machine-config\`).
-
-     WARNING: Direct SSH access to machines is not recommended; instead,
-     make configuration changes via \`machineconfig\` objects:
-       https://docs.openshift.com/container-platform/${OPENSHIFT_VERSION}/architecture/architecture-rhcos.html
-
-     ---
      EOF
 
-# Packages that are only in SCOS and not in RHCOS or that have special
-# constraints that do not apply to RHCOS
+     # And put "CoreOS" in NAME and PRETTY_NAME
+     sed -i -e 's/^NAME="\(.*\)"/NAME="\1 CoreOS"/' /usr/lib/os-release
+     . /usr/lib/os-release
+     sed -i -e "s/^PRETTY_NAME=.*/PRETTY_NAME=\"$NAME $VERSION\"/" /usr/lib/os-release
+
 packages:
- # We include the generic release package and tweak the os-release info in a
- # post-proces script
  - centos-release
- # RPM GPG keys for CentOS SIG repos
- - centos-release-cloud-common
- - centos-release-nfv-common
- - centos-release-virt-common
-
-# Packages pinned to specific repos in SCOS 9
-repo-packages:
-  # We always want the kernel from BaseOS
-  - repo: baseos
-    packages:
-      - kernel
-  - repo: appstream
-    packages:
-      # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
-      - nss-altfiles
-      # Use the new containers/toolbox
-      - toolbox

@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+
+# This is a hacky temporary script to apply an rpm-ostree manifest as part of a
+# derived container build. It's only required because we're in this transitional
+# state where some streams use the old way, and others use layering. Once all
+# streams use layering, we should stop using manifests for tha layered bits. (An
+# obvious question here is whether we should keep extending the `rpm-ostree ex
+# rebuild` stuff to keep using manifests even in a layered build. Though likely
+# similar functionality will live in dnf instead.)
+
+# Note this only supports the subset of the manifest spec actually used in
+# `packages-openshift.yaml`.
+
+import os
+import shutil
+import subprocess
+import sys
+import yaml
+
+manifest_file = sys.argv[1]
+manifest_dir = os.path.dirname(manifest_file)
+
+with open(manifest_file) as f:
+    manifest = yaml.safe_load(f)
+
+if len(manifest.get('packages', [])):
+
+    packages = []
+    for pkg in manifest['packages']:
+        packages += pkg.split()
+    rpmostree_install = ['rpm-ostree', 'install', '-y'] + packages
+
+    # XXX: temporary hack for cri-o, which wants to create dirs under /opt
+    # https://github.com/CentOS/centos-bootc/issues/393
+    if 'cri-o' in packages:
+        os.makedirs("/var/opt", exist_ok=True)
+
+    # move the canonical dir out of the way
+    moved_yum_repos_d = False
+    if 'repos' in manifest:
+        if os.path.isdir('/etc/yum.repos.d'):
+            # can't just os.rename here because of classic overlayfs
+            # non-POSIXness will hit EXDEV
+            shutil.copytree("/etc/yum.repos.d", "/etc/yum.repos.d.bak")
+            shutil.rmtree("/etc/yum.repos.d")
+            os.mkdir("/etc/yum.repos.d")
+            moved_yum_repos_d = True
+
+        for dir in [manifest_dir, "/run/src/yumrepos"]:
+            for ent in os.listdir(dir):
+                if ent.endswith(".repo"):
+                    shutil.copy(os.path.join(dir, ent), "/etc/yum.repos.d")
+
+        rpmostree_install += ["--disablerepo=*"]
+        for repo in manifest['repos']:
+            rpmostree_install += [f"--enablerepo={repo}"]
+
+        if os.path.isfile("/etc/yum.repos.d/c9s.repo"):
+            # XXX: brutal hack for CentOS GPG key path because our c9s
+            # definitions have key paths that make sense for Fedora, not CentOS
+            # (note gpgcheck is still 1)
+            subprocess.check_call(['sed', '-i', '/gpgkey=/ d', '/etc/yum.repos.d/c9s.repo'])
+            # XXX: SHA1 version of the key isn't supported anymore. This isn't
+            # strictly required but squashes a warning. Should check why c9s is
+            # still shipping this; let it error out if it doesn't exist anymore,
+            # that way we'll know to remove this
+            os.unlink('/etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Extras')
+
+        subprocess.check_call(rpmostree_install)
+
+    if moved_yum_repos_d:
+        shutil.rmtree("/etc/yum.repos.d")
+        os.rename("/etc/yum.repos.d.bak", "/etc/yum.repos.d")

@@ -1,3 +1,13 @@
+repos:
+  # c9s doesn't have all the OCP RPMs yet
+  - rhel-9.2-server-ose-4.16
+  - rhel-9.2-fast-datapath
+  # these duplicate manifest-rhel-9.4.yaml and manifest-c9s.yaml, which
+  # `include` us, but in the layering path we don't go through rpm-ostree and
+  # directly apply this manifest
+  - baseos
+  - appstream
+
 packages:
   # The packages below are required by OpenShift/OKD
   # but are not present in CentOS Stream and RHEL.
@@ -70,3 +80,32 @@ postprocess:
     # Oh right but the MCO overrides that too so...
     mkdir -p /usr/libexec/crio
     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
+
+  # Inject OpenShift-specific release fields
+  - |
+    cat >> /usr/lib/os-release <<EOF
+    OPENSHIFT_VERSION=4.16
+    EOF
+
+  - |
+     # Let's have a non-boring motd, just like CL (although theirs is more subdued
+     # nowadays compared to early versions with ASCII art).  One thing we do here
+     # is add --- as a "separator"; the idea is that any "dynamic" information should
+     # be below that.
+     # See: https://projects.engineering.redhat.com/browse/COREOS-1029
+     . /etc/os-release
+     colloquial_name=SCOS
+     if [ $ID != "centos" ]; then
+       colloquial_name=RHCOS
+     fi
+     cat > /etc/motd <<EOF
+     $PRETTY_NAME
+       Part of OpenShift ${OPENSHIFT_VERSION}, ${colloquial_name} is a Kubernetes-native operating system managed by
+       the Machine Config Operator (\`clusteroperator/machine-config\`).
+
+     WARNING: Direct SSH access to machines is not recommended; instead,
+     make configuration changes via \`machineconfig\` objects:
+       https://docs.openshift.com/container-platform/${OPENSHIFT_VERSION}/architecture/architecture-rhcos.html
+
+     ---
+     EOF

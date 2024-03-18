@@ -121,14 +121,30 @@ cosa_build() {
 kola_test_qemu() {
     cosa buildextend-qemu
 
-    # Skip Secure Boot tests on SCOS for now
+    # Skip Secure Boot tests on c9s-based variants (rhcos-9.4, scos/c9s variants) for now
     # See: https://github.com/openshift/os/issues/1237
     if rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-release"; then
         cosa kola --basic-qemu-scenarios --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
     else
         cosa kola --basic-qemu-scenarios --skip-secure-boot --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
     fi
-    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola
+
+    # In the scos/c9s variants, don't run the openshift tests since we run them layered
+    local variant
+    variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
+    local tags_arg=""
+    if [ "$variant" = c9s ] || [ "$variant" = scos ]; then
+        tags_arg="--tags !openshift"
+    fi
+    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola ${tags_arg}
+}
+
+cosa_build_layered() {
+    cosa buildextend-layered openshift
+    local oscontainer
+    oscontainer=$(jq -r '."layered-images".openshift.path' builds/latest/x86_64/meta.json)
+    oscontainer="builds/latest/x86_64/${oscontainer}"
+    kola run --tags openshift --oscontainer "${oscontainer}"
 }
 
 # Build metal, metal4k & live images and run kola tests
@@ -278,6 +294,7 @@ main() {
             cosa_init "scos"
             cosa_build
             kola_test_qemu
+            cosa_build_layered
             ;;
         "scos-9-build-test-metal")
             setup_user

@@ -1,0 +1,134 @@
+#!/usr/bin/python3 -u
+
+# This script requires the yum repos used by our compose to be direct output
+# from pungi composes.
+
+import configparser
+import dnf
+import json
+import os
+import re
+import requests
+import subprocess
+import sys
+import yaml
+
+from urllib.parse import urlparse, urlunparse
+
+
+def main():
+    manifest_path = get_manifest_path()
+    manifest = get_flattened_manifest(manifest_path)
+    base = get_dnf_base('src/config')
+    repoids = manifest['repos']
+
+    # get base compose URL, verifying at the same time that all the repos point
+    # into the same pungi compose
+    compose_url = None
+    for id in repoids:
+        repo_compose_url = get_compose_url(base.repos[id])
+        if compose_url is None:
+            compose_url = repo_compose_url
+        else:
+            if compose_url != repo_compose_url:
+                raise Exception(f"inconsistent compose URLs detected: {compose_url} vs {repo_compose_url}")
+
+    config = configparser.ConfigParser()
+    config.read_string(requests.get(compose_url + '/.composeinfo').text)
+
+    composeid = config['product']['name'].removeprefix(config['product']['short'] + '-')
+    eprint(f"composeid: {composeid}")
+
+    next_iteration = get_next_iteration(composeid)
+
+    # XXX: we should verify before leaving that the cached rpmmd repos we have
+    # are from the compose we found to rule out race conditions between `cosa
+    # fetch` and `requests.get()` above (e.g. compare the sha256 of repomd.xml)
+
+    print(f"{composeid}.{next_iteration}")
+
+
+def get_compose_url(repo):
+    assert len(repo.baseurl) == 1
+    url = urlparse(repo.baseurl[0])
+    path = url.path.rstrip('/')
+    components = path.split('/')
+    assert components[-1] == 'os'
+    # go up three levels since the structure is e.g. .../compose/<variant>/
+    # <arch>/os and we want to get to .../compose
+    return urlunparse(url._replace(path='/'.join(components[:-3])))
+
+
+def get_dnf_base(basedir):
+    base = dnf.Base()
+    base.conf.reposdir = basedir
+    base.read_all_repos()
+    return base
+
+
+def setup_repos(base, treefile):
+    for repo in base.repos.values():
+        repo.disable()
+
+    eprint("Enabled repos:")
+    for repo in treefile['repos']:
+        base.repos[repo].enable()
+        eprint(f"- {repo}")
+
+
+def get_next_iteration(composeid):
+    try:
+        with open('builds/builds.json') as f:
+            builds = json.load(f)
+    except FileNotFoundError:
+        builds = {'builds': []}
+
+    if len(builds['builds']) == 0:
+        eprint("n: 0 (no previous builds)")
+        return 0
+
+    last_buildid = builds['builds'][0]['id']
+    last_version = parse_version(last_buildid)
+    if not last_version:
+        eprint(f"n: 0 (previous version {last_buildid} does not match scheme)")
+        return 0
+
+    last_composeid, last_iteration = last_version
+
+    if composeid != last_composeid:
+        eprint(f"n: 0 (previous version {last_buildid} compose ID does not match)")
+        return 0
+
+    n = last_iteration + 1
+    eprint(f"n: {n} (incremented from previous version {last_buildid})")
+    return n
+
+
+def parse_version(version):
+    m = re.match(r'^([0-9]+-[0-9]{8}\.[0-9]+)\.([0-9]+)$', version)
+    if m is None:
+        return None
+    composeid, iteration = m.groups()
+    return tuple((composeid, int(iteration)))
+
+
+def get_manifest_path():
+    if os.path.exists('src/config.json'):
+        config_json = json.load(open('src/config.json'))
+        variant = config_json['coreos-assembler.config-variant']
+        return f'src/config/manifest-{variant}.yaml'
+    return 'src/config/manifest.yaml'
+
+
+def get_flattened_manifest(fn):
+    return yaml.safe_load(
+        subprocess.check_output(['rpm-ostree', 'compose', 'tree',
+                                 '--print-only', fn]))
+
+
+def eprint(*args):
+    print(*args, file=sys.stderr)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

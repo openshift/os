@@ -1,0 +1,3 @@
+FROM overridden
+RUN /run/src/config/scripts/apply-manifest /run/src/config/packages-openshift.yaml && \
+  ostree container commit
