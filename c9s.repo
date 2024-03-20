@@ -1,6 +1,8 @@
 [baseos]
 name=CentOS Stream 9 - BaseOS
-baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/BaseOS/$basearch/os
+baseurl=http://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
+# Revert back to this once rhel-9.4 has been weaned off c9s
+#baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/BaseOS/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
@@ -8,7 +10,9 @@ gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Officia
 
 [appstream]
 name=CentOS Stream 9 - AppStream
-baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/AppStream/$basearch/os
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/$basearch/os
+# Revert back to this once rhel-9.4 has been weaned off c9s
+#baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/AppStream/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
@@ -24,7 +28,9 @@ gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Ext
 
 [nfv]
 name=CentOS Stream 9 - NFV
-baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/NFV/$basearch/os
+baseurl=http://mirror.stream.centos.org/9-stream/NFV/$basearch/os
+# Revert back to this once rhel-9.4 has been weaned off c9s
+#baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/NFV/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
@@ -32,7 +38,9 @@ gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Officia
 
 [rt]
 name=CentOS Stream 9 - RT
-baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/RT/$basearch/os
+baseurl=http://mirror.stream.centos.org/9-stream/RT/$basearch/os
+# Revert back to this once rhel-9.4 has been weaned off c9s
+#baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/RT/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
