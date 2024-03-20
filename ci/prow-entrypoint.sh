@@ -113,8 +113,8 @@ cosa_build() {
     cosa fetch
     # Only build the ostree image by default
     cosa build ostree
-    # Build extensions
-    cosa buildextend-extensions
+    # Build extensions container
+    cosa buildextend-extensions-container
 }
 
 # Build QEMU image and run all kola tests
