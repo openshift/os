@@ -103,7 +103,7 @@ and later. For older versions, see the internal documentation.
 - You may then run tests on the image built with [`kola`][kola]:
   ```
   # Run basic QEMU scenarios
-  $ cosa kola --basic-qemu-scenarios
+  $ cosa kola run basic*
   # Run all kola tests (internal & external)
   $ cosa kola run --parallel 2
   ```
