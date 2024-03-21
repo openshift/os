@@ -115,6 +115,9 @@ packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
  - centos-release
+ # Below this are temporary overrides to not get too new content before we retarget RHEL content proper
+ # https://issues.redhat.com/browse/RHEL-29856
+ - NetworkManager-1.46.0-1.el9
 
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
