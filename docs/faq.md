@@ -386,14 +386,57 @@ If the package is **not** included in Fedora CoreOS, you may submit a PR to this
 
 ## Q: How do I replace the current Kernel with Kernel-RT or a new Kernel version in RHCOS?
 
-The process for Kernel and Kernel-RT is almost the same. For Kernel-RT you need to `override remove` and `install`, and use
-the kernel-rt-kvm package instead of kernel-rt package. As following:
+Understanding the model:
+- kernel is a base package, so removing or replacing it is done with `rpm-ostree override replace/remove`.
+- kernel-rt is a layered package, so installing or uninstalling it is done with
+  `rpm-ostree install/uninstall`.
+- rpm-ostree only allows a single kernel to be installed so if installing
+  `kernel-rt`, you have to remove `kernel`. Similarly, if uninstalling
+  `kernel-rt`, you have to restore (reset) `kernel`.
+
+Examples follow.
+
+#### kernel -> kernel-rt
 
 ```
-rpm-ostree override remove kernel kernel-core kernel-modules kernel-modules-extra --install kernel-rt-core-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm --install kernel-rt-kvm-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
+rpm-ostree override remove kernel kernel-core kernel-modules kernel-modules-extra \
+  --install kernel-rt-core-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
+  --install kernel-rt-kvm-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
+  --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
+  --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
 ```
-For the normal Kernel only `override replace` is enough:
+
+#### kernel-rt -> kernel
+
+If you have nothing else layered (e.g. `usbguard`), you can use a simpler command
 
 ```
-rpm-ostree override replace kernel-{,modules-,modules-extra-,core-}4.18.0-305.34.2.107.el8_4.x86_64.rpm
+rpm-ostree reset --overlays --overrides
+```
+
+Otherwise, to exactly undo just the kernel -> kernel-rt transition:
+
+```
+rpm-ostree override reset kernel kernel-core kernel-modules kernel-modules-extra \
+  --uninstall kernel-rt-core \
+  --uninstall kernel-rt-kvm \
+  --uninstall kernel-rt-modules \
+  --uninstall kernel-rt-modules
+```
+
+#### Replacing kernel with a different version
+
+```
+rpm-ostree override replace \
+  kernel-{,modules-,modules-extra-,core-}4.18.0-305.34.2.107.el8_4.x86_64.rpm
+```
+
+#### Replacing kernel-rt with a different version
+
+```
+rpm-ostree uninstall kernel-rt-core kernel-rt-kvm kernel-rt-modules kernel-rt-modules \
+  --install kernel-rt-core-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
+  --install kernel-rt-kvm-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
+  --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
+  --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
 ```
