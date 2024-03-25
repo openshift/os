@@ -440,3 +440,34 @@ rpm-ostree uninstall kernel-rt-core kernel-rt-kvm kernel-rt-modules kernel-rt-mo
   --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
   --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
 ```
+
+## Q: How do I install RHCOS on top of a RAID device?
+
+### Hardware RAID
+
+This is transparent to RHCOS and shows up a unified block device. You should be able to target `coreos-installer install` at that device as usual.
+
+### Software RAID
+
+RHCOS supports software RAID1 via high-level sugar: https://docs.openshift.com/container-platform/4.15/installing/install_config/installing-customizing.html#installation-special-config-mirrored-disk_installing-customizing
+
+### Fake RAID/Hybrid RAID/Intel VROC
+
+Some systems support what is known as Fake or Hybrid RAID, where some of the work of maintaining the RAID is offloaded to the hardware, but otherwise it appears just like software RAID to the OS.
+
+To install to these devices, configure them as necessary in the firmware and using `mdadm` (available in the RHCOS live ISO). For example, to configure an Intel VROC-enabled RAID1:
+
+```
+$ # create IMSM container
+$ mdadm --create /dev/md/imsm0 --metadata=imsm --raid-devices=2 /dev/nvme0n1 /dev/nvme1n1
+$ # create RAID in IMSM container
+$ mdadm --create /dev/md/md0 --raid-devices=2 --level=1 /dev/md/imsm0
+```
+
+Then when installing RHCOS, point `coreos-installer install` at the RAID device (e.g. `/dev/md/md0`) and add the `rd.md.uuid` karg. E.g.:
+
+```
+$ eval $(mdadm --detail --export /dev/md/md0)
+$ coreos-installer install /dev/md/md0 --append-karg rd.md.uuid=$MD_UUID \
+  <other install args as usual, e.g. --ignition-url, --console, ...>
+```
