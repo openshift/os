@@ -394,7 +394,7 @@ Understanding the model:
   `kernel-rt`, you have to remove `kernel`. Similarly, if uninstalling
   `kernel-rt`, you have to restore (reset) `kernel`.
 
-Examples follow.
+The examples below use kernel-rt, but it's a similar process for the kernel-64k package on aarch64.
 
 #### kernel -> kernel-rt
 
@@ -421,7 +421,7 @@ rpm-ostree override reset kernel kernel-core kernel-modules kernel-modules-extra
   --uninstall kernel-rt-core \
   --uninstall kernel-rt-kvm \
   --uninstall kernel-rt-modules \
-  --uninstall kernel-rt-modules
+  --uninstall kernel-rt-modules-extra
 ```
 
 #### Replacing kernel with a different version
