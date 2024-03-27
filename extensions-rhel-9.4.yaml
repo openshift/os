@@ -9,7 +9,7 @@ extensions:
       - x86_64
       - aarch64
     repos:
-      - rhel-9.2-server-ose-4.16
+      - rhel-9.4-server-ose-4.16
     packages:
       - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
@@ -52,7 +52,7 @@ extensions:
     architectures:
       - x86_64
     repos:
-      - nfv
+      - rhel-9.4-nfv
     packages:
       - kernel-rt-core
       - kernel-rt-kvm
@@ -69,7 +69,7 @@ extensions:
       - x86_64
       - s390x
     repos:
-      - rhel-9.2-server-ose-4.16
+      - rhel-9.4-server-ose-4.16
     packages:
       - kata-containers
   # https://issues.redhat.com/browse/COS-2402
