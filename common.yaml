@@ -35,6 +35,8 @@ conditional-include:
 
 documentation: false
 
+ima: true
+
 postprocess:
   # TEMPORARY: Create /etc/vmware-tools/tools.conf to ensure RHCOS shows up properly in VMWare
   # See https://jira.coreos.com/browse/RHCOS-258
@@ -280,3 +282,6 @@ remove-from-packages:
   # by MCD or kubelet.  See above.
   - - conntrack-tools
     - /usr/lib/systemd/system
+  # Fix IMA issues
+  - - systemd-libs
+    - /usr/share/licenses/systemd/LICENSE.LGPL2.1
