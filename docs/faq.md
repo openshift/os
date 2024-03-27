@@ -129,6 +129,9 @@ RHCOS/OCP version | RHEL version
 4.11 | 8.6 EUS
 4.12 | 8.6 EUS
 4.13 | 9.2 EUS
+4.14 | 9.2 EUS
+4.15 | 9.2 EUS
+4.16 | 9.4 EUS
 
 ## Q: How do I determine what version of an RPM is included in an RHCOS release?
 
