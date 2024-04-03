@@ -135,3 +135,6 @@ repo-packages:
       - cri-tools
       - openshift-clients
       - openshift-kubelet
+      # Carry runc from the rhaos branches, as it has a patch needed for OCPBUGS-30806
+      # and it is too late in the RHEL development cycle to update it in time.
+      - runc 
