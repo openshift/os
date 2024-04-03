@@ -6,6 +6,7 @@ include:
   - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
+  - fedora-coreos-config/manifests/kubernetes.yaml
   # RHCOS owned packages
   - packages-rhcos.yaml
 
