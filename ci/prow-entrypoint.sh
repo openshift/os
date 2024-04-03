@@ -74,21 +74,16 @@ prepare_repos() {
     rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
     # Temporary workaround until we publish builds in the default path
-    if [[ "${rhelver}" == "92" ]]; then
-        prev_build_url="${REDIRECTOR_URL}/${ocpver}-9.2/builds/"
+    if [[ "${rhelver}" == "94" ]]; then
+        prev_build_url="${REDIRECTOR_URL}/${ocpver}-9.4/builds/"
         # Fetch the previous build
         cosa buildfetch --url="${prev_build_url}"
     fi
 
     # Fetch the repos corresponding to the release we are building
     case "${rhelver}" in
-        92)
+        92|94)
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
-            cat src/config/ocp.repo
-            ;;
-        94)
-            # For now, the 9.4 variant is mostly C9S, but we do still need some packages from 9.2 repos
-            curl --fail -L "http://base-${ocpver_mut}-rhel92.ocp.svc.cluster.local" -o "src/config/ocp.repo"
             cat src/config/ocp.repo
             ;;
         *)
