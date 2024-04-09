@@ -1,5 +1,5 @@
 [baseos]
-name=CentOS Stream 9 - BaseOS
+name=CentOS Stream 9 - BaseOSX
 baseurl=http://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
 # Revert back to this once rhel-9.4 has been weaned off c9s
 #baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/BaseOS/$basearch/os
