@@ -118,7 +118,7 @@ postprocess:
 packages:
  # We include the generic release package and tweak the os-release info in a
  # post-proces script
- - centos-release
+ - centos-stream-release
  # RPM GPG keys for CentOS SIG repos
  - centos-release-cloud-common
  - centos-release-nfv-common
