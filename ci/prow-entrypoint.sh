@@ -122,12 +122,16 @@ kola_test_qemu() {
     # we need to check if the basic.nvme is available in the list of tests
     local args=""
     local manifest="src/config/manifest.yaml"
+    if [[ -f "src/config.json" ]]; then
+        variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
+        manifest="src/config/manifest-${variant}.yaml"
+    fi
     if cosa kola list --json | jq -r '.[].Name' | grep -q "basic.nvme"; then
-        if rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-release"; then
+        if rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-stream-release"; then
             args+="--denylist-test *.uefi-secure"
         fi
     else
-        if ! rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-release"; then
+        if ! rpm-ostree compose tree --print-only "${manifest}" | jq -r '.packages[]' | grep -q "centos-stream-release"; then
             cosa kola --basic-qemu-scenarios --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
         else
             cosa kola --basic-qemu-scenarios --skip-secure-boot --output-dir ${ARTIFACT_DIR:-/tmp}/kola-basic
