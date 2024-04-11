@@ -443,3 +443,52 @@ rpm-ostree uninstall kernel-rt-core kernel-rt-kvm kernel-rt-modules kernel-rt-mo
   --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
   --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
 ```
+
+## Q: How do I install RHCOS on top of a RAID device?
+
+### Hardware RAID
+
+This is transparent to RHCOS and shows up as a unified block device. You should be able to target `coreos-installer install` at that device as usual.
+
+### Software RAID
+
+RHCOS supports software RAID1 via high-level sugar: https://docs.openshift.com/container-platform/4.15/installing/install_config/installing-customizing.html#installation-special-config-mirrored-disk_installing-customizing
+
+### Fake RAID/Hybrid RAID/Intel VROC
+
+Some systems support what is known as Fake or Hybrid RAID, where some of the work of maintaining the RAID is offloaded to the hardware, but otherwise it appears just like software RAID to the OS.
+
+To install to these devices, configure them as necessary in the firmware and/or using `mdadm` as documented.
+
+#### Intel VROC
+
+To configure an Intel VROC-enabled RAID1, first create the IMSM container, e.g.:
+
+```
+mdadm -CR /dev/md/imsm0 -e imsm -n2 /dev/nvme0n1 /dev/nvme1n1
+```
+
+Then, create the RAID1 inside of that container. Due to a gap in RHCOS, we create a dummy RAID0 volume in front of the real RAID1 one that we then delete:
+
+```
+# create dummy array
+mdadm -CR /dev/md/dummy -l0 -n2 /dev/imsm0 -z10M --assume-clean
+# create real RAID1 array
+mdadm -CR /dev/md/coreos -l1 -n2 /dev/imsm0
+
+# stop member arrays and delete dummy one
+mdadm -S /dev/md/dummy
+mdadm -S /dev/md/coreos
+mdadm --kill-subarray=0 /dev/md/imsm0
+
+# restart arrays
+mdadm -A /dev/md/coreos /dev/md/imsm0
+```
+
+Then when installing RHCOS, point `coreos-installer install` at the RAID1 device and include the `rd.md.uuid` karg pointing at the UUID *of the IMSM container*. E.g.:
+
+```
+eval $(mdadm --detail --export /dev/md/imsm0)
+coreos-installer install /dev/md/coreos --append-karg rd.md.uuid=$MD_UUID \
+  <other install args as usual, e.g. --ignition-url, --console, ...>
+```
