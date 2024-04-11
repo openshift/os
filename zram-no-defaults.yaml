@@ -1,0 +1,5 @@
+remove-from-packages:
+  # zram-generator-0.3.2 (shipped in centOS 9) provides a default
+  # zram-generator config, we want to disable it
+  - - zram-generator
+    - "/usr/lib/systemd/zram-generator.conf"
