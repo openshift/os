@@ -5,7 +5,7 @@
 ##   # We've seen some OOM when 1024M is used in similar tests:
 ##   # https://github.com/coreos/fedora-coreos-tracker/issues/1506
 ##   minMemory: 2048
-##   description: Verify replacing the current kernel with an 
+##   description: Verify replacing the current kernel with an
 ##     older centos kernel and replacing with kernel-rt.
 
 set -euo pipefail

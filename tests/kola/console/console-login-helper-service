@@ -2,9 +2,9 @@
 ## kola:
 ##   exclusive: false
 ##   description: >
-##     Verify that we have the proper presets for 
+##     Verify that we have the proper presets for
 ##     console-login-helper-messages in RHCOS.
-##     Verify versions of CLHM prior to v0.21 have `issuegen`-related  
+##     Verify versions of CLHM prior to v0.21 have `issuegen`-related
 ##     systemd units.
 ##     This is RHCOS only.
 

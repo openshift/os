@@ -1,7 +1,7 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-##   description: Verify environment variable `GODEBUG=x509ignoreCN=0` 
+##   description: Verify environment variable `GODEBUG=x509ignoreCN=0`
 ##     found in initrd.
 ##     https://bugzilla.redhat.com/show_bug.cgi?id=1886134
 ##     https://github.com/openshift/os/pull/441

@@ -1,7 +1,7 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-##   description: Verify that only packages from the RHEL major 
+##   description: Verify that only packages from the RHEL major
 ##     version are included.
 
 set -xeuo pipefail

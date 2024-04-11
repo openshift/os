@@ -1,7 +1,7 @@
 #!/bin/bash
 ## kola:
 ##   # Since we pull a container image
-##   tags: "needs-internet" 
+##   tags: "needs-internet"
 ##   timeoutMin: 30
 ##   description: Verify that rhel8 journalctl can still read our journals.
 ##     https://issues.redhat.com/browse/OCPBUGS-11492

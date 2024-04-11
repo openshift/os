@@ -17,4 +17,3 @@ function tuned_pre_udev_main() {
 }
 
 tuned_pre_udev_main
-

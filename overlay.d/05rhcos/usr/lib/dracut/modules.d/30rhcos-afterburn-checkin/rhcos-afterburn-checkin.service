@@ -31,8 +31,8 @@ After=ignition-fetch.service
 After=coreos-kargs-reboot.service
 
 # There is race condition about checkin and coreos-ignition-unique-boot.
-# Removal of the virtual CD might cause Unique Boot Filesystem 
-# service failed, as could not find `/dev/sr0`, so need to wait until 
+# Removal of the virtual CD might cause Unique Boot Filesystem
+# service failed, as could not find `/dev/sr0`, so need to wait until
 # after coreos-ignition-unique-boot.
 After=coreos-ignition-unique-boot.service
 

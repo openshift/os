@@ -1,7 +1,7 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-##   description: Verify conntrack-tools is installed by default 
+##   description: Verify conntrack-tools is installed by default
 ##     on RHCOS (not installed on FCOS).
 
 set -xeuo pipefail

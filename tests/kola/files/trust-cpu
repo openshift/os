@@ -7,7 +7,7 @@
 # This test can be removed when RHCOS gets to kernel version 6.2+
 # https://github.com/coreos/fedora-coreos-tracker/issues/1369
 # https://github.com/coreos/fedora-coreos-config/pull/2155
-# https://bugzilla.redhat.com/show_bug.cgi?id=1830280  
+# https://bugzilla.redhat.com/show_bug.cgi?id=1830280
 
 set -xeuo pipefail
 
