@@ -32,6 +32,13 @@ conditional-include:
   - if: basearch != "s390x"
     # And remove some cruft from grub2
     include: fedora-coreos-config/manifests/grub2-removals.yaml
+    #zram default config is in a subpackage in c10s
+    # Meanwhile, remove the default config from the package
+  - if: osversion == "c9s"
+    include: zram-no-defaults.yaml
+  - if: osversion == "rhel-9.4"
+    include: zram-no-defaults.yaml
+
 
 documentation: false
 
