@@ -217,7 +217,9 @@ validate() {
     # Let's start with error, then we can do warning, info, style
     local -r severity="error"
 
+    # Disable -x as it generates too much noise
     set +x
+
     while IFS= read -r -d '' f; do
         shebang="$(head -1 "${f}")"
         if [[ "${f}" == *.sh ]] || \
@@ -229,12 +231,71 @@ validate() {
         fi
     done< <(find . -path "./.git" -prune -o -type f -print0)
 
+    local files_with_whitespace=""
+    local files_with_missing_empty_line_at_eof=""
+
+    while IFS= read -r -d '' f; do
+        echo "[+] Checking ${f}"
+
+        # Looking for whitespace at end of line
+        if grep -Eq " +$" "${f}"; then
+            # List of files to ignore
+            if \
+                [[ "${f}" == "./docs/vsphere-settings.png" ]] || \
+                [[ "${f}" == "./fedora-coreos-config/live/isolinux/boot.msg" ]] || \
+                [[ "${f}" == "./live/isolinux/boot.msg" ]] \
+                ; then
+                echo "[+] Checking ${f}: Ignoring whitespace at end of line"
+            else
+                echo "[+] Checking ${f}: Found whitespace at end of line"
+                files_with_whitespace+=" ${f}"
+            fi
+        fi
+
+        # Looking for missing empty line at end of file
+        if [[ -n $(tail -c 1 "${f}") ]]; then
+            # List of files to ignore
+            if \
+                [[ "${f}" == "./docs/vsphere-settings.png" ]] || \
+                [[ "${f}" == "./fedora-coreos-config/tests/kola/ignition/resource/authenticated-gs/data/expected/"* ]] ||\
+                [[ "${f}" == "./fedora-coreos-config/tests/kola/ignition/resource/authenticated-s3/data/expected/"* ]] ||\
+                [[ "${f}" == "./fedora-coreos-config/tests/kola/ignition/resource/remote/data/expected/"* ]] \
+                ; then
+                echo "[+] Checking ${f}: Ignoring missing empty line at end of file"
+            else
+                echo "[+] Checking ${f}: Missing empty line at end of file"
+                files_with_missing_empty_line_at_eof+=" ${f}"
+            fi
+        fi
+    done< <(find . -path "./.git" -prune -o -type f -print0)
+
+    echo ""
     if [[ "${found_errors}" != "false" ]]; then
         echo "[+] Found errors with ShellCheck"
+    else
+        echo "[+] No error found with ShellCheck"
+    fi
+
+    echo ""
+    if [[ -n "${files_with_whitespace}" ]]; then
+        echo "[+] Found files with whitespace at the end of line"
+        echo "${files_with_whitespace}" | tr ' ' '\n'
+    else
+        echo "[+] No files with whitespace at the end of line"
+    fi
+
+    echo ""
+    if [[ -n "${files_with_missing_empty_line_at_eof}" ]]; then
+        echo "[+] Found files with missing empty line at end of file"
+        echo "${files_with_missing_empty_line_at_eof}" | tr ' ' '\n'
+    else
+        echo "[+] No files with missing empty line at end of file"
+    fi
+
+    if [[ -n "${files_with_whitespace}" ]] || [[ -n "${files_with_missing_empty_line_at_eof}" ]] || [[ "${found_errors}" != "false" ]]; then
         exit 1
     fi
 
-    echo "[+] No error found with ShellCheck!"
     exit 0
 }
 
