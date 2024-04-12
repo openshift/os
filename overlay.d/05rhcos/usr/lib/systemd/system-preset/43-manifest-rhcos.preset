@@ -23,3 +23,7 @@ enable console-login-helper-messages-issuegen.path
 # Enable nmstate. We can drop this when it is in
 # /usr/lib/systemd/system-preset/90-default.preset
 enable nmstate.service
+
+# This unit is not activated on OSTree systems, but it still pulls in
+# `network-online.target`. Explicitly disable it.
+disable dnf-makecache.timer
