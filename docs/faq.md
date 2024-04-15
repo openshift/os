@@ -472,9 +472,9 @@ Then, create the RAID1 inside of that container. Due to a gap in RHCOS, we creat
 
 ```
 # create dummy array
-mdadm -CR /dev/md/dummy -l0 -n2 /dev/imsm0 -z10M --assume-clean
+mdadm -CR /dev/md/dummy -l0 -n2 /dev/md/imsm0 -z10M --assume-clean
 # create real RAID1 array
-mdadm -CR /dev/md/coreos -l1 -n2 /dev/imsm0
+mdadm -CR /dev/md/coreos -l1 -n2 /dev/md/imsm0
 
 # stop member arrays and delete dummy one
 mdadm -S /dev/md/dummy
