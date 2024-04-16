@@ -20,4 +20,3 @@ PrivateTmp=true
 ProtectSystem=full
 RestrictNamespaces=true
 RestrictRealtime=true
-

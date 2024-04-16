@@ -1,7 +1,7 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-##   description: Verify coreos-generate-iscsi-initiatorname.service 
+##   description: Verify coreos-generate-iscsi-initiatorname.service
 ##     is enabled by default on RHCOS (disabled on FCOS).
 ##     https://github.com/openshift/os/pull/453
 

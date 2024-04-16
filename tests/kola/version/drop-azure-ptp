@@ -1,7 +1,7 @@
 #!/bin/bash
 ## kola:
 ##   exclusive: false
-##   description: Verify we should not have 50-azure-ptp.rules. 
+##   description: Verify we should not have 50-azure-ptp.rules.
 
 set -xeuo pipefail
 

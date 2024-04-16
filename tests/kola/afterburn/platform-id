@@ -1,7 +1,7 @@
 #!/bin/bash
 ## kola:
 ##   platforms: aws gcp
-##   description: Verify afterburn works with old kernel argument 
+##   description: Verify afterburn works with old kernel argument
 ##     ignition.platform.id=ec2/gce.
 ##     https://issues.redhat.com/browse/OCPBUGS-7733
 
@@ -50,7 +50,7 @@ rebooted)
             ;;
         *) echo "unhandled platform ${platform} ?"; exit 1 ;;
     esac
-    
+
     ok "afterburn.service starts successfully with ignition.platform.id=${platform}"
     ;;
 *)
