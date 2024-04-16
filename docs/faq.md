@@ -299,7 +299,28 @@ Currently, non-default multipath configurations for the primary disk cannot be s
 
 ## Q: Does RHCOS support booting off of iSCSI?
 
-If the device is connected to the host via a HBA then it'll show up transparently as a local disk and should work fine. We do not currently support booting from an iSCSI device where the OS is the initiator. iSCSI on secondary disks should be fine.
+### via HBA
+
+If the device is connected to the host via a HBA then it'll show up transparently as a local disk and should work fine.
+
+### via iBFT
+
+At coreos-installer time, you need to add the `rd.iscsi.firmware=1` karg. E.g.
+
+```
+coreos-installer install --append-karg rd.iscsi.firmware=1
+```
+
+### via custom initiation
+
+At coreos-installer time, you need to add the `rd.iscsi.initiator` and `netroot` kargs. E.g.:
+
+```
+coreos-installer --append-karg rd.iscsi.initiator=iqn.2023-11.coreos.diskless:testsetup \
+  --append-karg netroot=iscsi:10.0.2.15::::iqn.2023-10.coreos.target.vm:coreos
+```
+
+See [the dracut documentation](https://www.man7.org/linux/man-pages/man7/dracut.cmdline.7.html) for more information.
 
 ## Q: How do I configure a secondary block device via Ignition/MC if the name varies on each node?
 
