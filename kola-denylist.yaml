@@ -3,6 +3,11 @@
 # see: https://github.com/coreos/coreos-assembler/pull/866.
 
 # CentOS Stream specific indefinite snooze
+- pattern: basic.uefi-secure
+  tracker: https://github.com/openshift/os/issues/1237
+  osversion:
+    - c9s
+
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
