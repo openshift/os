@@ -57,7 +57,22 @@ postprocess:
     # that stopped working in the sysusers conversion. We should be able to drop this
     # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
     if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
+        if [ -f /run/.containerenv ]; then
+            # We're running as part of a derivation; `usermod` will not work
+            # because it doesn't go through NSS. Hackily put the /usr/lib files
+            # in /etc temporarily then put them back
+            mv /etc/passwd /etc/passwd.bak
+            mv /etc/group /etc/group.bak
+            mv /usr/lib/passwd /etc/passwd
+            mv /usr/lib/group /etc/group
+        fi
         usermod -a -G hugetlbfs openvswitch
+        if [ -f /run/.containerenv ]; then
+            mv /etc/passwd /usr/lib/passwd
+            mv /etc/group /usr/lib/group
+            mv /etc/passwd.bak /etc/passwd
+            mv /etc/group.bak /etc/group
+        fi
     fi
 
   - |
