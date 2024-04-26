@@ -43,6 +43,21 @@ conditional-include:
 documentation: false
 
 postprocess:
+  # Mark the OS as of the CoreOS variant.
+  # XXX: should be part of a centos/redhat-release subpackage instead
+  - |
+     #!/usr/bin/bash
+     set -euo pipefail
+     cat >> /usr/lib/os-release <<EOF
+     VARIANT=CoreOS
+     VARIANT_ID=coreos
+     EOF
+
+     # And put "CoreOS" in NAME and PRETTY_NAME
+     sed -i -e 's/^NAME="\(.*\)"/NAME="\1 CoreOS"/' /usr/lib/os-release
+     . /usr/lib/os-release
+     sed -i -e "s/^PRETTY_NAME=.*/PRETTY_NAME=\"$NAME $VERSION\"/" /usr/lib/os-release
+
   # TEMPORARY: Create /etc/vmware-tools/tools.conf to ensure RHCOS shows up properly in VMWare
   # See https://jira.coreos.com/browse/RHCOS-258
   - |

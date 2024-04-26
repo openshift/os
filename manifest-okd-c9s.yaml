@@ -1,26 +1,20 @@
-# Manifest for CentOS Stream CoreOS (SCOS)
+# Manifest for OKD node based on CentOS Stream CoreOS 9
+# Note: this manifest is temporary; in the future, OKD components will be layered instead.
 
 rojig:
   license: MIT
   name: scos
-  summary: OKD 4
+  summary: OKD 4.17
 
 variables:
   osversion: "c9s"
 
-# Include manifests common to all RHEL and CentOS Stream versions and manifest
-# common to RHEL 9 & C9S variants
 include:
-  - common.yaml
+  - manifest-c9s.yaml
   - packages-openshift.yaml
-  - overrides-c9s.yaml
 
-# Starting from here, everything should be specific to SCOS
-
-# CentOS Stream 9 repos + internal repos for now
+# Additional repos we need for OKD components
 repos:
-  - c9s-baseos
-  - c9s-appstream
   # CentOS Extras Common repo for SIG RPM GPG keys
   - c9s-extras-common
   # CentOS NFV SIG repo for openvswitch
@@ -47,15 +41,15 @@ postprocess:
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
-     NAME="${NAME} CoreOS"
+     NAME="${NAME}"
      ID="scos"
      ID_LIKE="rhel fedora"
      VERSION="${OSTREE_VERSION}"
      VERSION_ID="${OPENSHIFT_VERSION}"
-     VARIANT="CoreOS"
-     VARIANT_ID=coreos
+     VARIANT="${VARIANT}"
+     VARIANT_ID=${VARIANT_ID}
      PLATFORM_ID="${PLATFORM_ID}"
-     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION}"
+     PRETTY_NAME="${NAME} ${OSTREE_VERSION}"
      ANSI_COLOR="${ANSI_COLOR}"
      CPE_NAME="${CPE_NAME}::coreos"
      HOME_URL="${HOME_URL}"
@@ -95,12 +89,7 @@ postprocess:
      ln -s /usr/lib/issue /etc/issue
      ln -s /usr/lib/issue /etc/issue.net
 
-# Packages that are only in SCOS and not in RHCOS or that have special
-# constraints that do not apply to RHCOS
 packages:
- # We include the generic release package and tweak the os-release info in a
- # post-proces script
- - centos-stream-release
  # RPM GPG keys for CentOS SIG repos
  - centos-release-cloud-common
  - centos-release-nfv-common

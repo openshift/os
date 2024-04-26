@@ -1,9 +1,10 @@
-# Manifest for RHCOS based on RHEL 9.4
+# Manifest for OCP node based on RHEL 9.4
+# Note: this manifest is temporary; in the future, OCP components will be layered instead.
 
 rojig:
   license: MIT
   name: rhcos
-  summary: OpenShift 4
+  summary: OpenShift 4.17
 
 variables:
   osversion: "rhel-9.4"
@@ -11,16 +12,12 @@ variables:
 # Include manifests common to all RHEL and CentOS Stream versions and manifest
 # common to RHEL 9 & C9S variants
 include:
-  - common.yaml
+  - manifest-rhel-9.4.yaml
   - packages-openshift.yaml
 
-# Starting from here, everything should be specific to RHCOS based on RHEL 9.4 content
-
+# Additional repos we need for OCP components
 repos:
-  - rhel-9.4-baseos
-  - rhel-9.4-appstream
   - rhel-9.4-fast-datapath
-  # Include RHCOS 9 repo for oc, kubelet
   - rhel-9.4-server-ose-4.17
 
 # We include hours/minutes to avoid version number reuse
@@ -40,15 +37,15 @@ postprocess:
      (
      . /etc/os-release
      cat > /usr/lib/os-release <<EOF
-     NAME="${NAME} CoreOS"
+     NAME="${NAME}"
      ID="rhcos"
      ID_LIKE="rhel fedora"
      VERSION="${OSTREE_VERSION}"
      VERSION_ID="${OPENSHIFT_VERSION}"
-     VARIANT="CoreOS"
-     VARIANT_ID=coreos
+     VARIANT="${VARIANT}"
+     VARIANT_ID=${VARIANT_ID}
      PLATFORM_ID="${PLATFORM_ID}"
-     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION}"
+     PRETTY_NAME="${NAME} ${OSTREE_VERSION}"
      ANSI_COLOR="${ANSI_COLOR}"
      CPE_NAME="${CPE_NAME}::coreos"
      HOME_URL="${HOME_URL}"
@@ -88,13 +85,6 @@ postprocess:
      rm -f /etc/issue /etc/issue.net
      ln -s /usr/lib/issue /etc/issue
      ln -s /usr/lib/issue /etc/issue.net
-
-# Packages that are only in RHCOS and not in SCOS or that have special
-# constraints that do not apply to SCOS
-packages:
- # We include the generic release package and tweak the os-release info in a
- # post-process script
- - redhat-release
 
 # Packages pinned to specific repos in RHCOS 9
 repo-packages:
