@@ -18,14 +18,14 @@ include:
 
 # CentOS Stream 9 repos + internal repos for now
 repos:
-  - baseos
-  - appstream
+  - c9s-baseos
+  - c9s-appstream
   # CentOS Extras Common repo for SIG RPM GPG keys
-  - extras-common
+  - c9s-extras-common
   # CentOS NFV SIG repo for openvswitch
-  - sig-nfv
+  - c9s-sig-nfv
   # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
-  - sig-cloud-okd
+  - c9s-sig-cloud-okd
   # Include RHCOS 9 repo for oc, hyperkube
   - rhel-9.4-server-ose-4.16
 
@@ -127,10 +127,10 @@ packages:
 # Packages pinned to specific repos in SCOS 9
 repo-packages:
   # We always want the kernel from BaseOS
-  - repo: baseos
+  - repo: c9s-baseos
     packages:
       - kernel
-  - repo: appstream
+  - repo: c9s-appstream
     packages:
       # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
       - nss-altfiles
