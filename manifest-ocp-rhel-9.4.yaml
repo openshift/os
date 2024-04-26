@@ -1,0 +1,110 @@
+# Manifest for RHCOS based on RHEL 9.4
+
+rojig:
+  license: MIT
+  name: rhcos
+  summary: OpenShift 4
+
+variables:
+  osversion: "rhel-9.4"
+
+# Include manifests common to all RHEL and CentOS Stream versions and manifest
+# common to RHEL 9 & C9S variants
+include:
+  - common.yaml
+  - packages-openshift.yaml
+
+# Starting from here, everything should be specific to RHCOS based on RHEL 9.4 content
+
+repos:
+  - rhel-9.4-baseos
+  - rhel-9.4-appstream
+  - rhel-9.4-fast-datapath
+  # Include RHCOS 9 repo for oc, kubelet
+  - rhel-9.4-server-ose-4.17
+
+# We include hours/minutes to avoid version number reuse
+automatic-version-prefix: "417.94.<date:%Y%m%d%H%M>"
+# This ensures we're semver-compatible which OpenShift wants
+automatic-version-suffix: "-"
+# Keep this is sync with the version in postprocess
+mutate-os-release: "4.17"
+
+postprocess:
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+
+     # Tweak /usr/lib/os-release
+     grep -v -e "OSTREE_VERSION" -e "OPENSHIFT_VERSION" /etc/os-release > /usr/lib/os-release.rhel
+     (
+     . /etc/os-release
+     cat > /usr/lib/os-release <<EOF
+     NAME="${NAME} CoreOS"
+     ID="rhcos"
+     ID_LIKE="rhel fedora"
+     VERSION="${OSTREE_VERSION}"
+     VERSION_ID="${OPENSHIFT_VERSION}"
+     VARIANT="CoreOS"
+     VARIANT_ID=coreos
+     PLATFORM_ID="${PLATFORM_ID}"
+     PRETTY_NAME="${NAME} CoreOS ${OSTREE_VERSION}"
+     ANSI_COLOR="${ANSI_COLOR}"
+     CPE_NAME="${CPE_NAME}::coreos"
+     HOME_URL="${HOME_URL}"
+     DOCUMENTATION_URL="https://docs.okd.io/latest/welcome/index.html"
+     BUG_REPORT_URL="https://access.redhat.com/labs/rhir/"
+     REDHAT_BUGZILLA_PRODUCT="OpenShift Container Platform"
+     REDHAT_BUGZILLA_PRODUCT_VERSION="${OPENSHIFT_VERSION}"
+     REDHAT_SUPPORT_PRODUCT="OpenShift Container Platform"
+     REDHAT_SUPPORT_PRODUCT_VERSION="${OPENSHIFT_VERSION}"
+     OPENSHIFT_VERSION="${OPENSHIFT_VERSION}"
+     RHEL_VERSION=9.4
+     OSTREE_VERSION="${OSTREE_VERSION}"
+     EOF
+     )
+     rm -f /etc/os-release
+     ln -s ../usr/lib/os-release /etc/os-release
+
+     # Tweak /etc/system-release, /etc/system-release-cpe & /etc/redhat-release
+     (
+     . /etc/os-release
+     cat > /usr/lib/system-release-cpe <<EOF
+     ${CPE_NAME}
+     EOF
+     cat > /usr/lib/system-release <<EOF
+     ${NAME} release ${VERSION_ID}
+     EOF
+     rm -f /etc/system-release-cpe /etc/system-release /etc/redhat-release
+     ln -s /usr/lib/system-release-cpe /etc/system-release-cpe
+     ln -s /usr/lib/system-release /etc/system-release
+     ln -s /usr/lib/system-release /etc/redhat-release
+     )
+
+     # Tweak /usr/lib/issue
+     cat > /usr/lib/issue <<EOF
+     \S \S{VERSION_ID}
+     EOF
+     rm -f /etc/issue /etc/issue.net
+     ln -s /usr/lib/issue /etc/issue
+     ln -s /usr/lib/issue /etc/issue.net
+
+# Packages that are only in RHCOS and not in SCOS or that have special
+# constraints that do not apply to SCOS
+packages:
+ # We include the generic release package and tweak the os-release info in a
+ # post-process script
+ - redhat-release
+
+# Packages pinned to specific repos in RHCOS 9
+repo-packages:
+  - repo: rhel-9.4-appstream
+    packages:
+      - nss-altfiles
+  - repo: rhel-9.4-server-ose-4.17
+    packages:
+      - conmon-rs
+      - cri-o
+      - cri-tools
+      - openshift-clients
+      - openshift-kubelet
