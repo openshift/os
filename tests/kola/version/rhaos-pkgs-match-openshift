@@ -9,6 +9,11 @@ set -xeuo pipefail
 
 . $KOLA_EXT_DATA/commonlib.sh
 
-if [[ $(rpm -qa | grep rhaos | grep -v $OPENSHIFT_VERSION) ]]; then
+# source the environment variables to get OPENSHIFT_VERSION
+source /etc/os-release
+
+rpm -qa | grep "rhaos" > /tmp/rhaos-packages.txt
+
+if grep -v "rhaos${OPENSHIFT_VERSION}" /tmp/rhaos-packages.txt; then
     fatal "Error: rhaos packages do not match OpenShift version"
 fi
