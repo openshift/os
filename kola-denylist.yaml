@@ -7,21 +7,25 @@
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - c10s
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - c10s
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - c10s
 
 - pattern: fips.*
   tracker: https://github.com/openshift/os/issues/1540
   osversion:
     - c9s
+    - c10s
 
 # The 4.17 and 4.18 build of Ignition encounters a FIPS panic so
 # we are using the 4.16 build for now while that is under investigation.
@@ -37,6 +41,7 @@
   tracker: https://gitlab.com/redhat/centos-stream/containers/bootc/-/issues/1169
   osversion:
     - c9s
+    - c10s
     - rhel-9.6
 
 - pattern: ostree.sync
@@ -46,5 +51,53 @@
 
 - pattern: ostree.sync
   tracker: https://github.com/openshift/os/issues/1751
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.kdump.crash
+  tracker: TODO
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.systemd.default-unit-timeouts
+  tracker: TODO
+  osversion:
+    - c10s
+
+# TODO: Make this test EL9 only
+- pattern: ext.config.shared.networking.team-dhcp-via-ignition
+  tracker: TODO
+  osversion:
+    - c10s
+
+# TODO: Make this test EL9 only
+- pattern: ext.config.shared.networking.nm-ifcfg-rh-plugin
+  tracker: TODO
+  osversion:
+    - c10s
+
+# Will fail until we have proper RHEL 10 builds of OCP packages
+- pattern: ext.config.version.rhel-major-version
+  tracker: TODO
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.podman.dns
+  tracker: https://github.com/openshift/os/pull/1498
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.podman.rootless-pasta-networking
+  tracker: https://github.com/openshift/os/pull/1498
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.podman.rootless-systemd
+  tracker: https://github.com/openshift/os/pull/1498
+  osversion:
+    - c10s
+
+- pattern: ext.config.rpm-ostree.replace-rt-kernel
+  tracker: https://github.com/openshift/os/issues/1315
   osversion:
     - c10s
