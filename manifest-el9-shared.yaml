@@ -24,3 +24,13 @@ postprocess:
       grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
       sed -i -e 's,enabled = true,enabled = maybe,' /usr/lib/ostree/prepare-root.conf
     fi
+
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # Enable tmp-on-tmpfs by default because we don't want to have things leak
+    # across reboots, it increases alignment with FCOS, and also fixes the
+    # Live ISO. First, verify that RHEL is still disabling.
+    grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
+    echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
+    echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
