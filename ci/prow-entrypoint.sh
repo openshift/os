@@ -379,4 +379,5 @@ main() {
     esac
 }
 
+export TAIL_SLEEP=3
 main "${@}"
