@@ -7,6 +7,19 @@ There was a previous git repository inside the Red Hat firewall that was never
 published. The history of that repository is entangled with various private
 things and is omitted. This repository is now canonical.
 
+## Variants
+
+To support building both a RHEL-based and a CentOS Stream-based CoreOS, the
+coreos-assembler concept of [variants] is used. The following variants are
+supported:
+
+- `rhel-9.4`: RHEL 9.4-based CoreOS; including OpenShift components.
+- `c9s`: CentOS Stream-based CoreOS, including OpenShift components. This
+  currently includes some packages from RHEL because not all packages required
+  by OpenShift are provided in CentOS Stream.
+
+The default variant is `rhel-9.4`.
+
 ## Reporting issues
 
 The issue tracker for this repository is only used to track the development
@@ -34,3 +47,4 @@ See [OpenShift CI notes](docs/openshift-ci-notes.md) for more information.
 
 [coreos-assembler]: https://github.com/coreos/coreos-assembler/
 [OKD issue tracker]: https://github.com/openshift/okd/issues
+[variants]: https://github.com/coreos/coreos-assembler/blob/065cd2d20e379642cc3a69e498d20708e2243b21/src/cmd-init#L45-L48
