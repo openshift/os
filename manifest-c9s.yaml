@@ -136,3 +136,6 @@ repo-packages:
       - nss-altfiles
       # Use the new containers/toolbox
       - toolbox
+      # The one shipping in C9S is temporarily lower versioned, so be explicit
+      # https://github.com/openshift/os/issues/1505
+      - containers-common
