@@ -57,7 +57,22 @@ postprocess:
     # that stopped working in the sysusers conversion. We should be able to drop this
     # when a bug gets fixed in systemd: https://github.com/openshift/os/issues/1274#issuecomment-1605507390
     if [ -f /usr/lib/sysusers.d/openvswitch-hugetlbfs.conf ]; then
+        if [ -f /run/.containerenv ]; then
+            # We're running as part of a derivation; `usermod` will not work
+            # because it doesn't go through NSS. Hackily put the /usr/lib files
+            # in /etc temporarily then put them back
+            mv /etc/passwd /etc/passwd.bak
+            mv /etc/group /etc/group.bak
+            mv /usr/lib/passwd /etc/passwd
+            mv /usr/lib/group /etc/group
+        fi
         usermod -a -G hugetlbfs openvswitch
+        if [ -f /run/.containerenv ]; then
+            mv /etc/passwd /usr/lib/passwd
+            mv /etc/group /usr/lib/group
+            mv /etc/passwd.bak /etc/passwd
+            mv /etc/group.bak /etc/group
+        fi
     fi
 
   - |
@@ -70,3 +85,43 @@ postprocess:
     # Oh right but the MCO overrides that too so...
     mkdir -p /usr/libexec/crio
     ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
+
+  # Inject OpenShift-specific release fields
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    cat >> /usr/lib/os-release <<EOF
+    OPENSHIFT_VERSION="4.16"
+    EOF
+
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # Let's have a non-boring motd, just like CL (although theirs is more subdued
+    # nowadays compared to early versions with ASCII art).  One thing we do here
+    # is add --- as a "separator"; the idea is that any "dynamic" information should
+    # be below that.
+    # See: https://projects.engineering.redhat.com/browse/COREOS-1029
+    . /etc/os-release
+    # This works around the fact that we can't currently access manifest
+    # variables from postprocess scripts, though we just use the name, since
+    # it's easier.
+    variant=$(jq -r .rojig.name /usr/share/rpm-ostree/treefile.json)
+    if [ $variant = "scos" ]; then
+      colloquial_name=SCOS
+      project_name=OKD
+    else
+      colloquial_name=RHCOS
+      project_name=OpenShift
+    fi
+    cat > /etc/motd <<EOF
+    $NAME CoreOS $OSTREE_VERSION
+      Part of ${project_name} ${OPENSHIFT_VERSION}, ${colloquial_name} is a Kubernetes-native operating system
+      managed by the Machine Config Operator (\`clusteroperator/machine-config\`).
+
+    WARNING: Direct SSH access to machines is not recommended; instead,
+    make configuration changes via \`machineconfig\` objects:
+      https://docs.openshift.com/container-platform/${OPENSHIFT_VERSION}/architecture/architecture-rhcos.html
+
+    ---
+    EOF
