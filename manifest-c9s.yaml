@@ -27,7 +27,7 @@ repos:
   # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
   - sig-cloud-okd
   # Include RHCOS 9 repo for oc, hyperkube
-  - rhel-9.2-server-ose-4.16
+  - rhel-9.4-server-ose-4.16
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "416.9.<date:%Y%m%d%H%M>"
