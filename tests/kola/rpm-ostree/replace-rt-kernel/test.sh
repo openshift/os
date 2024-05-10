@@ -18,31 +18,39 @@ runv () {
 }
 
 basearch=$(arch)
-major=$(. /usr/lib/os-release && echo "${CPE_NAME}" | grep -Eo '[0-9]{1,2}')
-baseurl=
-case "${major}" in
-    9)
-        baseurl=https://mirror.stream.centos.org/9-stream/
-        repo_url=https://raw.githubusercontent.com/openshift/os/master/c9s.repo
-        ;;
-    *)  fatal "Unhandled major RHEL/SCOS VERSION=${major}"
-        ;;
-esac
-
-# setup repos
-runv rm -rf /etc/yum.repos.d/*
-runv curl -sSLf "${repo_url}" -o /etc/yum.repos.d/cs.repo
-runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
-runv sed -i 's|^gpgkey.*|gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official|' /etc/yum.repos.d/cs.repo
 
 case "${AUTOPKGTEST_REBOOT_MARK:-}" in
 "")
+    major=$(. /usr/lib/os-release && echo "${CPE_NAME}" | grep -Eo '[0-9]{1,2}')
+    case "${major}" in
+        9)
+            repo_name=c9s.repo
+            ;;
+        10)
+            repo_name=c10s.repo
+            ;;
+        *)  fatal "Unhandled major RHEL/SCOS VERSION=${major}"
+            ;;
+    esac
+
+    # setup repos
+    runv rm -rf /etc/yum.repos.d/*
+    runv cp "$KOLA_EXT_DATA/$repo_name" /etc/yum.repos.d/cs.repo
+    runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+
+    evr=
+    if rpm -q centos-stream-release; then
+        # we're already on CentOS and probably running the latest kernel. so
+        # here we need to instead pick whatever the latest that's *not* the same
+        evr=-$(dnf repoquery kernel --qf '%{EVR}' | grep -v "$(rpm -q kernel --qf %{EVR})" | tail -n1)
+    fi
+
     echo "Testing overriding with CentOS Stream kernel"
     # Disable all repos except baseos and appstream as not all of them have support for all RHCOS supported architectures
     runv sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/cs.repo
     runv sed -i '/\[baseos\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
     runv sed -i '/\[appstream\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
-    runv rpm-ostree override replace --experimental --from repo=baseos kernel{,-core,-modules,-modules-extra,-modules-core}
+    runv rpm-ostree override replace --experimental --from repo=baseos kernel{,-core,-modules,-modules-extra,-modules-core}"${evr}"
     runv /tmp/autopkgtest-reboot 1
     ;;
 1)
