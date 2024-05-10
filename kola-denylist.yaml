@@ -18,11 +18,6 @@
   osversion:
     - c9s
 
-- pattern: ext.config.rpm-ostree.replace-rt-kernel
-  tracker: https://github.com/openshift/os/issues/1315
-  osversion:
-    - c9s
-
 # This test is failing only in prow, so it's skipped by prow
 # but not denylisted here so it can run on the rhcos pipeline
 #- pattern: iso-offline-install-iscsi.ibft.bios
