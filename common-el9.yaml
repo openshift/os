@@ -1,4 +1,7 @@
-# Packages only common to EL 9 (RHEL 9 & C9S)
+# Includes and packages only common to EL 9 (RHEL 9 & C9S)
+include:
+  - fedora-coreos-config/manifests/shared-el9.yaml
+
 packages:
  - containernetworking-plugins
  # Gluster - Used for Openshift e2e gluster testcases
