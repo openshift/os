@@ -340,7 +340,7 @@ systemd:
         DefaultDependencies=false
         After=systemd-udev-settle.service
         Before=local-fs-pre.target
-        ConditionPathExists=!/etc/secondary-dev.env
+        ConditionPathExists=!/etc/found-secondary-device
 
         # break boot if we fail
         OnFailure=emergency.target
@@ -360,8 +360,7 @@ systemd:
         Before=local-fs.target
 
         [Mount]
-        EnvironmentFile=/etc/secondary-dev.env
-        What=$VAR_LIB_FOOBAR_DEV
+        What=/dev/disk/by-label/foobar
         Where=/var/lib/foobar
         Type=xfs
 
@@ -381,9 +380,9 @@ storage:
           for serial in foobar bazboo; do
             blkdev=/dev/disk/by-id/virtio-$serial
             if [ -b "$blkdev" ]; then
-              mkfs.xfs -f "$blkdev"
+              mkfs.xfs -f "$blkdev" -L foobar
               echo "Found secondary block device $blkdev" >&2
-              echo "VAR_LIB_FOOBAR_DEV=$blkdev" > /etc/secondary-dev.env
+              touch /etc/found-secondary-device
               exit
             fi
           done
@@ -393,6 +392,8 @@ storage:
 ```
 
 Note this approach uses `After=systemd-udev-settle.service` which is not usually desirable as it may slow down boot. Another related approach is writing a udev rule to create a more stable symlink instead of this dynamic systemd service + script approach.
+
+This script is also written in a way that also makes it compatible to be used day-2 via a MachineConfig.
 
 The larger issue tracking machine-specific MachineConfigs is at https://github.com/openshift/machine-config-operator/issues/1720.
 
