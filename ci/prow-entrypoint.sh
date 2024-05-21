@@ -90,7 +90,7 @@ prepare_repos() {
             # Assume C9S/SCOS if the version does not match known values for RHEL
             # Temporary workaround until we have all packages for SCOS
             curl --fail -L "http://base-${ocpver_mut}-rhel94.ocp.svc.cluster.local" -o "src/config/tmp.repo"
-            awk '/rhel-9.4-server-ose-4.16/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
+            awk '/rhel-9.4-server-ose-4.17/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
             cat src/config/ocp.repo
             rm "src/config/tmp.repo"
             ;;
