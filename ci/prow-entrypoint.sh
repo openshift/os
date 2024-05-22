@@ -181,13 +181,18 @@ validate() {
     workdir="$(mktemp -d)"
     echo "Using $workdir as working directory"
 
+    # for `git config --global` below
+    export HOME=${workdir}
+
     # Figure out if we are running from the COSA image or directly from the Prow src image
     if [[ -d /src/github.com/openshift/os ]]; then
         cd "$workdir"
+        git config --global --add safe.directory /src/github.com/openshift/os
         git clone /src/github.com/openshift/os os
     elif [[ -d ./.git ]]; then
         srcdir="${PWD}"
         cd "$workdir"
+        git config --global --add safe.directory "${srcdir}/.git"
         git clone "${srcdir}" os
     else
         echo "Could not found source directory"
