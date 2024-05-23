@@ -1,0 +1,35 @@
+# These are the official c9s repos. They are slower to update, but contain older
+# versions of packages, which is useful when pinning for lack of a "coreos-pool"
+# equivalent. They are unused when no pinning is needed.
+
+[c9s-baseos-mirror]
+name=CentOS Stream 9 - BaseOS
+baseurl=http://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+
+[c9s-appstream-mirror]
+name=CentOS Stream 9 - AppStream
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+
+[c9s-nfv-mirror]
+name=CentOS Stream 9 - NFV
+baseurl=http://mirror.stream.centos.org/9-stream/NFV/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+
+[c9s-rt-mirror]
+name=CentOS Stream 9 - RT
+baseurl=http://mirror.stream.centos.org/9-stream/RT/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official

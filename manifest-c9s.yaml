@@ -13,6 +13,7 @@ variables:
 include:
   - common.yaml
   - packages-openshift.yaml
+  - overrides-c9s.yaml
 
 # Starting from here, everything should be specific to SCOS
 
