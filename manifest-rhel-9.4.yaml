@@ -21,14 +21,14 @@ repos:
   - rhel-9.4-appstream
   - rhel-9.4-fast-datapath
   # Include RHCOS 9 repo for oc, kubelet
-  - rhel-9.4-server-ose-4.16
+  - rhel-9.4-server-ose-4.17
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "416.94.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "417.94.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.16"
+mutate-os-release: "4.17"
 
 postprocess:
   - |
@@ -101,7 +101,7 @@ repo-packages:
   - repo: rhel-9.4-appstream
     packages:
       - nss-altfiles
-  - repo: rhel-9.4-server-ose-4.16
+  - repo: rhel-9.4-server-ose-4.17
     packages:
       - conmon-rs
       - cri-o

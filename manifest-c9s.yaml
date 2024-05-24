@@ -13,6 +13,7 @@ variables:
 include:
   - common.yaml
   - packages-openshift.yaml
+  - overrides-c9s.yaml
 
 # Starting from here, everything should be specific to SCOS
 
@@ -27,14 +28,14 @@ repos:
   # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
   - c9s-sig-cloud-okd
   # Include RHCOS 9 repo for oc, hyperkube
-  - rhel-9.4-server-ose-4.16
+  - rhel-9.4-server-ose-4.17
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "416.9.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "417.9.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.16"
+mutate-os-release: "4.17"
 
 postprocess:
   - |

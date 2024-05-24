@@ -90,7 +90,7 @@ prepare_repos() {
             # Assume C9S/SCOS if the version does not match known values for RHEL
             # Temporary workaround until we have all packages for SCOS
             curl --fail -L "http://base-${ocpver_mut}-rhel94.ocp.svc.cluster.local" -o "src/config/tmp.repo"
-            awk '/rhel-9.4-server-ose-4.16/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
+            awk '/rhel-9.4-server-ose-4.17/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
             cat src/config/ocp.repo
             rm "src/config/tmp.repo"
             ;;
@@ -167,13 +167,18 @@ validate() {
     workdir="$(mktemp -d)"
     echo "Using $workdir as working directory"
 
+    # for `git config --global` below
+    export HOME=${workdir}
+
     # Figure out if we are running from the COSA image or directly from the Prow src image
     if [[ -d /src/github.com/openshift/os ]]; then
         cd "$workdir"
+        git config --global --add safe.directory /src/github.com/openshift/os
         git clone /src/github.com/openshift/os os
     elif [[ -d ./.git ]]; then
         srcdir="${PWD}"
         cd "$workdir"
+        git config --global --add safe.directory "${srcdir}/.git"
         git clone "${srcdir}" os
     else
         echo "Could not found source directory"
