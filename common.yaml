@@ -150,6 +150,12 @@ postprocess:
     # generating it.
     ln -sr /usr/share/zoneinfo/UTC /etc/localtime
 
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # Clean-up NVME-related IDs
+    rm -rfv /etc/nvme/hostid /etc/nvme/hostnqn
+
 remove-files:
   # We don't ship man(1) or info(1)
   - usr/share/info
