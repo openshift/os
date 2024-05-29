@@ -305,36 +305,36 @@ main() {
             prepare_repos
             ;;
         "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
-            cosa_init "rhel-9.4"
+            cosa_init "ocp-rhel-9.4"
             cosa_build
             ;;
         "rhcos-cosa-prow-pr-ci")
             setup_user
-            cosa_init "rhel-9.4"
+            cosa_init "ocp-rhel-9.4"
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-9-build-test-qemu")
             setup_user
-            cosa_init "rhel-9.4"
+            cosa_init "ocp-rhel-9.4"
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-9-build-test-metal")
             setup_user
-            cosa_init "rhel-9.4"
+            cosa_init "ocp-rhel-9.4"
             cosa_build
             kola_test_metal
             ;;
         "scos-9-build-test-qemu")
             setup_user
-            cosa_init "c9s"
+            cosa_init "okd-c9s"
             cosa_build
             kola_test_qemu
             ;;
         "scos-9-build-test-metal")
             setup_user
-            cosa_init "c9s"
+            cosa_init "okd-c9s"
             cosa_build
             kola_test_metal
             ;;

@@ -13,12 +13,17 @@ To support building both a RHEL-based and a CentOS Stream-based CoreOS, the
 coreos-assembler concept of [variants] is used. The following variants are
 supported:
 
-- `rhel-9.4`: RHEL 9.4-based CoreOS; including OpenShift components.
-- `c9s`: CentOS Stream-based CoreOS, including OpenShift components. This
+- `rhel-9.4`: RHEL 9.4-based CoreOS; without OpenShift components.
+- `ocp-rhel-9.4`: RHEL 9.4-based CoreOS; including OpenShift components.
+- `c9s`: CentOS Stream-based CoreOS, without OKD components.
+- `okd-c9s`: CentOS Stream-based CoreOS, including OpenShift components. This
   currently includes some packages from RHEL because not all packages required
   by OpenShift are provided in CentOS Stream.
 
-The default variant is `rhel-9.4`.
+In the future, the `ocp-*` variants will be removed. Instead, OpenShift
+components will be layered by deriving from the `rhel-9.4`/`c9s` images.
+
+The default variant is `ocp-rhel-9.4`.
 
 ## Reporting issues
 
