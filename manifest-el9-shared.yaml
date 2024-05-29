@@ -18,3 +18,21 @@ postprocess:
       grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
       sed -i -e 's,enabled = true,enabled = no,' /usr/lib/ostree/prepare-root.conf
     fi
+
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # Clean-up NVME-related IDs. Right now they are getting generated
+    # at build time and because we create a "golden image" everyone is
+    # getting the same IDs, but they are supposed to be unique.
+    # In Fedora and EL10 the %post that generates this was removed
+    # - https://src.fedoraproject.org/rpms/nvme-cli/c/629f632c97ab888f2ae3a8bc3eb2bacf0959dd2d
+    # - https://gitlab.com/redhat/centos-stream/rpms/nvme-cli/-/commit/762906d9286ed3d83af70ff6d620ba32b5addd3e
+    # - https://issues.redhat.com/browse/RHEL-68495
+    # Related:
+    # - https://github.com/openshift/os/issues/1519
+    # - https://issues.redhat.com/browse/OCPBUGS-34629
+    #
+    # In EL9, when https://issues.redhat.com/browse/RHEL-8041 gets fixed we
+    # can drop this workaround.
+    rm -fv /etc/nvme/hostid /etc/nvme/hostnqn
