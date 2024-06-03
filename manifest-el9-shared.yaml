@@ -1,5 +1,11 @@
 # Place here configuration that should happen on all el9* builds
 
+packages:
+ - containernetworking-plugins
+ # Gluster - Used for Openshift e2e gluster testcases
+ # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
+ - glusterfs-fuse
+
 #zram default config is in a subpackage in c10s
 # Meanwhile, remove the default config from the package
 remove-from-packages:
