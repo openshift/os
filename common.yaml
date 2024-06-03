@@ -40,6 +40,9 @@ conditional-include:
     include:
       - fedora-coreos-config/manifests/shared-el9.yaml
       - manifest-el9-shared.yaml
+  - if: osversion == "c10s"
+    include:
+      - fedora-coreos-config/manifests/shared-el10.yaml
   - if: inherit_tier_x == true
     include: fedora-coreos-config/manifests/tier-x.yaml
   - if: inherit_tier_x == false
