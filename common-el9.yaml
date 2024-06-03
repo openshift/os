@@ -1,0 +1,6 @@
+# Packages only common to EL 9 (RHEL 9 & C9S)
+packages:
+ - containernetworking-plugins
+ # Gluster - Used for Openshift e2e gluster testcases
+ # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
+ - glusterfs-fuse
