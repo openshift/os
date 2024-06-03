@@ -1,0 +1,33 @@
+# Manifest for CentOS Stream CoreOS 10
+
+metadata:
+  license: MIT
+  name: scos
+  summary: CentOS Stream CoreOS 10
+
+variables:
+  id: "centos"
+  osversion: "c10s"
+  inherit_tier_x: true
+
+# Include manifests common to all RHEL and CentOS Stream versions
+include:
+  - common.yaml
+  - overrides-c10s.yaml
+
+repos:
+  - c10s-baseos
+  - c10s-appstream
+  - c10s-extras-common
+
+automatic-version-prefix: "10.0.<date:%Y%m%d>"
+# This ensures we're semver-compatible which OpenShift wants
+automatic-version-suffix: "-"
+
+mutate-os-release: "10"
+
+packages:
+ - centos-stream-release
+ - centos-release-cloud-common
+ - centos-release-nfv-common
+ - centos-release-virt-common
