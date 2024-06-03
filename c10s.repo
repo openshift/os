@@ -1,0 +1,63 @@
+[c10s-baseos]
+name=CentOS Stream 10 - BaseOS
+baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/BaseOS/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+
+[c10s-appstream]
+name=CentOS Stream 10 - AppStream
+baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/AppStream/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+
+# [c10s-extras-common]
+# name=CentOS Stream 10 - Extras packages
+# baseurl=https://mirror.stream.centos.org/SIGs/10-stream/extras/$basearch/extras-common
+# gpgcheck=1
+# repo_gpgcheck=0
+# enabled=1
+# gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
+
+[c10s-nfv]
+name=CentOS Stream 10 - NFV
+baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/NFV/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+
+[c10s-rt]
+name=CentOS Stream 10 - RT
+baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/RT/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+
+# [c10s-sig-nfv]
+# name=CentOS Stream 10 - SIG NFV
+# baseurl=https://mirror.stream.centos.org/SIGs/10-stream/nfv/$basearch/openvswitch-2/
+# gpgcheck=1
+# repo_gpgcheck=0
+# enabled=1
+# gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-NFV
+
+# [c10s-sig-virtualization]
+# name=CentOS Stream 10 - SIG Virtualization
+# baseurl=https://mirror.stream.centos.org/SIGs/10-stream/virt/$basearch/kata-containers/
+# gpgcheck=1
+# repo_gpgcheck=0
+# enabled=1
+# gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Virtualization
+
+# [c10s-sig-cloud-okd]
+# name=CentOS Stream 10 - SIG Cloud OKD 4.15
+# baseurl=https://mirror.stream.centos.org/SIGs/10-stream/cloud/$basearch/okd-4.15/
+# gpgcheck=1
+# repo_gpgcheck=0
+# enabled=1
+# gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Cloud
