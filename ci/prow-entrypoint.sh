@@ -312,10 +312,16 @@ main() {
             kola_test_metal
             ;;
         "scos-10-build-test-qemu")
-            exit 0
+            setup_user
+            cosa_init "c10s"
+            cosa_build
+            kola_test_qemu --tag '!openshift'
             ;;
         "scos-10-build-test-metal")
-            exit 0
+            setup_user
+            cosa_init "c10s"
+            cosa_build
+            kola_test_metal
             ;;
         "rhcos-10-build-test-qemu")
             exit 0
