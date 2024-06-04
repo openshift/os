@@ -345,13 +345,13 @@ main() {
             ;;
         "c9s-build-test-qemu"|"scos-9-build-test-qemu")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "okd-c10s"
             cosa_build
             kola_test_qemu
             ;;
         "c9s-build-test-metal"|"scos-9-build-test-metal")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "okd-c10s"
             cosa_build
             kola_test_metal
             ;;
