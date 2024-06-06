@@ -6,4 +6,4 @@ labeled-packages:
   - ostree rpm-ostree
   - ignition
   - systemd
-  - runc cri-o
+  - crun cri-o
