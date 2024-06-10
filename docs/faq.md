@@ -323,6 +323,13 @@ coreos-installer --append-karg rd.iscsi.initiator=iqn.2023-11.coreos.diskless:te
 
 See [the dracut documentation](https://www.man7.org/linux/man-pages/man7/dracut.cmdline.7.html) for more information.
 
+### With Multipathing
+
+In addition to the kargs above, you can add `rd.multipath=default` as well if
+the target device is multipathed. (And e.g. if using iPXE, you likely would
+then also want to specify all the paths to the `sanboot` command in your iPXE
+script, see e.g. [this test config](https://github.com/coreos/coreos-assembler/blob/8a354045c68e5dce8cd5736dc6fdcfac1d603b35/mantle/cmd/kola/resources/iscsi_butane_setup.yaml#L70-L71).)
+
 ## Q: How do I configure a secondary block device via Ignition/MC if the name varies on each node?
 
 First, verify that there isn't a `/dev/disk/by-*` symlink which works for your needs. If not, a few approaches exist:
