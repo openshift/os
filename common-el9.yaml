@@ -1,0 +1,20 @@
+# Includes and packages only common to EL 9 (RHEL 9 & C9S)
+include:
+  - fedora-coreos-config/manifests/shared-el9.yaml
+
+packages:
+ - containernetworking-plugins
+ # Gluster - Used for Openshift e2e gluster testcases
+ # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
+ - glusterfs-fuse
+
+postprocess:
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    # Enable tmp-on-tmpfs by default because we don't want to have things leak
+    # across reboots, it increases alignment with FCOS, and also fixes the
+    # Live ISO. First, verify that RHEL is still disabling.
+    grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
+    echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
+    echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
