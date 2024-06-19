@@ -16,6 +16,9 @@ case "${variant}" in
     "scos")
         osver="$(source /usr/lib/os-release.stream; echo "${VERSION}")"
         ;;
+    "rhel")
+        osver="$(source /etc/os-release; echo "${VERSION_ID}" | cut -d. -f1 )"
+        ;;
     "rhcos")
         osver="$(source /usr/lib/os-release.rhel; echo "${VERSION}" | cut -d. -f1 )"
         ;;
