@@ -125,18 +125,10 @@ try_open() {
         # this avoids the cryptsetup performance penalty.
         msg "${dev} is not encrypted. Device will be mounted as device-mapper linear target."
 
-        # We inline a growpart here since it's simpler than trying to reconfigure dm-linear
-        local major minor devpath partition parent_path parent_device
-        major=$((0x$(stat -c '%t' "${dev}")))
-        minor=$((0x$(stat -c '%T' "${dev}")))
-        devpath=$(realpath "/sys/dev/block/${major}:${minor}")
-        partition=$(cat "$devpath/partition")
-        parent_path=$(dirname "$devpath")
-        parent_device=/dev/$(basename "${parent_path}")
-
-        # TODO: make this idempotent, and don't error out if
-        # we can't resize.
-        growpart "${parent_device}" "${partition}" || true
+        # Note: we used to growpart here, but don't anymore. That should only
+        # have been done on firstboot, not every boot. Since we don't support
+        # this LUKS setup anymore on new installs, we dropped it. That also
+        # fixes some growpart-related issues (see OCPBUGS-33124).
 
         local dev_size=$(($(blockdev --getsize "${dev}") - "${LUKS_HEADER_OFFSET_SECTORS}"))
         echo "0 ${dev_size} linear ${dev} ${LUKS_HEADER_OFFSET_SECTORS}" \
