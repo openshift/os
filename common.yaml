@@ -42,6 +42,8 @@ conditional-include:
 
 documentation: false
 
+ima: true
+
 postprocess:
   # Mark the OS as of the CoreOS variant.
   # XXX: should be part of a centos/redhat-release subpackage instead
@@ -302,3 +304,6 @@ remove-from-packages:
   # by MCD or kubelet.  See above.
   - - conntrack-tools
     - /usr/lib/systemd/system
+  # Fix IMA issues
+  - - systemd-libs
+    - /usr/share/licenses/systemd/LICENSE.LGPL2.1
