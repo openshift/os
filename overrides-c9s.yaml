@@ -3,10 +3,8 @@
 # we need in the `packages` section. When not needed. Empty or comment out this
 # file (except this comment).
 
-repos:
-  - c9s-baseos-mirror
-  - c9s-appstream-mirror
+#repos:
+#  - c9s-baseos-mirror
+#  - c9s-appstream-mirror
 
-packages:
-  # https://github.com/openshift/os/issues/1514
-  - selinux-policy-38.1.36-1.el9
+#packages:
