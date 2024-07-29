@@ -22,6 +22,7 @@
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://issues.redhat.com/browse/RHEL-35883
 
+
 # This test is failing only in prow, so it's skipped by prow
 # but not denylisted here so it can run on the rhcos pipeline
 #- pattern: iso-offline-install-iscsi.ibft.bios
