@@ -23,6 +23,11 @@
   osversion:
     - c9s
 
+- pattern: ext.config.shared.networking.*
+  tracker: https://issues.redhat.com/browse/RHEL-47033
+  osversion:
+    - c9s
+
 # we're missing a cri-o rebuild for 4.17, which blocks on buildroot issues
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://issues.redhat.com/browse/RHEL-35883
