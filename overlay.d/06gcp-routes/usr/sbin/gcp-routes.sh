@@ -55,10 +55,6 @@ initialize() {
     ensure_chain nat "${CHAIN_NAME}"
     ensure_rule nat PREROUTING -m comment --comment 'gcp LB vip DNAT' -j ${CHAIN_NAME}
 
-    # Need this so that existing flows (with an entry in conntrack) continue to be
-    # balanced, even if the DNAT entry is removed
-    ensure_rule filter INPUT -m comment --comment 'gcp LB vip existing' -m addrtype ! --dst-type LOCAL -m state --state ESTABLISHED,RELATED -j ACCEPT
-
     mkdir -p "${RUN_DIR}"
 }
 
