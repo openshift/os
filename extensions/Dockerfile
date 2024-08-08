@@ -10,7 +10,7 @@ ARG COSA
 ARG VARIANT
 RUN if [[ -z "$COSA" ]] ; then ci/get-ocp-repo.sh ; fi
 # on SCOS, we need to add the GPG keys of the various SIGs we need
-RUN if rpm -q centos-stream-release; then dnf install -y centos-release-{cloud,nfv,virt}-common; fi
+RUN if rpm -q centos-stream-release && ! rpm -q centos-release-cloud; then dnf install -y centos-release-{cloud,nfv,virt}-common; fi
 RUN mkdir -p /usr/share/distribution-gpg-keys/centos
 RUN ln -s /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial /usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
 RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Cloud
