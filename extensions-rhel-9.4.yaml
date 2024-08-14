@@ -9,7 +9,7 @@ extensions:
       - x86_64
       - aarch64
     repos:
-      - rhel-9.4-server-ose-4.17
+      - rhel-9.4-server-ose-4.18
     packages:
       - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
@@ -69,7 +69,7 @@ extensions:
       - x86_64
       - s390x
     repos:
-      - rhel-9.4-server-ose-4.17
+      - rhel-9.4-server-ose-4.18
     packages:
       - kata-containers
   # https://issues.redhat.com/browse/COS-2402

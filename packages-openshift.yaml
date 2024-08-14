@@ -91,7 +91,7 @@ postprocess:
     #!/usr/bin/env bash
     set -xeuo pipefail
     cat >> /usr/lib/os-release <<EOF
-    OPENSHIFT_VERSION="4.17"
+    OPENSHIFT_VERSION="4.18"
     EOF
 
   - |
