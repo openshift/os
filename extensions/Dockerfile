@@ -22,7 +22,7 @@ RUN if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIO
 ## Creates the repo metadata for the extensions.
 ## This uses Fedora as a lowest-common-denominator because it will work on
 ## current p8/s390x. See https://github.com/openshift/os/issues/1000
-FROM quay.io/fedora/fedora:latest as builder
+FROM quay.io/fedora/fedora:40 as builder
 COPY --from=os /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 RUN rm -f /etc/yum.repos.d/*.repo \
 && curl -L https://raw.githubusercontent.com/coreos/fedora-coreos-config/testing-devel/fedora.repo -o /etc/yum.repos.d/fedora.repo
