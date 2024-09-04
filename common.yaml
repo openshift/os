@@ -271,6 +271,9 @@ packages-ppc64le:
   - ppc64-diag-rtas
   - rdma-core
 
+packages-aarch64:
+  - irqbalance
+
 packages-s390x:
   # Required for IBM Secure Execution. Now is part of s390utils-base.rpm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1217
