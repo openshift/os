@@ -2,7 +2,7 @@
 Description=Workaround dracut FIPS unmounting /boot
 DefaultDependencies=false
 ConditionKernelCommandLine=ignition.firstboot
-ConditionKernelCommandLine=fips
+ConditionKernelCommandLine=fips=1
 ConditionPathExists=/run/ostree-live
 # Work around the lack of https://github.com/dracutdevs/dracut/commit/ab26ad2c2ab4a5884e392951998d40829f130387 in RHEL 9.2
 # We're going to undo the damage it did.
