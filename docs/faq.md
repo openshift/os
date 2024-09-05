@@ -98,18 +98,22 @@ At the current time, these floating tags are available:
 
 This may change in the future.
 
-## Q: How do I see which RHEL and RHCOS version is in a release?
+## Q: How do I see which RHEL and RHCOS version is in a release? How do I see from which openshift/os commit it's built?
 
 Like above, but add `oc image info`:
 
 ```bash
-$ oc image info $(oc adm release info --image-for=machine-os-content quay.io/openshift-release-dev/ocp-release:4.2.10)
+$ oc image info $(oc adm release info --image-for=rhel-coreos quay.io/openshift-release-dev/ocp-release:4.16.11-x86_64)
 ...
-Labels:     com.coreos.ostree-commit=33dd81479490fbb61a58af8525a71934e7545b9ed72d846d3e32a3f33f6fac9d
-            version=42.81.20191203.0
+Labels:     ...
+            io.openshift.build.versions=machine-os=416.94.202409040013-0
+            org.opencontainers.image.revision=2f419467be49446862f180b2fc0e5d94f5639a6a
+            org.opencontainers.image.source=https://github.com/openshift/os
+            org.opencontainers.image.version=416.94.202409040013-0
 ```
 
-Here the `81` means it's using RHEL 8.1.
+Here the `94` means it's using RHEL 9.4.
+The `revision` commit hash points to the git commit of openshift/os that was built.
 
 ## Q: How do I know which RHEL will be in the next release? What are the current versions of RHEL being used in RHCOS?
 
