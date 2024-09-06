@@ -25,7 +25,7 @@ RUN if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIO
 FROM quay.io/fedora/fedora:40 as builder
 COPY --from=os /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 RUN rm -f /etc/yum.repos.d/*.repo \
-&& curl -L https://raw.githubusercontent.com/coreos/fedora-coreos-config/testing-devel/fedora.repo -o /etc/yum.repos.d/fedora.repo
+&& curl -L https://raw.githubusercontent.com/coreos/fedora-coreos-config/testing-devel/fedora-archive.repo -o /etc/yum.repos.d/fedora-archive.repo
 RUN dnf install -y createrepo_c
 RUN createrepo_c /usr/share/rpm-ostree/extensions/
 
