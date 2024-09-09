@@ -20,6 +20,8 @@ repos:
 # In that case, the versioning should instead be exactly the same as the pungi
 # compose ID.
 automatic-version-prefix: "9.4.<date:%Y%m%d%H%M>"
+# This ensures we're semver-compatible which OpenShift wants
+automatic-version-suffix: "-"
 
 mutate-os-release: "9.4"
 
