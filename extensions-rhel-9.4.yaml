@@ -81,3 +81,7 @@ extensions:
       - kernel-64k-modules
       - kernel-64k-modules-core
       - kernel-64k-modules-extra
+  # https://issues.redhat.com/browse/COS-2940
+  sysstat:
+    packages:
+      - sysstat
