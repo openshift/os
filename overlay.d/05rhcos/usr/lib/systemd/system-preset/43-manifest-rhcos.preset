@@ -1,9 +1,6 @@
 # Additionnal RHCOS specific presets that can not be included in the
 # redhat-release package.
 
-# Upgrade fixes
-enable rhcos-usrlocal-selinux-fixup.service
-enable rhcos-selinux-policy-upgrade.service
 # Enable auditd. See https://jira.coreos.com/browse/RHCOS-536
 enable auditd.service
 # Disable these services by default. See https://jira.coreos.com/browse/RHCOS-92
