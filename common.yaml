@@ -38,11 +38,15 @@ conditional-include:
     include: zram-no-defaults.yaml
   - if: osversion == "rhel-9.4"
     include: zram-no-defaults.yaml
-  # Packages specific to el9
+    # Packages and scripts specific to el9
   - if: osversion == "c9s"
-    include: fedora-coreos-config/manifests/shared-el9.yaml
+    include:
+      - fedora-coreos-config/manifests/shared-el9.yaml
+      - common-el9.yaml
   - if: osversion == "rhel-9.4"
-    include: fedora-coreos-config/manifests/shared-el9.yaml
+    include:
+      - fedora-coreos-config/manifests/shared-el9.yaml
+      - common-el9.yaml
 
 
 documentation: false
@@ -153,16 +157,6 @@ postprocess:
 
   - |
     #!/usr/bin/env bash
-    set -xeuo pipefail
-    # Enable tmp-on-tmpfs by default because we don't want to have things leak
-    # across reboots, it increases alignment with FCOS, and also fixes the
-    # Live ISO. First, verify that RHEL is still disabling.
-    grep -q '# RHEL-only: Disable /tmp on tmpfs' /usr/lib/systemd/system/basic.target
-    echo '# RHCOS-only: we follow the Fedora/upstream default' >> /usr/lib/systemd/system/basic.target
-    echo 'Wants=tmp.mount' >> /usr/lib/systemd/system/basic.target
-
-  - |
-    #!/usr/bin/env bash
     set -xeo pipefail
     # See https://issues.redhat.com/browse/LOG-3117
     # Something changed between rhel8 and rhel9 to not generate this by default
@@ -219,7 +213,6 @@ packages:
  # Bootloader updater
  - bootupd
  # Containers
- - containernetworking-plugins
  - container-selinux
  # Needed for newer rpm-ostree
  - "'skopeo >= 2:1.7.0'"
@@ -250,9 +243,6 @@ packages:
  - qemu-guest-agent
  # passwd was obsoleted by shadow-utils in F40+, but still needed here
  - passwd
- # Gluster - Used for Openshift e2e gluster testcases
- # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
- - glusterfs-fuse
  # Needed for kernel-devel extension: https://bugzilla.redhat.com/show_bug.cgi?id=1885408
  # x86_64 and s390x have these packages installed as dependencies of other packages, ppc64le does not
  # FIXME: once the below BZs have been resolved to remove perl dependencies, this can be done in the extensions script

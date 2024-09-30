@@ -82,17 +82,34 @@ prepare_repos() {
 
     # Fetch the repos corresponding to the release we are building
     case "${rhelver}" in
-        92|94)
+        94)
+            # RHCOS based on a specific version of RHEL
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
             cat src/config/ocp.repo
             ;;
-        *)
-            # Assume C9S/SCOS if the version does not match known values for RHEL
+        9)
+            # CentOS Stream 9
             # Temporary workaround until we have all packages for SCOS
+            # Keep this updated to the latest stable RHEL
             curl --fail -L "http://base-${ocpver_mut}-rhel94.ocp.svc.cluster.local" -o "src/config/tmp.repo"
             awk '/rhel-9.4-server-ose-4.18/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
             cat src/config/ocp.repo
             rm "src/config/tmp.repo"
+            ;;
+        10)
+            # CentOS Stream 10
+            # Temporary workaround until we have all packages for SCOS
+            # Keep this updated to the latest stable RHEL
+            curl --fail -L "http://base-${ocpver_mut}-rhel94.ocp.svc.cluster.local" -o "src/config/tmp.repo"
+            awk '/rhel-9.4-appstream/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
+            awk '/rhel-9.4-fast-datapath/,/^$/' "src/config/tmp.repo" >> "src/config/ocp.repo"
+            awk '/rhel-9.4-server-ose-4.17/,/^$/' "src/config/tmp.repo" >> "src/config/ocp.repo"
+            cat src/config/ocp.repo
+            rm "src/config/tmp.repo"
+            ;;
+        *)
+            echo "Unknown RHEL / CentOS Stream release"
+            exit 1
             ;;
     esac
 }
@@ -326,15 +343,27 @@ main() {
             cosa_build
             kola_test_metal
             ;;
-        "scos-9-build-test-qemu")
+        "c9s-build-test-qemu"|"scos-9-build-test-qemu")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "okd-c10s"
             cosa_build
             kola_test_qemu
             ;;
-        "scos-9-build-test-metal")
+        "c9s-build-test-metal"|"scos-9-build-test-metal")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "okd-c10s"
+            cosa_build
+            kola_test_metal
+            ;;
+        "c10s-build-test-qemu")
+            setup_user
+            cosa_init "okd-c10s"
+            cosa_build
+            kola_test_qemu
+            ;;
+        "c10s-build-test-metal")
+            setup_user
+            cosa_init "okd-c10s"
             cosa_build
             kola_test_metal
             ;;

@@ -7,16 +7,25 @@
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - c10s
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - c10s
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - c10s
+
+### TEMPORARY
+- pattern: ext.config.rpm-ostree.replace-rt-kernel
+  tracker: https://github.com/openshift/os/issues/1315
+  osversion:
+    - c10s
 
 - pattern: fips.*
   tracker: https://github.com/openshift/os/issues/1540
@@ -26,6 +35,51 @@
 # we're missing a cri-o rebuild for 4.17, which blocks on buildroot issues
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://issues.redhat.com/browse/RHEL-35883
+
+- pattern: ext.config.shared.kdump.crash
+  tracker: TODO
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.systemd.default-unit-timeouts
+  tracker: TODO
+  osversion:
+    - c10s
+
+# TODO: Make this test EL9 only
+- pattern: ext.config.shared.networking.team-dhcp-via-ignition
+  tracker: TODO
+  osversion:
+    - c10s
+
+# TODO: Make this test EL9 only
+- pattern: ext.config.shared.networking.nm-ifcfg-rh-plugin
+  tracker: TODO
+  osversion:
+    - c10s
+
+# Will fail until we have proper RHEL 10 builds of OCP packages
+- pattern: ext.config.version.rhel-major-version
+  tracker: TODO
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.podman.dns
+  tracker: https://github.com/openshift/os/pull/1498
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.podman.rootless-pasta-networking
+  tracker: https://github.com/openshift/os/pull/1498
+  osversion:
+    - c10s
+
+- pattern: ext.config.shared.podman.rootless-systemd
+  tracker: https://github.com/openshift/os/pull/1498
+  osversion:
+    - c10s
+
+### TEMPORARY
 
 # This test is failing only in prow, so it's skipped by prow
 # but not denylisted here so it can run on the rhcos pipeline
