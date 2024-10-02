@@ -7,21 +7,25 @@
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - rhel-9.6
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - rhel-9.6
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - rhel-9.6
 
 - pattern: fips.*
   tracker: https://github.com/openshift/os/issues/1540
   osversion:
     - c9s
+    - rhel-9.6
 
 # we're missing a cri-o rebuild for 4.17, which blocks on buildroot issues
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
@@ -31,3 +35,15 @@
 # but not denylisted here so it can run on the rhcos pipeline
 #- pattern: iso-offline-install-iscsi.ibft.bios
 #  tracker: https://github.com/openshift/os/issues/1492
+
+# as it's a fake rhel build (from c9s) versions won't match
+- pattern: ext.config.version.rhel-major-version
+  tracker: https://github.com/openshift/os/issues/1635
+  snooze: 2025-01-01
+  osversion:
+    - rhel-9.6
+- pattern: ext.config.shared.content-origins
+  tracker: https://github.com/openshift/os/issues/1635
+  snooze: 2025-01-01
+  osversion:
+    - rhel-9.6

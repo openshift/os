@@ -38,10 +38,14 @@ conditional-include:
     include: zram-no-defaults.yaml
   - if: osversion == "rhel-9.4"
     include: zram-no-defaults.yaml
+  - if: osversion == "rhel-9.6"
+    include: zram-no-defaults.yaml
   # Packages specific to el9
   - if: osversion == "c9s"
     include: fedora-coreos-config/manifests/shared-el9.yaml
   - if: osversion == "rhel-9.4"
+    include: fedora-coreos-config/manifests/shared-el9.yaml
+  - if: osversion == "rhel-9.6"
     include: fedora-coreos-config/manifests/shared-el9.yaml
 
 

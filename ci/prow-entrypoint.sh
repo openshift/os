@@ -73,6 +73,12 @@ prepare_repos() {
     # Figure out which version we're building
     rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
+    # XXX change to rhel 9.6 when beta is GA
+    # use 9.4 repos for 9.6
+    if [[ "${rhelver}" == "96" ]]; then
+        rhelver="94"
+    fi
+
     # Temporary workaround until we publish builds in the default path
     if [[ "${rhelver}" == "94" ]]; then
         prev_build_url="${REDIRECTOR_URL}/${ocpver}-9.4/builds/"
