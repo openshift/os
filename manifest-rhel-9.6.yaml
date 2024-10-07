@@ -16,6 +16,7 @@ include:
 repos:
   - c9s-baseos
   - c9s-appstream
+  - rhel-9.4-baseos
 
 # Eventually we should try to build these images as part of the RHEL composes.
 # In that case, the versioning should instead be exactly the same as the pungi
@@ -26,10 +27,12 @@ automatic-version-suffix: "-"
 
 mutate-os-release: "9.6"
 
-packages:
+repo-packages:
+  - repo: rhel-9.4-baseos
+    packages:
  # We include the generic centos release package and fake the red hat os-release
  # info in a post-process script
- - centos-release
+     - redhat-release
 
 # Fake out RHEL version in the os-release while waiting for RHEL-9.6 release.
 postprocess:
