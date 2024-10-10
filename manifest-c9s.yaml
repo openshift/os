@@ -28,23 +28,3 @@ mutate-os-release: "9"
 
 packages:
  - centos-stream-release
-
-postprocess:
-  - |
-    #!/usr/bin/env bash
-    set -xeuo pipefail
-    cat > /tmp/scos-workarounds.cil << EOF
-    ; https://issues.redhat.com/browse/RHEL-49735
-    (typeattributeset cil_gen_require afterburn_t)
-    (typepermissive afterburn_t)
-
-    ; https://issues.redhat.com/browse/RHEL-38614
-    (typeattributeset cil_gen_require coreos_installer_t)
-    (typepermissive coreos_installer_t)
-
-    ; https://issues.redhat.com/browse/RHEL-47033
-    (typeattributeset cil_gen_require systemd_network_generator_t)
-    (typepermissive systemd_network_generator_t)
-    EOF
-    /usr/sbin/semodule -i /tmp/scos-workarounds.cil
-    rm /tmp/scos-workarounds.cil
