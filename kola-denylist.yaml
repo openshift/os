@@ -23,9 +23,10 @@
   osversion:
     - c9s
 
-# we're missing a cri-o rebuild for 4.17, which blocks on buildroot issues
+# The 4.17 and 4.18 build of Ignition encounters a FIPS panic so
+# we are using the 4.16 build for now while that is under investigation.
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
-  tracker: https://issues.redhat.com/browse/RHEL-35883
+  tracker: https://issues.redhat.com/browse/OCPBUGS-42688
 
 # This test is failing only in prow, so it's skipped by prow
 # but not denylisted here so it can run on the rhcos pipeline
