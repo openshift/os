@@ -43,6 +43,8 @@ conditional-include:
     include: fedora-coreos-config/manifests/shared-el9.yaml
   - if: osversion == "rhel-9.4"
     include: fedora-coreos-config/manifests/shared-el9.yaml
+  - if: osversion == "rhel-9.6"
+    include: fedora-coreos-config/manifests/shared-el9.yaml
 
 
 documentation: false
