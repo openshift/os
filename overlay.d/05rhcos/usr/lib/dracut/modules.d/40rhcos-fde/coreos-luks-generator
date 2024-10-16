@@ -17,6 +17,14 @@ add_requires() {
     ln -sf "../${name}" "${requires_dir}/${name}"
 }
 
+# We don't need to mount the local disk if we are in the kdump initramfs
+# and kdump is configured to export the logs to a remote target
+# See https://issues.redhat.com/browse/OCPBUGS-42351
+# Also see https://github.com/coreos/fedora-coreos-config/commit/8ced0db61f23a9b59ef096317fb6fc225bfba133
+if getargbool 0 'kdump_remote_ip'; then
+   exit 0
+fi
+
 # In 4.4+, we only activate if rhcos.root=crypt_rootfs as set on the
 # kernel cmdline by image.yaml.  This will allow us to go back
 # to matching FCOS and supporting full rootfs reprovisioning.
