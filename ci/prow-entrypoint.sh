@@ -115,7 +115,7 @@ cosa_build() {
 # Build QEMU image and run all kola tests
 kola_test_qemu() {
     cosa buildextend-qemu
-    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola
+    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola --allow-rerun-success tags=needs-internet
 }
 
 # Build metal, metal4k & live images and run kola tests
