@@ -1,0 +1,116 @@
+# Manifest for OKD node based on CentOS Stream CoreOS 1à
+# Note: this manifest is temporary; in the future, OKD components will be layered instead.
+
+rojig:
+  license: MIT
+  name: scos
+  summary: OKD 4.17
+
+variables:
+  osversion: "c10s"
+
+include:
+  - manifest-c10s.yaml
+  - packages-openshift.yaml
+
+# Additional repos we need for OKD components
+repos:
+  # For containernetworking-plugins for cri-o
+  - rhel-9.4-appstream
+  # CentOS Extras Common repo for SIG RPM GPG keys
+  # - c10s-extras-common
+  # CentOS NFV SIG repo for openvswitch
+  # - c10s-sig-nfv
+  # For openvswitch
+  - rhel-9.4-fast-datapath
+  # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
+  # - c10s-sig-cloud-okd
+  # Include RHCOS 9 repo for oc, hyperkube
+  - rhel-9.4-server-ose-4.17
+
+# We include hours/minutes to avoid version number reuse
+automatic-version-prefix: "417.10.<date:%Y%m%d%H%M>"
+# This ensures we're semver-compatible which OpenShift wants
+automatic-version-suffix: "-"
+# Keep this is sync with the version in postprocess
+mutate-os-release: "4.17"
+
+postprocess:
+  - |
+     #!/usr/bin/env bash
+     set -xeo pipefail
+
+     # Tweak /usr/lib/os-release
+     grep -v -e "OSTREE_VERSION" -e "OPENSHIFT_VERSION" /etc/os-release > /usr/lib/os-release.stream
+     (
+     . /etc/os-release
+     cat > /usr/lib/os-release <<EOF
+     NAME="${NAME}"
+     ID="scos"
+     ID_LIKE="rhel fedora"
+     VERSION="${OSTREE_VERSION}"
+     VERSION_ID="${OPENSHIFT_VERSION}"
+     VARIANT="${VARIANT}"
+     VARIANT_ID=${VARIANT_ID}
+     PLATFORM_ID="${PLATFORM_ID}"
+     PRETTY_NAME="${NAME} ${OSTREE_VERSION}"
+     ANSI_COLOR="${ANSI_COLOR}"
+     CPE_NAME="${CPE_NAME}::coreos"
+     HOME_URL="${HOME_URL}"
+     DOCUMENTATION_URL="https://docs.okd.io/latest/welcome/index.html"
+     BUG_REPORT_URL="https://access.redhat.com/labs/rhir/"
+     REDHAT_BUGZILLA_PRODUCT="OpenShift Container Platform"
+     REDHAT_BUGZILLA_PRODUCT_VERSION="${OPENSHIFT_VERSION}"
+     REDHAT_SUPPORT_PRODUCT="OpenShift Container Platform"
+     REDHAT_SUPPORT_PRODUCT_VERSION="${OPENSHIFT_VERSION}"
+     OPENSHIFT_VERSION="${OPENSHIFT_VERSION}"
+     OSTREE_VERSION="${OSTREE_VERSION}"
+     EOF
+     )
+     rm -f /etc/os-release
+     ln -s ../usr/lib/os-release /etc/os-release
+
+     # Tweak /etc/system-release, /etc/system-release-cpe & /etc/redhat-release
+     (
+     . /etc/os-release
+     cat > /usr/lib/system-release-cpe <<EOF
+     ${CPE_NAME}
+     EOF
+     cat > /usr/lib/system-release <<EOF
+     ${NAME} release ${VERSION_ID}
+     EOF
+     rm -f /etc/system-release-cpe /etc/system-release /etc/redhat-release
+     ln -s /usr/lib/system-release-cpe /etc/system-release-cpe
+     ln -s /usr/lib/system-release /etc/system-release
+     ln -s /usr/lib/system-release /etc/redhat-release
+     )
+
+     # Tweak /usr/lib/issue
+     cat > /usr/lib/issue <<EOF
+     \S \S{VERSION_ID}
+     EOF
+     rm -f /etc/issue /etc/issue.net
+     ln -s /usr/lib/issue /etc/issue
+     ln -s /usr/lib/issue /etc/issue.net
+
+packages:
+ # RPM GPG keys for CentOS SIG repos
+ # - centos-release-cloud-common
+ # - centos-release-nfv-common
+ # - centos-release-virt-common
+
+# Packages pinned to specific repos in SCOS 9
+repo-packages:
+  # We always want the kernel from BaseOS
+  - repo: c10s-baseos
+    packages:
+      - kernel
+  - repo: c10s-appstream
+    packages:
+      # We want the one shipping in C9S, not the equivalently versioned one in RHAOS
+      - nss-altfiles
+      # Use the new containers/toolbox
+      - toolbox
+      # The one shipping in C9S is temporarily lower versioned, so be explicit
+      # https://github.com/openshift/os/issues/1505
+      # - containers-common
