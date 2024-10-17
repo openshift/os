@@ -73,8 +73,13 @@ prepare_repos() {
     # Figure out which version we're building
     rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
 
+    # use 9.4 repos for 9.6
+    if [[ "${rhelver}" == "96" ]]; then
+        rhelver="94"
+    fi
+
     # Temporary workaround until we publish builds in the default path
-    if [[ "${rhelver}" == "94" ]]; then
+    if [[ "${rhelver}" == "94" || "${rhelver}" == "96" ]]; then
         prev_build_url="${REDIRECTOR_URL}/${ocpver}-9.4/builds/"
         # Fetch the previous build
         cosa buildfetch --url="${prev_build_url}"
@@ -82,7 +87,7 @@ prepare_repos() {
 
     # Fetch the repos corresponding to the release we are building
     case "${rhelver}" in
-        92|94)
+        92|94|96)
             curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
             cat src/config/ocp.repo
             ;;
@@ -305,7 +310,7 @@ main() {
             prepare_repos
             ;;
         "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
-            cosa_init "ocp-rhel-9.4"
+            cosa_init "ocp-rhel-9.6"
             cosa_build
             ;;
         "rhcos-cosa-prow-pr-ci")
@@ -316,13 +321,13 @@ main() {
             ;;
         "rhcos-9-build-test-qemu")
             setup_user
-            cosa_init "ocp-rhel-9.4"
+            cosa_init "ocp-rhel-9.6"
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-9-build-test-metal")
             setup_user
-            cosa_init "ocp-rhel-9.4"
+            cosa_init "ocp-rhel-9.6"
             cosa_build
             kola_test_metal
             ;;
@@ -335,6 +340,18 @@ main() {
         "scos-9-build-test-metal")
             setup_user
             cosa_init "okd-c9s"
+            cosa_build
+            kola_test_metal
+            ;;
+        "rhcos-96-build-test-qemu")
+            setup_user
+            cosa_init "ocp-rhel-9.6"
+            cosa_build
+            kola_test_qemu
+            ;;
+        "rhcos-96-build-test-metal")
+            setup_user
+            cosa_init "ocp-rhel-9.6"
             cosa_build
             kola_test_metal
             ;;
