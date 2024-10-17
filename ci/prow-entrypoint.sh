@@ -326,6 +326,12 @@ main() {
             cosa_build
             kola_test_metal
             ;;
+        "rhcos-96-build-test-qemu")
+            exit 0
+            ;;
+        "rhcos-96-build-test-metal")
+            exit 0
+            ;;
         "scos-9-build-test-qemu")
             setup_user
             cosa_init "okd-c9s"
@@ -337,6 +343,12 @@ main() {
             cosa_init "okd-c9s"
             cosa_build
             kola_test_metal
+            ;;
+        "scos-10-build-test-qemu")
+            exit 0
+            ;;
+        "scos-10-build-test-metal")
+            exit 0
             ;;
         *)
             # This case ensures that we exhaustively list the tests that should
