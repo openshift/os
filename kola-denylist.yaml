@@ -7,21 +7,25 @@
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - rhel-9.6
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - rhel-9.6
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
     - c9s
+    - rhel-9.6
 
 - pattern: fips.*
   tracker: https://github.com/openshift/os/issues/1540
   osversion:
     - c9s
+    - rhel-9.6
 
 # we're missing a cri-o rebuild for 4.17, which blocks on buildroot issues
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
