@@ -1,0 +1,85 @@
+# RPMs as operating system extensions, distinct from the base ostree commit/image
+# https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
+# and https://github.com/coreos/fedora-coreos-tracker/issues/401
+
+# repos:
+#   - sig-virtualization
+
+extensions:
+  # https://issues.redhat.com/browse/RFE-4177
+  # wasm:
+  #   architectures:
+  #     - x86_64
+  #     - aarch64
+  #   repos:
+  #     - appstream
+  #   packages:
+  #     - crun-wasm
+  # https://github.com/coreos/fedora-coreos-tracker/issues/1504
+  ipsec:
+    packages:
+      - libreswan
+      - NetworkManager-libreswan
+  # https://github.com/coreos/fedora-coreos-tracker/issues/326
+  usbguard:
+    packages:
+      - usbguard
+  kerberos:
+    packages:
+      - krb5-workstation
+      - libkadm5
+  # https://github.com/kmods-via-containers/kmods-via-containers/issues/3
+  # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/866
+  # These are currently overlaid onto the host so that they can be bind-mounted
+  # into build containers... in the future they should be a `development`
+  # extension: https://github.com/openshift/machine-config-operator/pull/2143.
+  kernel-devel:
+    packages:
+      - kernel-devel
+      - kernel-headers
+    match-base-evr: kernel
+  # These are already in the base, so they're not OS extensions, but they're
+  # useful to have in RPM form to install in kmod build containers.
+  kernel:
+    kind: development
+    packages:
+      - kernel
+      - kernel-core
+      - kernel-modules
+      - kernel-modules-extra
+    match-base-evr: kernel
+  # GRPA-2822
+  # https://github.com/openshift/machine-config-operator/pull/1330
+  # https://github.com/openshift/enhancements/blob/master/enhancements/support-for-realtime-kernel.md
+  kernel-rt:
+    architectures:
+      - x86_64
+    repos:
+      - c10s-nfv
+    packages:
+      - kernel-rt-core
+      - kernel-rt-kvm
+      - kernel-rt-modules
+      - kernel-rt-modules-extra
+      - kernel-rt-devel
+    match-base-evr: kernel
+  # https://github.com/openshift/machine-config-operator/pull/2456
+  # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
+  # GRPA-3123
+  # - kata-containers
+  # sandboxed-containers:
+  #   architectures:
+  #     - x86_64
+  #   repos:
+  #     - sig-virtualization10
+  #   packages:
+  #     - kata-containers
+  # https://issues.redhat.com/browse/COS-2402
+  kernel-64k:
+    architectures:
+      - aarch64
+    packages:
+      - kernel-64k-core
+      - kernel-64k-modules
+      - kernel-64k-modules-core
+      - kernel-64k-modules-extra
