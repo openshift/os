@@ -4,9 +4,12 @@
 # file (except this comment).
 
 repos:
-  - c9s-baseos-mirror
+# - c9s-baseos-mirror
   - c9s-appstream-mirror
 
 packages:
-  # https://github.com/openshift/os/issues/1514
-  - selinux-policy-38.1.36-1.el9
+  # https://issues.redhat.com/browse/RHEL-61612
+  - clevis-20-200.el9
+  - clevis-dracut-20-200.el9
+  - clevis-luks-20-200.el9
+  - clevis-systemd-20-200.el9
