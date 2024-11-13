@@ -16,20 +16,9 @@ include:
   - packages-openshift.yaml
 
 # Additional repos we need for OCP components
-# right now we use rhel-9.4 OCP repos as RHEL 9.6 is not available yet
 repos:
-  - rhel-9.4-fast-datapath
-  - rhel-9.4-server-ose-4.18
-  - rhel-9.4-appstream
-  - c9s-extras-common
-  - c9s-sig-nfv
-  - c9s-nfv
-
-packages:
- # RPM GPG keys for CentOS SIG repos
-  - centos-release-cloud-common
-  - centos-release-nfv-common
-  - centos-release-virt-common
+  - rhel-9.6-fast-datapath
+  - rhel-9.6-server-ose-4.18
 
 # We include hours/minutes to avoid version number reuse
 automatic-version-prefix: "418.96.<date:%Y%m%d%H%M>"
@@ -97,15 +86,15 @@ postprocess:
      ln -s /usr/lib/issue /etc/issue
      ln -s /usr/lib/issue /etc/issue.net
 
-# Packages pinned to specific repos in RHCOS 9
 repo-packages:
-  - repo: c9s-appstream
+  # https://issues.redhat.com/browse/RHELPLAN-170883
+  - repo: rhel-9.6-appstream
     packages:
-      - nss-altfiles
-  - repo: rhel-9.4-server-ose-4.18
-    packages:
-      - conmon-rs
-      - cri-o
-      - cri-tools
-      - openshift-clients
-      - openshift-kubelet
+      - conmon
+      - containers-common
+      - container-selinux
+      - crun
+      - podman
+      - runc
+      - skopeo
+      - toolbox
