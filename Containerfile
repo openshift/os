@@ -28,6 +28,6 @@
 #   --security-opt label=disable -t localhost/openshift-node-c9s \
 #   src/config
 
-FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:rhel-coreos-base-c9s
+FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos
 RUN --mount=type=bind,target=/run/src /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml && \
   ostree container commit
