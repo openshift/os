@@ -60,47 +60,7 @@ cosa_init() {
 
 # Initialize the .repo files
 prepare_repos() {
-    local manifest="src/config/manifest.yaml"
-    if [[ -f "src/config.json" ]]; then
-        variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
-        manifest="src/config/manifest-${variant}.yaml"
-    fi
-    # Grab the raw value of `mutate-os-release` and use sed to convert the value
-    # to X-Y format
-    ocpver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["mutate-os-release"]')
-    ocpver_mut=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["mutate-os-release"]' | sed 's|\.|-|')
-
-    # Figure out which version we're building
-    rhelver=$(rpm-ostree compose tree --print-only "${manifest}" | jq -r '.["automatic-version-prefix"]' | cut -f2 -d.)
-
-    # XXX change to rhel 9.6 when beta is GA
-    # use 9.4 repos for 9.6
-    if [[ "${rhelver}" == "96" ]]; then
-        rhelver="94"
-    fi
-
-    # Temporary workaround until we publish builds in the default path
-    if [[ "${rhelver}" == "94" ]]; then
-        prev_build_url="${REDIRECTOR_URL}/${ocpver}-9.4/builds/"
-        # Fetch the previous build
-        cosa buildfetch --url="${prev_build_url}"
-    fi
-
-    # Fetch the repos corresponding to the release we are building
-    case "${rhelver}" in
-        92|94)
-            curl --fail -L "http://base-${ocpver_mut}-rhel${rhelver}.ocp.svc.cluster.local" -o "src/config/ocp.repo"
-            cat src/config/ocp.repo
-            ;;
-        *)
-            # Assume C9S/SCOS if the version does not match known values for RHEL
-            # Temporary workaround until we have all packages for SCOS
-            curl --fail -L "http://base-${ocpver_mut}-rhel94.ocp.svc.cluster.local" -o "src/config/tmp.repo"
-            awk '/rhel-9.4-server-ose-4.18/,/^$/' "src/config/tmp.repo" > "src/config/ocp.repo"
-            cat src/config/ocp.repo
-            rm "src/config/tmp.repo"
-            ;;
-    esac
+    src/config/ci/get-ocp-repo.sh --cosa-workdir .
 }
 
 # Do a cosa build & cosa build-extensions only.
