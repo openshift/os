@@ -1,6 +1,6 @@
 # Manifest for CentOS Stream CoreOS 9
 
-rojig:
+metadata:
   license: MIT
   name: scos
   summary: CentOS Stream CoreOS 9
