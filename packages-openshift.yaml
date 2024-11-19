@@ -106,7 +106,7 @@ postprocess:
     # This works around the fact that we can't currently access manifest
     # variables from postprocess scripts, though we just use the name, since
     # it's easier.
-    variant=$(jq -r .rojig.name /usr/share/rpm-ostree/treefile.json)
+    variant=$(jq -r .metadata.name /usr/share/rpm-ostree/treefile.json)
     if [ $variant = "scos" ]; then
       colloquial_name=SCOS
       project_name=OKD

@@ -1,6 +1,6 @@
 # Manifest for RHCOS based on RHEL 9.6
 
-rojig:
+metadata:
   license: MIT
   name: rhcos
   summary: RHEL CoreOS 9.6
