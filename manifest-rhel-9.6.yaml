@@ -12,11 +12,9 @@ variables:
 include:
   - common.yaml
 
-# XXX todo: swap to rhel 9.6 repos when beta is GA
-# CentOS Stream 9 repos for now
 repos:
-  - c9s-baseos
-  - c9s-appstream
+  - rhel-9.6-baseos
+  - rhel-9.6-appstream
 
 # Eventually we should try to build these images as part of the RHEL composes.
 # In that case, the versioning should instead be exactly the same as the pungi
@@ -27,52 +25,9 @@ automatic-version-suffix: "-"
 
 mutate-os-release: "9.6"
 
-# XXX todo: swap to rhel 9.6 repos when beta is GA
-repo-packages:
-  - repo: c9s-baseos
-    packages:
-     # We include the generic centos release package and fake the red hat os-release
-     # info in a post-process script
-     # XXX todo: swap to redhat-release once 9.6 beta is GA
-     - centos-stream-release
-
-# XXX remove once swapping to rhel 9.6 beta content
-# Fake out RHEL version in the os-release while waiting for RHEL-9.6 release.
-postprocess:
-  - |
-     #!/usr/bin/env bash
-     set -xeo pipefail
-
-     (
-     . /etc/os-release
-     cat > /usr/lib/os-release <<EOF
-     NAME="Red Hat Enterprise Linux CoreOS"
-     VERSION="${OSTREE_VERSION} (Plow)"
-     ID="rhel"
-     ID_LIKE="fedora"
-     VERSION="${OSTREE_VERSION}"
-     VARIANT="CoreOS"
-     VARIANT_ID=coreos
-     VERSION_ID="9.6"
-     PLATFORM_ID="platform:el9"
-     PRETTY_NAME="Red Hat Enterprise Linux CoreOS ${OSTREE_VERSION} (Plow)"
-     ANSI_COLOR="0;31"
-     LOGO="fedora-logo-icon"
-     CPE_NAME="cpe:/o:redhat:enterprise_linux:9::baseos"
-     HOME_URL="https://www.redhat.com/"
-     DOCUMENTATION_URL="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9"
-     BUG_REPORT_URL="https://issues.redhat.com/"
-
-     REDHAT_BUGZILLA_PRODUCT="Red Hat Enterprise Linux 9"
-     REDHAT_BUGZILLA_PRODUCT_VERSION=9.6
-     REDHAT_SUPPORT_PRODUCT="Red Hat Enterprise Linux"
-     REDHAT_SUPPORT_PRODUCT_VERSION="9.6"
-     OSTREE_VERSION="${OSTREE_VERSION}"
-     EOF
-     )
-
-
-      rm -f /etc/system-release /etc/os-release /etc/redhat-release
-      ln -s /usr/lib/os-release /etc/os-release
-      ln -s /usr/lib/os-release /etc/system-release
-      ln -s /usr/lib/os-release /etc/redhat-release
+# Packages that are only in RHCOS and not in SCOS or that have special
+# constraints that do not apply to SCOS
+packages:
+ # We include the generic release package and tweak the os-release info in a
+ # post-process script
+ - redhat-release
