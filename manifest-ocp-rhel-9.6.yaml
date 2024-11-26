@@ -1,7 +1,7 @@
 # Manifest for OCP node based on RHEL 9.6
 # Note: this manifest is temporary; in the future, OCP components will be layered instead.
 
-rojig:
+metadata:
   license: MIT
   name: rhcos
   summary: OpenShift 4.18
