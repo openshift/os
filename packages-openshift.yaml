@@ -2,7 +2,7 @@ metadata:
   # This should match the /etc/os-release manipulation we do below when
   # injecting `OPENSHIFT_VERSION`. It's used by CI to determine the repos to
   # inject when building the layered image.
-  ocp_version: "4.18"
+  ocp_version: "4.19"
 
 packages:
   # The packages below are required by OpenShift/OKD
@@ -97,7 +97,7 @@ postprocess:
     #!/usr/bin/env bash
     set -xeuo pipefail
     cat >> /usr/lib/os-release <<EOF
-    OPENSHIFT_VERSION="4.18"
+    OPENSHIFT_VERSION="4.19"
     EOF
 
   - |

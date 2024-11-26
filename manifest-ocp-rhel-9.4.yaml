@@ -4,7 +4,7 @@
 metadata:
   license: MIT
   name: rhcos
-  summary: OpenShift 4.18
+  summary: OpenShift 4.19
 
 variables:
   osversion: "rhel-9.4"
@@ -18,14 +18,14 @@ include:
 # Additional repos we need for OCP components
 repos:
   - rhel-9.4-fast-datapath
-  - rhel-9.4-server-ose-4.18
+  - rhel-9.4-server-ose-4.19
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "418.94.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "419.94.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.18"
+mutate-os-release: "4.19"
 
 postprocess:
   - |
@@ -91,7 +91,7 @@ repo-packages:
   - repo: rhel-9.4-appstream
     packages:
       - nss-altfiles
-  - repo: rhel-9.4-server-ose-4.18
+  - repo: rhel-9.4-server-ose-4.19
     packages:
       - conmon-rs
       - cri-o
