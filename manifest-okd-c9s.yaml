@@ -4,7 +4,7 @@
 metadata:
   license: MIT
   name: scos
-  summary: OKD 4.18
+  summary: OKD 4.19
 
 variables:
   osversion: "c9s"
@@ -22,14 +22,15 @@ repos:
   # CentOS Cloud SIG repo for cri-o, cri-tools and conmon-rs
   - c9s-sig-cloud-okd
   # Include RHCOS 9 repo for oc, hyperkube
-  - rhel-9.4-server-ose-4.18
+  # rhel-9.6-server-ose-4.19 is not mirrored in CI yet
+  - rhel-9.4-server-ose-4.19
 
 # We include hours/minutes to avoid version number reuse
-automatic-version-prefix: "418.9.<date:%Y%m%d%H%M>"
+automatic-version-prefix: "419.9.<date:%Y%m%d%H%M>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
 # Keep this is sync with the version in postprocess
-mutate-os-release: "4.18"
+mutate-os-release: "4.19"
 
 postprocess:
   - |
