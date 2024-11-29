@@ -29,8 +29,8 @@
 #   src/config
 
 FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos
-ARG OPENSHIFT_CI=
+ARG OPENSHIFT_CI=0
 RUN --mount=type=bind,target=/run/src \
-  if [ -n "${OPENSHIFT_CI:-}" ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml; fi && \
+  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml; fi && \
   /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml && \
   ostree container commit
