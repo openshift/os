@@ -131,3 +131,15 @@ postprocess:
 
     ---
     EOF
+
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # Delete a bunch of leftover files in the layering path
+    if [ -f /run/.containerenv ]; then
+      # lockfiles and backup files
+      rm -f /etc/.pwd.lock /etc/group- /etc/gshadow- /etc/shadow- /etc/passwd-
+      rm -f /etc/selinux/targeted/*.LOCK
+      # cache, logs, etc...
+      rm -rf /var && mkdir /var
+    fi
