@@ -120,8 +120,13 @@ postprocess:
       colloquial_name=RHCOS
       project_name=OpenShift
     fi
+    # in the el-only variants, we already have CoreOS in the NAME, so don't
+    # re-add it when building the node image
+    if [ $NAME != *CoreOS* ]; then
+      NAME=$NAME CoreOS
+    fi
     cat > /etc/motd <<EOF
-    $NAME CoreOS $OSTREE_VERSION
+    $NAME $OSTREE_VERSION
       Part of ${project_name} ${OPENSHIFT_VERSION}, ${colloquial_name} is a Kubernetes-native operating system
       managed by the Machine Config Operator (\`clusteroperator/machine-config\`).
 
