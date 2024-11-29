@@ -62,6 +62,7 @@ install() {
         tpm2_create
         tpm2_createpolicy
         tpm2_createprimary
+        tpm2_getcap
         tpm2_load
         tpm2_pcrread
         tpm2_unseal
