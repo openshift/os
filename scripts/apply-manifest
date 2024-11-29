@@ -34,7 +34,7 @@ if len(manifest.get('packages', [])):
     packages = []
     for pkg in manifest['packages']:
         packages += pkg.split()
-    rpmostree_install = ['rpm-ostree', 'install', '-y'] + packages
+    dnf_install = ['dnf', 'install', '--setopt=tsflags=nodocs', '--noplugins', '-y'] + packages
 
     # XXX: temporary hack for cri-o, which wants to create dirs under /opt
     # https://github.com/CentOS/centos-bootc/issues/393
@@ -58,7 +58,7 @@ if len(manifest.get('packages', [])):
             shutil.copy(src_path, dest_path)
             copied_repo_files += [dest_path]
 
-    runcmd(rpmostree_install)
+    runcmd(dnf_install)
 
     # delete the repo files we injected
     for repo in copied_repo_files:
