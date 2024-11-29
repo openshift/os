@@ -35,6 +35,15 @@ nobody:x:99:
 users:x:100:
 avahi-autoipd:x:170:
 systemd-journal:x:190:
+systemd-journal-remote:x:791:
+dnsmasq:x:792:
+clevis:x:793:
+gluster:x:794:
+printadmin:x:795:
+systemd-coredump:x:796:
+render:x:797:
+input:x:798:
+unbound:x:799:
 openvswitch:x:800:
 hugetlbfs:x:801:
 dockerroot:x:986:
