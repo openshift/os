@@ -38,3 +38,9 @@
 
 - pattern: ext.config.shared.root-reprovision.luks.autosave-xfs
   tracker: https://github.com/openshift/os/issues/1656
+
+- pattern: "*kdump*"
+  tracker: https://gitlab.com/redhat/centos-stream/containers/bootc/-/issues/1169
+  osversion:
+    - c9s
+    - rhel-9.6
