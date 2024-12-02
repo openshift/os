@@ -35,3 +35,6 @@
 
 - pattern: ext.config.shared.var-mount.luks
   tracker: https://github.com/openshift/os/issues/1656
+
+- pattern: ext.config.shared.root-reprovision.luks.autosave-xfs
+  tracker: https://github.com/openshift/os/issues/1656
