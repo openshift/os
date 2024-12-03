@@ -7,6 +7,7 @@ metadata:
 
 variables:
   osversion: "rhel-9.6"
+  inherit_tier_x: true
 
 # Include manifests common to all RHEL and CentOS Stream versions
 include:

@@ -7,7 +7,6 @@ include:
   - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
   - fedora-coreos-config/manifests/shared-workarounds.yaml
-  - fedora-coreos-config/manifests/bootupd.yaml
   # RHCOS owned packages
   - packages-rhcos.yaml
 
@@ -47,9 +46,15 @@ conditional-include:
     include: fedora-coreos-config/manifests/shared-el9.yaml
   - if: osversion == "rhel-9.6"
     include: fedora-coreos-config/manifests/shared-el9.yaml
-
+  - if: inherit_tier_x == true
+    include: fedora-coreos-config/manifests/tier-x.yaml
+  - if: inherit_tier_x == false
+    include: fedora-coreos-config/manifests/tier-x-dupes.yaml
 
 documentation: false
+
+# historical default
+recommends: true
 
 postprocess:
   # Mark the OS as of the CoreOS variant.
