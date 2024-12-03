@@ -29,8 +29,12 @@
 #   src/config
 
 FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos
-ARG OPENSHIFT_CI=
+ARG OPENSHIFT_CI=0
+# Avoid shipping modified .pyc files. Due to https://github.com/ostreedev/ostree/issues/1469,
+# any Python apps that run (e.g. dnf) will cause pyc creation.
 RUN --mount=type=bind,target=/run/src \
-  if [ -n "${OPENSHIFT_CI:-}" ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml; fi && \
+  find /usr -name '*.pyc' -exec mv {} {}.bak \; && \
+  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml; fi && \
   /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml && \
+  find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \; && \
   ostree container commit

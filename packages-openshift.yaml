@@ -120,8 +120,13 @@ postprocess:
       colloquial_name=RHCOS
       project_name=OpenShift
     fi
+    # in the el-only variants, we already have CoreOS in the NAME, so don't
+    # re-add it when building the node image
+    if [ $NAME != *CoreOS* ]; then
+      NAME=$NAME CoreOS
+    fi
     cat > /etc/motd <<EOF
-    $NAME CoreOS $OSTREE_VERSION
+    $NAME $OSTREE_VERSION
       Part of ${project_name} ${OPENSHIFT_VERSION}, ${colloquial_name} is a Kubernetes-native operating system
       managed by the Machine Config Operator (\`clusteroperator/machine-config\`).
 
@@ -131,3 +136,27 @@ postprocess:
 
     ---
     EOF
+
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # Delete a bunch of leftover files in the layering path
+    if [ -f /run/.containerenv ]; then
+      # lockfiles and backup files
+      rm -f /etc/.pwd.lock /etc/group- /etc/gshadow- /etc/shadow- /etc/passwd-
+      rm -f /etc/selinux/targeted/*.LOCK
+      # cache, logs, etc...
+      rm -rf /var && mkdir /var
+      # All the entries here should instead be part of their respective
+      # packages. But we carry them here for now to maintain compatibility.
+      cat > /usr/lib/tmpfiles.d/openshift.conf << EOF
+    L /opt/cni - - - - ../../usr/lib/opt/cni
+    d /var/lib/cni 0755 root root - -
+    d /var/lib/cni/bin 0755 root root - -
+    d /var/lib/containers 0755 root root - -
+    d /var/lib/openvswitch 0755 root root - -
+    d /var/lib/openvswitch/pki 0755 root root - -
+    d /var/log/openvswitch 0750 openvswitch hugetlbfs - -
+    d /var/lib/unbound 0755 unbound unbound - -
+    EOF
+    fi

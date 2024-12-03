@@ -98,3 +98,6 @@ repo-packages:
       - runc
       - skopeo
       - toolbox
+  - repo: rhel-9.6-appstream
+    packages:
+      - ignition
