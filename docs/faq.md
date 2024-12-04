@@ -336,6 +336,17 @@ the target device is multipathed. (And e.g. if using iPXE, you likely would
 then also want to specify all the paths to the `sanboot` command in your iPXE
 script, see e.g. [this test config](https://github.com/coreos/coreos-assembler/blob/8a354045c68e5dce8cd5736dc6fdcfac1d603b35/mantle/cmd/kola/resources/iscsi_butane_setup.yaml#L70-L71).)
 
+Similarly to the above, in the custom initiation case you need to add the
+`rd.iscsi.initiator` and `netroot` kargs. Specify as many `netroot` kargs as
+there are paths, e.g.:
+
+```
+coreos-installer --append-karg rd.iscsi.initiator=iqn.2023-11.coreos.diskless:testsetup \
+  --append-karg netroot=iscsi:10.0.2.15::::iqn.2023-10.coreos.target.vm:coreos \
+  --append-karg netroot=iscsi:10.0.2.16::::iqn.2023-10.coreos.target.vm:coreos \
+  --append-karg rd.multipath=default
+```
+
 ## Q: How do I configure a secondary block device via Ignition/MC if the name varies on each node?
 
 First, verify that there isn't a `/dev/disk/by-*` symlink which works for your needs. If not, a few approaches exist:
