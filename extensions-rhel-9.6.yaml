@@ -9,9 +9,6 @@ extensions:
       - x86_64
       - aarch64
     repos:
-      # XXX todo: swap to rhel 9.6 repos when beta is GA
-      # Ideally we would use content from c9s as it's the same as rhel 9.6 for now
-      # but this particular package does not exist there
       - rhel-9.6-server-ose-4.19
     packages:
       - crun-wasm
@@ -55,8 +52,7 @@ extensions:
     architectures:
       - x86_64
     repos:
-      # XXX todo: swap to rhel 9.6 repos when beta is GA
-      - c9s-nfv
+      - rhel-9.6-nfv
     packages:
       - kernel-rt-core
       - kernel-rt-kvm
@@ -73,9 +69,6 @@ extensions:
       - x86_64
       - s390x
     repos:
-      # XXX ideally we would pull that from c9s as it's identical to rhel 9.6 for now
-      # but c9s does not build this for s390x so we have to pull it from rhel 9.4
-      # todo: swap to rhel 9.6 repos when beta is GA
       - rhel-9.6-server-ose-4.19
     packages:
       - kata-containers
