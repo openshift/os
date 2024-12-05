@@ -38,3 +38,6 @@
   osversion:
     - c9s
     - rhel-9.6
+
+- pattern: ext.config.shared.rpm-ostree.kernel-replace
+  tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1849
