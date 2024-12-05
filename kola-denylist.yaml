@@ -33,8 +33,16 @@
 #- pattern: iso-offline-install-iscsi.ibft.bios
 #  tracker: https://github.com/openshift/os/issues/1492
 
+<<<<<<< HEAD
 - pattern: "*kdump*"
   tracker: https://gitlab.com/redhat/centos-stream/containers/bootc/-/issues/1169
   osversion:
     - c9s
     - rhel-9.6
+=======
+- pattern: ext.config.shared.var-mount.luks
+  tracker: https://github.com/openshift/os/issues/1656
+
+- pattern: ext.config.shared.rpm-ostree.kernel-replace
+  tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1849
+>>>>>>> f4d4ce7 (NO-JIRA: denylist: add ext.config.shared.rpm-ostree.kernel-replace)
