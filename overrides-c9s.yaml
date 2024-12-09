@@ -3,13 +3,8 @@
 # we need in the `packages` section. When not needed. Empty or comment out this
 # file (except this comment).
 
-repos:
+#repos:
 # - c9s-baseos-mirror
-  - c9s-appstream-mirror
+# - c9s-appstream-mirror
 
-packages:
-  # https://issues.redhat.com/browse/RHEL-61612
-  - clevis-20-200.el9
-  - clevis-dracut-20-200.el9
-  - clevis-luks-20-200.el9
-  - clevis-systemd-20-200.el9
+#packages:
