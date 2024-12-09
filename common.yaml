@@ -57,6 +57,15 @@ documentation: false
 recommends: true
 
 postprocess:
+  - |
+    #!/usr/bin/bash
+    set -xeuo pipefail
+    # Disable composefs for now on c9s/9.6 ppc64le due to
+    # https://issues.redhat.com/browse/RHEL-70199, which needs kernel backports.
+    if [ "$(uname -m)" = "ppc64le" ] && [[ $(rpm -q kernel) = *.el9.ppc64le ]]; then
+      rm -vf /usr/lib/ostree/prepare-root.conf
+    fi
+
   # Mark the OS as of the CoreOS variant.
   # XXX: should be part of a centos/redhat-release subpackage instead
   - |
