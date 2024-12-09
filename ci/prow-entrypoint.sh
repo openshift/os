@@ -316,6 +316,12 @@ main() {
         "scos-10-build-test-metal")
             exit 0
             ;;
+        "rhcos-10-build-test-qemu")
+            exit 0
+            ;;
+        "rhcos-10-build-test-metal")
+            exit 0
+            ;;
         *)
             # This case ensures that we exhaustively list the tests that should
             # pass for a PR. To add a new test in openshift/os:
