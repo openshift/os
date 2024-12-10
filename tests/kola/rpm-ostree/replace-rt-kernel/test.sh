@@ -42,12 +42,7 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     runv sed -i '/\[baseos\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
     runv sed -i '/\[appstream\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo
 
-    evr=
-    if rpm -q centos-stream-release; then
-        # we're already on CentOS and probably running the latest kernel. so
-        # here we need to instead pick whatever the latest that's *not* the same
-        evr=-$(dnf repoquery kernel --qf '%{EVR}' | grep -v "$(rpm -q kernel --qf %{EVR})" | tail -n1)
-    fi
+    evr=-$(dnf repoquery kernel --qf '%{EVR}' | grep -v "$(rpm -q kernel --qf %{EVR})" | tail -n1)
 
     echo "Testing overriding with CentOS Stream kernel"
     runv rpm-ostree override replace --experimental --from repo=baseos kernel{,-core,-modules,-modules-extra,-modules-core}"${evr}"
