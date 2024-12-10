@@ -10,6 +10,9 @@ extensions:
       - aarch64
     repos:
       - rhel-9.6-server-ose-4.19
+      # temporarily add rhel-9.4-appstream for crun-wasm
+      # https://github.com/openshift/os/issues/1680
+      - rhel-9.4-appstream
     packages:
       - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
