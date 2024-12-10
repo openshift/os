@@ -87,3 +87,9 @@ extensions:
   sysstat:
     packages:
       - sysstat
+  sanlock:
+    packages:
+      - sanlock
+  lvm2-lockd:
+    packages:
+      - lvm2-lockd
