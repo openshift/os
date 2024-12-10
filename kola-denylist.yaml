@@ -39,5 +39,13 @@
     - c9s
     - rhel-9.6
 
+- pattern: ext.config.shared.boot.bootupd-validate
+  tracker: https://github.com/openshift/os/issues/1687
+  osversion:
+    - c9s
+    - rhel-9.6
+  arches:
+    - ppc64le
+
 - pattern: ext.config.shared.rpm-ostree.kernel-replace
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1849
