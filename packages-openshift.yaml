@@ -122,8 +122,8 @@ postprocess:
     fi
     # in the el-only variants, we already have CoreOS in the NAME, so don't
     # re-add it when building the node image
-    if [ $NAME != *CoreOS* ]; then
-      NAME=$NAME CoreOS
+    if [[ $NAME != *CoreOS* ]]; then
+      NAME="$NAME CoreOS"
     fi
     cat > /etc/motd <<EOF
     $NAME $OSTREE_VERSION
