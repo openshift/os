@@ -15,9 +15,9 @@ extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
   ipsec:
     packages:
-      # pin to 4.6 for now for https://issues.redhat.com/browse/OCPBUGS-43498
+      # pin to 4.6-3.el9_0.3 for now for https://issues.redhat.com/browse/OCPBUGS-43498
       # we can revert once that's fixed in latest libreswan
-      - libreswan-4.6
+      - libreswan-4.6-3.el9_0.3
       - NetworkManager-libreswan
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
