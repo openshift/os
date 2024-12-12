@@ -18,9 +18,6 @@ repos:
   - c9s-baseos
   - c9s-appstream
 
-# Eventually we should try to build these images as part of the c9s composes.
-# In that case, the versioning should instead be exactly the same as the pungi
-# compose ID.
 automatic-version-prefix: "9.0.<date:%Y%m%d>"
 # This ensures we're semver-compatible which OpenShift wants
 automatic-version-suffix: "-"
