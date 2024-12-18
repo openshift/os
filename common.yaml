@@ -60,10 +60,11 @@ postprocess:
   - |
     #!/usr/bin/bash
     set -xeuo pipefail
-    # Disable composefs for now on c9s/9.6 ppc64le due to
-    # https://issues.redhat.com/browse/RHEL-70199, which needs kernel backports.
-    if [ "$(uname -m)" = "ppc64le" ] && [[ $(rpm -q kernel) = *.el9.ppc64le ]]; then
-      rm -vf /usr/lib/ostree/prepare-root.conf
+    # Disable composefs for now on el9 due to ppc64le/kernel-64k bugs:
+    # https://issues.redhat.com/browse/RHEL-63985
+    if [ -f /usr/lib/ostree/prepare-root.conf ] && [[ $(rpm -q kernel) = *.el9.* ]]; then
+      grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
+      sed -i -e 's,enabled = true,enabled = no,' /usr/lib/ostree/prepare-root.conf
     fi
 
   # Mark the OS as of the CoreOS variant.
