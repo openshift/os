@@ -274,6 +274,7 @@ main() {
             cosa_init "ocp-rhel-9.4"
             cosa_build
             ;;
+        # this is called by cosa's CI
         "rhcos-cosa-prow-pr-ci")
             setup_user
             cosa_init "ocp-rhel-9.4"
@@ -293,10 +294,16 @@ main() {
             kola_test_metal
             ;;
         "rhcos-96-build-test-qemu")
-            exit 0
+            setup_user
+            cosa_init "ocp-rhel-9.6"
+            cosa_build
+            kola_test_qemu
             ;;
         "rhcos-96-build-test-metal")
-            exit 0
+            setup_user
+            cosa_init "ocp-rhel-9.6"
+            cosa_build
+            kola_test_metal
             ;;
         "scos-9-build-test-qemu")
             setup_user
