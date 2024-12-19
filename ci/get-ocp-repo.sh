@@ -51,6 +51,8 @@ if [ -n "$ocp_manifest" ]; then
     info "Got OpenShift version $ocp_version from $ocp_manifest"
     # osname is used lower down, so set it
     osname=$(source /usr/lib/os-release; if [ $ID == centos ]; then echo scos; fi)
+
+    output_dir=$(dirname "$ocp_manifest")
 else
     [ -n "$cosa_workdir" ]
     # --cosa-workdir path
@@ -96,9 +98,12 @@ else
         rhel_version=${rhel_version//./}
     fi
     info "Got RHEL version $rhel_version from automatic-version-prefix value $version"
+
+    output_dir="$cosa_workdir/src/config"
 fi
 
-repo_path="$cosa_workdir/src/config/ocp.repo"
+mkdir -p "$output_dir"
+repo_path="$output_dir/ocp.repo"
 
 set -x
 curl --fail -L "http://base-${ocp_version}-rhel${rhel_version}.ocp.svc.cluster.local" -o "$repo_path"
