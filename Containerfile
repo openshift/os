@@ -34,7 +34,7 @@ ARG OPENSHIFT_CI=0
 # any Python apps that run (e.g. dnf) will cause pyc creation.
 RUN --mount=type=bind,target=/run/src \
   find /usr -name '*.pyc' -exec mv {} {}.bak \; && \
-  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml; fi && \
+  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /run/yum.repos.d; fi && \
   /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml && \
   find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \; && \
   ostree container commit

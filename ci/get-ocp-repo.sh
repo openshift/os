@@ -10,13 +10,17 @@ set -euo pipefail
 
 print_usage_and_exit() {
     cat 1>&2 <<'EOF'
-Usage: $0 <MODE>
+Usage: $0 <MODE> [OPTIONS]
 
   Fetch mirrored RHEL/OCP yum repo files from OpenShift CI's in-cluster service.
   The following modes are supported:
 
   --cosa-workdir PATH      Get RHEL and OCP versions from manifests in cosa workdir
   --ocp-layer    MANIFEST  Get RHEL version from /usr/lib/os-release and OCP version from manifest
+
+  The following options are supported
+
+  --output-dir   PATH      Directory to which to output ocp.repo file
 EOF
     exit 1
 }
@@ -25,20 +29,24 @@ info() {
     echo "INFO:" "$@" >&2
 }
 
-if [ $# -eq 0 ]; then
-    print_usage_and_exit
-else
-    mode=$1; shift
-    cosa_workdir=
-    ocp_manifest=
-    if [ "$mode" = "--cosa-workdir" ]; then
-        cosa_workdir=$1; shift
-    elif [ "$mode" = "--ocp-layer" ]; then
-        ocp_manifest=$1; shift
-    else
-        print_usage_and_exit
-    fi
-fi
+cosa_workdir=
+ocp_manifest=
+output_dir=
+rc=0
+options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer:,output-dir: -- "$@") || rc=$?
+[ $rc -eq 0 ] || print_usage_and_exit
+eval set -- "$options"
+while [ $# -ne 0 ]; do
+    case "$1" in
+        -h | --help) print_usage_and_exit;;
+        --cosa-workdir) cosa_workdir=$2; shift;;
+        --ocp-layer) ocp_manifest=$2; shift;;
+        --output-dir) output_dir=$2; shift;;
+        --) break;;
+        *) echo "$0: invalid argument: $1" >&2; exit 1;;
+    esac
+    shift
+done
 
 if [ -n "$ocp_manifest" ]; then
     # --ocp-layer path
@@ -49,6 +57,10 @@ if [ -n "$ocp_manifest" ]; then
     info "Got OpenShift version $ocp_version from $ocp_manifest"
     # osname is used lower down, so set it
     osname=$(source /usr/lib/os-release; if [ $ID == centos ]; then echo scos; fi)
+
+    if [ -z "$output_dir" ]; then
+        output_dir=$(dirname "$ocp_manifest")
+    fi
 else
     [ -n "$cosa_workdir" ]
     # --cosa-workdir path
@@ -94,9 +106,14 @@ else
         rhel_version=${rhel_version//./}
     fi
     info "Got RHEL version $rhel_version from automatic-version-prefix value $version"
+
+    if [ -z "$output_dir" ]; then
+        output_dir="$cosa_workdir/src/config"
+    fi
 fi
 
-repo_path="$cosa_workdir/src/config/ocp.repo"
+mkdir -p "$output_dir"
+repo_path="$output_dir/ocp.repo"
 
 set -x
 curl --fail -L "http://base-${ocp_version}-rhel${rhel_version}.ocp.svc.cluster.local" -o "$repo_path"
