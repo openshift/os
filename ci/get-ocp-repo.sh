@@ -25,20 +25,22 @@ info() {
     echo "INFO:" "$@" >&2
 }
 
-if [ $# -eq 0 ]; then
-    print_usage_and_exit
-else
-    mode=$1; shift
-    cosa_workdir=
-    ocp_manifest=
-    if [ "$mode" = "--cosa-workdir" ]; then
-        cosa_workdir=$1; shift
-    elif [ "$mode" = "--ocp-layer" ]; then
-        ocp_manifest=$1; shift
-    else
-        print_usage_and_exit
-    fi
-fi
+cosa_workdir=
+ocp_manifest=
+rc=0
+options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer: -- "$@") || rc=$?
+[ $rc -eq 0 ] || print_usage_and_exit
+eval set -- "$options"
+while [ $# -ne 0 ]; do
+    case "$1" in
+        -h | --help) print_usage_and_exit;;
+        --cosa-workdir) cosa_workdir=$2; shift;;
+        --ocp-layer) ocp_manifest=$2; shift;;
+        --) break;;
+        *) echo "$0: invalid argument: $1" >&2; exit 1;;
+    esac
+    shift
+done
 
 if [ -n "$ocp_manifest" ]; then
     # --ocp-layer path
