@@ -10,13 +10,17 @@ set -euo pipefail
 
 print_usage_and_exit() {
     cat 1>&2 <<'EOF'
-Usage: $0 <MODE>
+Usage: $0 <MODE> [OPTIONS]
 
   Fetch mirrored RHEL/OCP yum repo files from OpenShift CI's in-cluster service.
   The following modes are supported:
 
   --cosa-workdir PATH      Get RHEL and OCP versions from manifests in cosa workdir
   --ocp-layer    MANIFEST  Get RHEL version from /usr/lib/os-release and OCP version from manifest
+
+  The following options are supported
+
+  --output-dir   PATH      Directory to which to output ocp.repo file
 EOF
     exit 1
 }
@@ -27,8 +31,9 @@ info() {
 
 cosa_workdir=
 ocp_manifest=
+output_dir=
 rc=0
-options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer: -- "$@") || rc=$?
+options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer:,output-dir: -- "$@") || rc=$?
 [ $rc -eq 0 ] || print_usage_and_exit
 eval set -- "$options"
 while [ $# -ne 0 ]; do
@@ -36,6 +41,7 @@ while [ $# -ne 0 ]; do
         -h | --help) print_usage_and_exit;;
         --cosa-workdir) cosa_workdir=$2; shift;;
         --ocp-layer) ocp_manifest=$2; shift;;
+        --output-dir) output_dir=$2; shift;;
         --) break;;
         *) echo "$0: invalid argument: $1" >&2; exit 1;;
     esac
@@ -52,7 +58,9 @@ if [ -n "$ocp_manifest" ]; then
     # osname is used lower down, so set it
     osname=$(source /usr/lib/os-release; if [ $ID == centos ]; then echo scos; fi)
 
-    output_dir=$(dirname "$ocp_manifest")
+    if [ -z "$output_dir" ]; then
+        output_dir=$(dirname "$ocp_manifest")
+    fi
 else
     [ -n "$cosa_workdir" ]
     # --cosa-workdir path
@@ -99,7 +107,9 @@ else
     fi
     info "Got RHEL version $rhel_version from automatic-version-prefix value $version"
 
-    output_dir="$cosa_workdir/src/config"
+    if [ -z "$output_dir" ]; then
+        output_dir="$cosa_workdir/src/config"
+    fi
 fi
 
 mkdir -p "$output_dir"
