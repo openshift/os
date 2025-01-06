@@ -90,3 +90,8 @@ extensions:
   sysstat:
     packages:
       - sysstat
+  # https://issues.redhat.com/browse/COS-3062
+  ksan-storage:
+    packages:
+      - sanlock
+      - lvm2-lockd
