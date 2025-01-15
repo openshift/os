@@ -27,6 +27,16 @@ RUN rm -f /etc/yum.repos.d/*.repo \
 RUN dnf install -y createrepo_c
 RUN createrepo_c /usr/share/rpm-ostree/extensions/
 
+# Generate extensions.json for meta.json, written to a bind-mounted path during the build.
+# Use dnf repoquery to print 'name: version,' for each RPM
+# sed to remove the comma from the last RPM
+RUN sh -c 'echo "{" > /tmp/extensions.json && \
+dnf repoquery --repofrompath=extensions,/usr/share/rpm-ostree/extensions/ \
+  --quiet --disablerepo=* --enablerepo=extensions \
+  --queryformat "\"%{name}\": \"%{version}\"," | \
+sed "$ s/,$//" >> /tmp/extensions.json && \
+echo "}" >> /tmp/extensions.json'
+
 ## Final container that has the extensions repo dir
 FROM registry.access.redhat.com/ubi9/ubi:latest
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
