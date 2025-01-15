@@ -32,3 +32,14 @@ RUN createrepo_c /usr/share/rpm-ostree/extensions/
 ## Final container that has the extensions repo dir
 FROM registry.access.redhat.com/ubi9/ubi:latest
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
+
+RUN mkdir -p /extensions
+RUN echo "{" > /extensions/extensions.json && \
+    files=( /usr/share/rpm-ostree/extensions/*.rpm ); \
+    for entry in "${files[@]}"; do \
+        package_name=$(basename "$entry" .rpm | sed -E 's/-[0-9]+.*$//'); \
+        package_version=$(basename "$entry" .rpm | sed -E 's/^[^-]+-(.*)$/\1/'); \
+        echo "  \"$package_name\": \"$package_version\"," >> /extensions/extensions.json; \
+    done && \
+    sed -i '$ s/,$//' /extensions/extensions.json && \
+    echo "}" >> /extensions/extensions.json
