@@ -1,7 +1,7 @@
 # Manifest for OKD node based on CentOS Stream CoreOS 9
 # Note: this manifest is temporary; in the future, OKD components will be layered instead.
 
-rojig:
+metadata:
   license: MIT
   name: scos
   summary: OKD 4.18
