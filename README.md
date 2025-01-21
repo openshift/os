@@ -25,7 +25,7 @@ supported:
 In the future, the `ocp-*` variants will be removed. Instead, OpenShift
 components will be layered by deriving from the `rhel-9.4`/`c9s` images.
 
-The default variant is `ocp-rhel-9.4`.
+The default variant is `ocp-rhel-9.6`.
 
 ## Reporting issues
 
