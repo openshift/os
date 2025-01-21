@@ -98,3 +98,4 @@ repo-packages:
       - cri-tools
       - openshift-clients
       - openshift-kubelet
+      - toolbox
