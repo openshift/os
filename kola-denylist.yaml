@@ -47,3 +47,12 @@
 
 - pattern: ext.config.shared.rpm-ostree.kernel-replace
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1849
+
+# There are issues currently on ppc64le and kernel-64k in el9 that break
+# with composefs.
+- pattern: ext.config.composefs.enabled
+  tracker: https://issues.redhat.com/browse/RHEL-70199
+  osversion:
+    - c9s
+    - rhel-9.6
+    - rhel-9.4
