@@ -97,7 +97,9 @@ repo-packages:
       - podman
       - runc
       - skopeo
-      - toolbox
   - repo: rhel-9.6-appstream
     packages:
       - ignition
+  - repo: rhel-9.6-server-ose-4.19
+    packages:
+      - toolbox
