@@ -119,6 +119,14 @@ set -x
 curl --fail -L "http://base-${ocp_version}-rhel${rhel_version}.ocp.svc.cluster.local" -o "$repo_path"
 set +x
 
+if [ "${rhel_version}" = 96 ]; then
+    # XXX: also currently also add 9.4 repos for crun-wasm when building extensions
+    # https://github.com/openshift/os/issues/1680
+    # https://github.com/openshift/os/pull/1682
+    # https://issues.redhat.com/browse/COS-3075
+    curl --fail -L http://base-4-19-rhel94.ocp.svc.cluster.local >> "$repo_path"
+fi
+
 # If we're building the SCOS OKD variant, then strip away all the RHEL repos and just keep the plashet.
 # Temporary workaround until we have all packages for SCOS in CentOS Stream.
 if [ "$osname" = scos ]; then
