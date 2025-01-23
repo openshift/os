@@ -50,7 +50,7 @@
 
 # There are issues currently on ppc64le and kernel-64k in el9 that break
 # with composefs.
-- pattern: ext.config.composefs.enabled
+- pattern: ext.config.shared.composefs.enabled
   tracker: https://issues.redhat.com/browse/RHEL-70199
   osversion:
     - c9s
