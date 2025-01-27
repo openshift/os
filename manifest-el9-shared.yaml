@@ -1,0 +1,20 @@
+# Place here configuration that should happen on all el9* builds
+
+#zram default config is in a subpackage in c10s
+# Meanwhile, remove the default config from the package
+remove-from-packages:
+  # zram-generator-0.3.2 (shipped in centOS 9) provides a default
+  # zram-generator config, we want to disable it
+  - - zram-generator
+    - "/usr/lib/systemd/zram-generator.conf"
+
+postprocess:
+  - |
+    #!/usr/bin/bash
+    set -xeuo pipefail
+    # Disable composefs for now on el9 due to ppc64le/kernel-64k bugs:
+    # https://issues.redhat.com/browse/RHEL-63985
+    if [ -f /usr/lib/ostree/prepare-root.conf ]; then
+      grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
+      sed -i -e 's,enabled = true,enabled = no,' /usr/lib/ostree/prepare-root.conf
+    fi
