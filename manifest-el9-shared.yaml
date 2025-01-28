@@ -1,0 +1,35 @@
+# Place here configuration that should happen on all el9* builds
+
+#zram default config is in a subpackage in c10s
+# Meanwhile, remove the default config from the package
+remove-from-packages:
+  # zram-generator-0.3.2 (shipped in centOS 9) provides a default
+  # zram-generator config, we want to disable it
+  - - zram-generator
+    - "/usr/lib/systemd/zram-generator.conf"
+
+postprocess:
+  - |
+    #!/usr/bin/bash
+    set -xeuo pipefail
+    # Disable composefs for now on el9 due to ppc64le/kernel-64k bugs:
+    # https://issues.redhat.com/browse/RHEL-63985
+    if [ -f /usr/lib/ostree/prepare-root.conf ]; then
+      grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
+      sed -i -e 's,enabled = true,enabled = no,' /usr/lib/ostree/prepare-root.conf
+    fi
+
+  - |
+    #!/usr/bin/env bash
+    set -xeo pipefail
+    # Clean-up NVME-related IDs. Right now they are getting generated
+    # at build time and because we create a "golden image" everyone is
+    # getting the same IDs, but they are supposed to be unique.
+    # In Fedora and EL10 the %post that generates this was removed
+    # - https://src.fedoraproject.org/rpms/nvme-cli/c/629f632c97ab888f2ae3a8bc3eb2bacf0959dd2d
+    # - https://gitlab.com/redhat/centos-stream/rpms/nvme-cli/-/commit/762906d9286ed3d83af70ff6d620ba32b5addd3e
+    # - https://issues.redhat.com/browse/RHEL-68495
+    # Related:
+    # - https://github.com/openshift/os/issues/1519
+    # - https://issues.redhat.com/browse/OCPBUGS-34629
+    rm -fv /etc/nvme/hostid /etc/nvme/hostnqn
