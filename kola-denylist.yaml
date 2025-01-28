@@ -56,3 +56,10 @@
     - c9s
     - rhel-9.6
     - rhel-9.4
+
+- pattern: ostree.sync
+  tracker: https://github.com/openshift/os/issues/1720
+  snooze: 2025-02-11
+  warn: true
+  arches:
+    - s390x
