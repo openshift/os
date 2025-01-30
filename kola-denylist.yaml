@@ -45,9 +45,6 @@
   osversion:
     - rhel-9.4
 
-- pattern: ext.config.shared.rpm-ostree.kernel-replace
-  tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1849
-
 # There are issues currently on ppc64le and kernel-64k in el9 that break
 # with composefs.
 - pattern: ext.config.shared.composefs.enabled
