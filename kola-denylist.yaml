@@ -45,15 +45,6 @@
   osversion:
     - rhel-9.4
 
-# There are issues currently on ppc64le and kernel-64k in el9 that break
-# with composefs.
-- pattern: ext.config.shared.composefs.enabled
-  tracker: https://issues.redhat.com/browse/RHEL-70199
-  osversion:
-    - c9s
-    - rhel-9.6
-    - rhel-9.4
-
 - pattern: ostree.sync
   tracker: https://github.com/openshift/os/issues/1720
   snooze: 2025-02-11
