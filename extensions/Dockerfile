@@ -35,7 +35,7 @@ RUN createrepo_c /usr/share/rpm-ostree/extensions/
 RUN sh -c 'echo "{" > /tmp/extensions.json && \
 dnf repoquery --repofrompath=extensions,/usr/share/rpm-ostree/extensions/ \
   --quiet --disablerepo=* --enablerepo=extensions \
-  --queryformat "\"%{name}\": \"%{version}\"," | \
+  --queryformat "\"%{name}\": \"%{evr}.%{arch}\"," | \
 sed "$ s/,$//" >> /tmp/extensions.json && \
 echo "}" >> /tmp/extensions.json'
 
