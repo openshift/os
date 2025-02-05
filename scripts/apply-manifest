@@ -41,28 +41,7 @@ if len(manifest.get('packages', [])):
     if 'cri-o' in packages:
         os.makedirs("/var/opt", exist_ok=True)
 
-    # inject mounted-in repo files
-    extra_repos_dir = '/run/yum.repos.d'
-    copied_repo_files = []
-    if os.path.isdir(extra_repos_dir):
-        for file in os.listdir(extra_repos_dir):
-            src_path = os.path.join(extra_repos_dir, file)
-            if not os.path.isfile(src_path):
-                continue
-            if not file.endswith(".repo"):
-                continue
-            dest_path = os.path.join('/etc/yum.repos.d', file)
-            if os.path.exists(dest_path):
-                raise Exception(f"Repo file {dest_path} already exists")
-            print(f"Copying repo file {file} to /etc/yum.repos.d/")
-            shutil.copy(src_path, dest_path)
-            copied_repo_files += [dest_path]
-
     runcmd(dnf_install)
-
-    # delete the repo files we injected
-    for repo in copied_repo_files:
-        os.unlink(repo)
 
 
 if len(manifest.get('postprocess', [])):
