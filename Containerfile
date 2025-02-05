@@ -2,14 +2,13 @@
 # latter may be RHEL or CentOS Stream-based. This is currently only buildable
 # using podman/buildah as it uses some mounting options only available there.
 #
-# To build this, you will want to pass `--security-opt=label=disable` to avoid
-# having to relabel the context directory. Any repos found in `/run/yum.repos.d`
-# will be imported into `/etc/yum.repos.d/` and then removed in the same step (so
-# as to not end up in the final image).
+# To build this, you will want to pass `--security-opt=label=disable` (or
+# relabel the context directory). To inject additional yum repos, use `--secret
+# id=yumrepos,src=/path/to/my.repo`.
 #
 # Use `--from` to override the base RHCOS image. E.g.:
 #
-# podman build --from quay.io/openshift-release-dev/ocp-v4.0-art-dev:rhel-coreos-base-9.4 ...
+# podman build --from quay.io/openshift-release-dev/ocp-v4.0-art-dev:rhel-coreos-base-9.6 ...
 #
 # Or to use a locally built OCI archive:
 #
@@ -23,7 +22,7 @@
 # Example invocation:
 #
 # podman build --from oci-archive:$(ls builds/latest/x86_64/*.ociarchive) \
-#   -v rhel-9.4.repo:/run/yum.repos.d/rhel-9.4.repo:ro \
+#   --secret id=yumrepos,src=$PWD/src/yumrepos/rhel-9.6.repo \
 #   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
 #   --security-opt label=disable -t localhost/openshift-node-c9s \
 #   src/config
@@ -32,9 +31,9 @@ FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos
 ARG OPENSHIFT_CI=0
 # Avoid shipping modified .pyc files. Due to https://github.com/ostreedev/ostree/issues/1469,
 # any Python apps that run (e.g. dnf) will cause pyc creation.
-RUN --mount=type=bind,target=/run/src \
+RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/etc/yum.repos.d/secret.repo  \
   find /usr -name '*.pyc' -exec mv {} {}.bak \; && \
-  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /run/yum.repos.d; fi && \
+  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /etc/yum.repos.d; fi && \
   /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml && \
   find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \; && \
   ostree container commit

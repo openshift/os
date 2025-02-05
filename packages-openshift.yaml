@@ -31,7 +31,10 @@ postprocess:
     # repos will be attempted to be fetched by rpm-ostree when doing node-local
     # kernel overrides today for e.g. kernel-rt.
     for x in $(find /etc/yum.repos.d/ -name '*.repo'); do
-      sed -i -e s,enabled=1,enabled=0, $x
+      # ignore repo files that are mountpoints since they're likely secrets
+      if ! findmnt "$x" &>/dev/null; then
+        sed -i -e s,enabled=1,enabled=0, $x
+      fi
     done
 
   # These enable librhsm which enables host subscriptions to work in containers
