@@ -16,6 +16,7 @@ include:
 repos:
   - rhel-9.6-baseos
   - rhel-9.6-appstream
+  - rhel-9.6-early-kernel
 
 automatic-version-prefix: "9.6.<date:%Y%m%d>"
 # This ensures we're semver-compatible which OpenShift wants
