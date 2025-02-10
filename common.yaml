@@ -33,14 +33,10 @@ conditional-include:
     include: fedora-coreos-config/manifests/grub2-removals.yaml
   - if: osversion == "c9s"
     include: manifest-el9-shared.yaml
-  - if: osversion == "rhel-9.4"
-    include: manifest-el9-shared.yaml
   - if: osversion == "rhel-9.6"
     include: manifest-el9-shared.yaml
   # Packages specific to el9
   - if: osversion == "c9s"
-    include: fedora-coreos-config/manifests/shared-el9.yaml
-  - if: osversion == "rhel-9.4"
     include: fedora-coreos-config/manifests/shared-el9.yaml
   - if: osversion == "rhel-9.6"
     include: fedora-coreos-config/manifests/shared-el9.yaml

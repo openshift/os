@@ -271,39 +271,33 @@ main() {
             prepare_repos
             ;;
         "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
-            cosa_init "ocp-rhel-9.4"
+            cosa_init "ocp-rhel-9.6"
             cosa_build
             ;;
         # this is called by cosa's CI
         "rhcos-cosa-prow-pr-ci")
             setup_user
-            cosa_init "ocp-rhel-9.4"
+            cosa_init "ocp-rhel-9.6"
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-9-build-test-qemu")
             setup_user
-            cosa_init "ocp-rhel-9.4"
+            cosa_init "ocp-rhel-9.6"
             cosa_build
             kola_test_qemu
             ;;
         "rhcos-9-build-test-metal")
             setup_user
-            cosa_init "ocp-rhel-9.4"
-            cosa_build
-            kola_test_metal
-            ;;
-        "rhcos-96-build-test-qemu")
-            setup_user
-            cosa_init "ocp-rhel-9.6"
-            cosa_build
-            kola_test_qemu
-            ;;
-        "rhcos-96-build-test-metal")
-            setup_user
             cosa_init "ocp-rhel-9.6"
             cosa_build
             kola_test_metal
+            ;;
+        "rhcos-9next-build-test-qemu")
+            exit 0
+            ;;
+        "rhcos-9next-build-test-metal")
+            exit 0
             ;;
         "scos-9-build-test-qemu")
             setup_user
