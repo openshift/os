@@ -31,18 +31,12 @@ conditional-include:
   - if: basearch != "s390x"
     # And remove some cruft from grub2
     include: fedora-coreos-config/manifests/grub2-removals.yaml
-    #zram default config is in a subpackage in c10s
-    # Meanwhile, remove the default config from the package
   - if: osversion == "c9s"
-    include: zram-no-defaults.yaml
-  - if: osversion == "rhel-9.4"
-    include: zram-no-defaults.yaml
+    include: manifest-el9-shared.yaml
   - if: osversion == "rhel-9.6"
-    include: zram-no-defaults.yaml
+    include: manifest-el9-shared.yaml
   # Packages specific to el9
   - if: osversion == "c9s"
-    include: fedora-coreos-config/manifests/shared-el9.yaml
-  - if: osversion == "rhel-9.4"
     include: fedora-coreos-config/manifests/shared-el9.yaml
   - if: osversion == "rhel-9.6"
     include: fedora-coreos-config/manifests/shared-el9.yaml
@@ -57,16 +51,6 @@ documentation: false
 recommends: true
 
 postprocess:
-  - |
-    #!/usr/bin/bash
-    set -xeuo pipefail
-    # Disable composefs for now on el9 due to ppc64le/kernel-64k bugs:
-    # https://issues.redhat.com/browse/RHEL-63985
-    if [ -f /usr/lib/ostree/prepare-root.conf ] && [[ $(rpm -q kernel) = *.el9.* ]]; then
-      grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
-      sed -i -e 's,enabled = true,enabled = no,' /usr/lib/ostree/prepare-root.conf
-    fi
-
   # Mark the OS as of the CoreOS variant.
   # XXX: should be part of a centos/redhat-release subpackage instead
   - |
