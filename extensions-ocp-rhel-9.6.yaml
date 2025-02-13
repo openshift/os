@@ -92,3 +92,12 @@ extensions:
   sysstat:
     packages:
       - sysstat
+  # https://issues.redhat.com/browse/OCPEDGE-1493
+  two-node-ha:
+    packages:
+      - pacemaker
+      - pcs
+      - fence-agents-all
+    repos:
+      - rhel-9.6-appstream
+      - rhel-9.6-highavailability
