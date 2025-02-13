@@ -32,7 +32,7 @@ postprocess:
     # kernel overrides today for e.g. kernel-rt.
     for x in $(find /etc/yum.repos.d/ -name '*.repo'); do
       # ignore repo files that are mountpoints since they're likely secrets
-      if ! findmnt "$x" &>/dev/null; then
+      if ! mountpoint "$x"; then
         sed -i -e s,enabled=1,enabled=0, $x
       fi
     done
