@@ -60,3 +60,8 @@
   warn: true
   arches:
     - s390x
+
+- pattern: ext.config.shared.containers.quadlet
+  tracker: https://github.com/openshift/os/issues/1745
+  osversion:
+    - rhel-9.6
