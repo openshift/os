@@ -45,3 +45,6 @@
   warn: true
   arches:
     - s390x
+
+- pattern: ostree.sync
+  tracker: https://github.com/openshift/os/issues/1744
