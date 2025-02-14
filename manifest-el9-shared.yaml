@@ -16,5 +16,5 @@ postprocess:
     # https://issues.redhat.com/browse/RHEL-63985
     if [ -f /usr/lib/ostree/prepare-root.conf ]; then
       grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
-      sed -i -e 's,enabled = true,enabled = no,' /usr/lib/ostree/prepare-root.conf
+      sed -i -e 's,enabled = true,enabled = maybe,' /usr/lib/ostree/prepare-root.conf
     fi
