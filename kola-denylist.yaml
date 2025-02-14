@@ -3,25 +3,6 @@
 # see: https://github.com/coreos/coreos-assembler/pull/866.
 
 # CentOS Stream specific indefinite snooze
-- pattern: basic.uefi-secure
-  tracker: https://github.com/openshift/os/issues/1237
-  osversion:
-    - c9s
-
-- pattern: iso-live-login.uefi-secure
-  tracker: https://github.com/openshift/os/issues/1237
-  osversion:
-    - c9s
-
-- pattern: iso-as-disk.uefi-secure
-  tracker: https://github.com/openshift/os/issues/1237
-  osversion:
-    - c9s
-
-- pattern: fips.*
-  tracker: https://github.com/openshift/os/issues/1540
-  osversion:
-    - c9s
 
 # The 4.17 and 4.18 build of Ignition encounters a FIPS panic so
 # we are using the 4.16 build for now while that is under investigation.
@@ -36,7 +17,6 @@
 - pattern: "*kdump*"
   tracker: https://gitlab.com/redhat/centos-stream/containers/bootc/-/issues/1169
   osversion:
-    - c9s
     - rhel-9.6
 
 - pattern: ostree.sync
