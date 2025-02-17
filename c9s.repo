@@ -1,3 +1,9 @@
+# These are compose repo URLs that represent the latest composes in
+# CentOS Stream 9. Sometimes these repos get content a little faster
+# than the mirror repos defined in c9s-mirror.repo, but they won't
+# have multiple versions of packages, which make them not ideal when
+# needing to pin on older package versions.
+
 [c9s-baseos]
 name=CentOS Stream 9 - BaseOS
 baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/BaseOS/$basearch/os
