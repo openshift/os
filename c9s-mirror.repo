@@ -1,6 +1,7 @@
 # These are the official c9s repos. They are slower to update, but contain older
 # versions of packages, which is useful when pinning for lack of a "coreos-pool"
-# equivalent. They are unused when no pinning is needed.
+# equivalent. When no pinning is needed you may find the compose repo URLs
+# defined in c9s.repo are quicker to get new content.
 
 [c9s-baseos-mirror]
 name=CentOS Stream 9 - BaseOS
