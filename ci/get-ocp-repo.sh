@@ -127,12 +127,20 @@ if [ "${rhel_version}" = 96 ]; then
     curl --fail -L http://base-4-19-rhel94.ocp.svc.cluster.local >> "$repo_path"
 fi
 
-# If we're building the SCOS OKD variant, then strip away all the RHEL repos and just keep the plashet.
+# If we are building the SCOS OKD 9 variant, then strip away all the RHEL repos and just keep the plashet.
 # Temporary workaround until we have all packages for SCOS in CentOS Stream.
+# If we are building the SCOS OKD 10 variant, then we need some RHEL packages for now.
 if [ "$osname" = scos ]; then
     info "Neutering RHEL repos for SCOS"
     awk '/server-ose/,/^$/' "$repo_path" > "$repo_path.tmp"
     mv "$repo_path.tmp" "$repo_path"
 fi
+
+centos_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
+# Get RHEL 9 repos for C10S builds for now
+if [ "$osname" = scos ] && [ "${centos_version}" = "10" ]; then
+    curl --fail -L http://base-4-19-rhel96.ocp.svc.cluster.local >> "$repo_path"
+fi
+
 
 cat "$repo_path"
