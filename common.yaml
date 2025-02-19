@@ -298,9 +298,8 @@ packages-aarch64:
   - irqbalance
 
 packages-s390x:
-  # Required for IBM Secure Execution
-  # Pinned due to https://github.com/openshift/os/issues/1731
-  - s390utils-base-2.33.1-2.el9
+  # Required genprotimg for IBM Secure Execution
+  - s390utils-base
 
 remove-from-packages:
   - - filesystem
