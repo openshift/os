@@ -1,0 +1,9 @@
+# This is a poor man's version of an override lockfile for rhel-9.6. When needed
+# we gather any overrides NEVRs here to keep them in one place. When not needed,
+# empty or comment out this file (except this comment).
+
+#packages:
+
+packages-s390x:
+  # https://github.com/openshift/os/issues/1731
+  - s390utils-base-2.33.1-2.el9
