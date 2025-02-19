@@ -75,7 +75,7 @@ else
     # first, make sure we're looking at the right manifest
     manifest="$cosa_workdir/src/config/manifest.yaml"
     if [ -f "$cosa_workdir/src/config.json" ]; then
-        variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
+        variant="$(jq --raw-output '."coreos-assembler.config-variant"' < "$cosa_workdir"/src/config.json)"
         manifest="$cosa_workdir/src/config/manifest-${variant}.yaml"
     fi
 
@@ -136,7 +136,7 @@ if [ "$osname" = scos ]; then
     mv "$repo_path.tmp" "$repo_path"
 fi
 
-centos_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
+centos_version=$(source /usr/lib/os-release; echo "${VERSION}" | cut -d "." -f 2)
 # Get RHEL 9 repos for C10S builds for now
 if [ "$osname" = scos ] && [ "${centos_version}" = "10" ]; then
     curl --fail -L http://base-4-19-rhel96.ocp.svc.cluster.local >> "$repo_path"
