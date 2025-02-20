@@ -48,6 +48,8 @@ while [ $# -ne 0 ]; do
     shift
 done
 
+set -x
+
 if [ -n "$ocp_manifest" ]; then
     # --ocp-layer path
     rhel_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
@@ -117,9 +119,9 @@ mkdir -p "$output_dir"
 repo_path="$output_dir/ocp.repo"
 
 info "Fetching ${ocp_version} ${rhel_version} repos"
-set -x
+# set -x
 curl --fail -L "http://base-${ocp_version}-rhel${rhel_version}.ocp.svc.cluster.local" -o "$repo_path"
-set +x
+# set +x
 
 if [ "${rhel_version}" = 96 ]; then
     # XXX: also currently also add 9.4 repos for crun-wasm when building extensions
