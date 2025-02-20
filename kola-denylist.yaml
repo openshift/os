@@ -41,10 +41,10 @@
 
 - pattern: ostree.sync
   tracker: https://github.com/openshift/os/issues/1720
-  snooze: 2025-02-11
-  warn: true
   arches:
     - s390x
 
 - pattern: ostree.sync
-  tracker: https://github.com/openshift/os/issues/1744
+  tracker: https://github.com/openshift/os/issues/1751
+  osversion:
+    - c10s
