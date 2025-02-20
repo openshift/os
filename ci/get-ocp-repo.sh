@@ -135,8 +135,7 @@ fi
 # If we are building the SCOS OKD 9 variant, then strip away all the RHEL repos and just keep the plashet.
 # Temporary workaround until we have all packages for SCOS in CentOS Stream.
 # If we are building the SCOS OKD 10 variant, then we need some RHEL packages for now.
-centos_version=$(source /usr/lib/os-release; echo "${VERSION}")
-if [ "$osname" = scos ] && [ "${centos_version}" != "10" ]; then
+if [ "$osname" = scos ] && [ "${version}" != "10" ]; then
     info "Neutering RHEL repos for SCOS"
     awk '/server-ose/,/^$/' "$repo_path" > "$repo_path.tmp"
     mv "$repo_path.tmp" "$repo_path"
