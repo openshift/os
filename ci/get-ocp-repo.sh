@@ -93,7 +93,7 @@ else
         exit 0
     elif [ "$osname" = scos ]; then
         centos_version=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
-        centos_version=${centos_version//./}
+        centos_version=$$(cut -f2 -d. <<< "$centos_version")
         # We still need the OCP repos for now unfortunately because not
         # everything is in the Stream repo. For the RHEL version, just use the
         # default variant's one.
