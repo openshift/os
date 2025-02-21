@@ -92,8 +92,8 @@ else
         info "Building pure SCOS variant. Exiting..."
         exit 0
     elif [ "$osname" = scos ]; then
-        centos_version=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
-        centos_version=$$(cut -f2 -d. <<< "$centos_version")
+        centos_version_prefix=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
+        centos_version=$(cut -f2 -d. <<< "$centos_version_prefix")
         # We still need the OCP repos for now unfortunately because not
         # everything is in the Stream repo. For the RHEL version, just use the
         # default variant's one.
