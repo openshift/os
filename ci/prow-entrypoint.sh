@@ -248,6 +248,13 @@ validate() {
     exit 0
 }
 
+validate_ocp_image() {
+    ocp_packages=$(rpm-ostree compose tree --print-only packages-openshift.yaml | jq -r '.packages[]')
+    for package in $ocp_packages; do
+        rpm -q "$package"
+    done
+}
+
 main() {
     if [[ "${#}" -lt 1 ]]; then
         echo "This script is expected to be called by Prow with the name of the build phase or test to run"
@@ -273,6 +280,10 @@ main() {
         "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
             cosa_init "ocp-rhel-9.6"
             cosa_build
+            ;;
+        # Check for if the OCP RPMs are properly installed
+        "validate-node-image")
+            validate_ocp_image
             ;;
         # this is called by cosa's CI
         "rhcos-cosa-prow-pr-ci")
