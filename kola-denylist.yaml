@@ -18,11 +18,6 @@
   osversion:
     - c9s
 
-- pattern: fips.*
-  tracker: https://github.com/openshift/os/issues/1540
-  osversion:
-    - c9s
-
 # The 4.17 and 4.18 build of Ignition encounters a FIPS panic so
 # we are using the 4.16 build for now while that is under investigation.
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
