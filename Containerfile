@@ -35,5 +35,6 @@ RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/et
   find /usr -name '*.pyc' -exec mv {} {}.bak \; && \
   if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /etc/yum.repos.d; fi && \
   /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml && \
+  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --output-dir /etc/yum.repos.d --cleanup; fi && \
   find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \; && \
   ostree container commit
