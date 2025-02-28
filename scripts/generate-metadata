@@ -1,0 +1,56 @@
+#!/usr/bin/python3 -u
+
+"""
+This script generates metadata intended to be stored as a separate layer.
+For now, only the RPM listing is generated. It follows the same schema as the
+`rpmostree.rpmdb.pkglist` commit metadata key in a base rpm-ostree compose.
+This is because it's intended to be consumed by code previously adapted for
+that purpose.
+
+Also, for now only a single `meta.json` file is generated. Obviously more
+metadata of interest can be generated in the future.
+"""
+
+import json
+import os
+import subprocess
+import sys
+
+# The "base" here denotes the fact that this describes the base node image and
+# will inherently not be valid if another layering operation is done on top of
+# this image to install packages. The source of truth for package lists will
+# always be the rpmdb.
+METADATA_FILE = "/usr/share/openshift/base/meta.json"
+
+
+def main():
+    metadata = {
+        # this follows the same schema as rpmostree.rpmdb.pkglist but let's
+        # not actually name it the same because it's not actually rpm-ostree
+        # generating this
+        'rpmdb.pkglist': get_rpmdb_pkglist()
+    }
+    os.makedirs(os.path.dirname(METADATA_FILE), exist_ok=True)
+    with open(METADATA_FILE, encoding='utf-8', mode='w') as f:
+        json.dump(metadata, f)
+
+
+def get_rpmdb_pkglist():
+    QUERYFORMAT = '%{NAME}\t%{EPOCH}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n'
+    out = subprocess.check_output(['rpm', '-qa', '--queryformat', QUERYFORMAT],
+                                  encoding='utf-8')
+    rpmdb = []
+    for line in out.splitlines():
+        n, e, v, r, a = line.split()
+        # canonicalize none to 0 to match rpm-ostree semantics
+        if e == '(none)':
+            e = 0
+        rpmdb.append([n, e, v, r, a])
+
+    # sort it by package name to be nice to humans who like JSON
+    rpmdb = sorted(rpmdb, key=lambda p: p[0])
+    return rpmdb
+
+
+if __name__ == '__main__':
+    sys.exit(main())
