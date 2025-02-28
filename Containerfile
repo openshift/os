@@ -29,6 +29,14 @@
 
 FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos
 ARG OPENSHIFT_CI=0
+# on SCOS, we need to add the GPG keys of the various SIGs we need - same as what is done for extensions
+RUN if rpm -q centos-stream-release && ! rpm -q centos-release-cloud; then dnf install -y centos-release-{cloud,nfv,virt}-common; fi
+RUN mkdir -p /usr/share/distribution-gpg-keys/centos
+RUN ln -s /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial /usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Cloud
+RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
+RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-NFV
+RUN ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Virtualization
 # Avoid shipping modified .pyc files. Due to https://github.com/ostreedev/ostree/issues/1469,
 # any Python apps that run (e.g. dnf) will cause pyc creation.
 RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/etc/yum.repos.d/secret.repo  \

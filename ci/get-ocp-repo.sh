@@ -50,8 +50,6 @@ done
 
 if [ -n "$ocp_manifest" ]; then
     # --ocp-layer path
-    rhel_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
-    info "Got RHEL version $rhel_version from /usr/lib/os-release"
     ocp_version=$(rpm-ostree compose tree --print-only "$ocp_manifest" | jq -r '.metadata.ocp_version')
     ocp_version=${ocp_version//./-}
     info "Got OpenShift version $ocp_version from $ocp_manifest"
@@ -60,6 +58,20 @@ if [ -n "$ocp_manifest" ]; then
 
     if [ -z "$output_dir" ]; then
         output_dir=$(dirname "$ocp_manifest")
+    fi
+
+    # get rhel version corresponding to the release so we can get the
+    # correct Opensshift rpms from those for scos. These packages are not
+    # available in CentOS Stream
+    if [ "$osname" = scos ]; then
+        manifest="$cosa_workdir/src/config/manifest.yaml"
+        json=$(rpm-ostree compose tree --print-only "$manifest")
+        version=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
+        rhel_version=$(cut -f2 -d. <<< "$version")
+        info "Got RHEL version $rhel_version from rhel manifest for scos"
+    else
+        rhel_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
+        info "Got RHEL version $rhel_version from /usr/lib/os-release"
     fi
 else
     [ -n "$cosa_workdir" ]
@@ -132,6 +144,10 @@ fi
 if [ "$osname" = scos ]; then
     info "Neutering RHEL repos for SCOS"
     awk '/server-ose/,/^$/' "$repo_path" > "$repo_path.tmp"
+    # only pull in certain Openshift packages as the rest come from the c9s repo
+    sed -i '/^baseurl = /a includepkgs=openshift-* ose-aws-ecr-* ose-azure-acr-* ose-gcp-gcr-*' "$repo_path.tmp"
+    # add the contents of the CentOS Stream repo
+    cat "$cosa_workdir/src/config/c9s.repo" >> "$repo_path.tmp"
     mv "$repo_path.tmp" "$repo_path"
 fi
 
