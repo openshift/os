@@ -75,7 +75,7 @@ else
     # first, make sure we're looking at the right manifest
     manifest="$cosa_workdir/src/config/manifest.yaml"
     if [ -f "$cosa_workdir/src/config.json" ]; then
-        variant="$(jq --raw-output '."coreos-assembler.config-variant"' 'src/config.json')"
+        variant="$(jq --raw-output '."coreos-assembler.config-variant"' < "$cosa_workdir"/src/config.json)"
         manifest="$cosa_workdir/src/config/manifest-${variant}.yaml"
     fi
 
@@ -89,6 +89,9 @@ else
         info "Building pure SCOS variant. Exiting..."
         exit 0
     elif [ "$osname" = scos ]; then
+        info "Building OKD variant"
+        centos_version_prefix=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
+        centos_version=$(cut -f2 -d. <<< "$centos_version_prefix")
         # We still need the OCP repos for now unfortunately because not
         # everything is in the Stream repo. For the RHEL version, just use the
         # default variant's one.
@@ -127,12 +130,20 @@ if [ "${rhel_version}" = 96 ]; then
     curl --fail -L http://base-4-19-rhel94.ocp.svc.cluster.local >> "$repo_path"
 fi
 
-# If we're building the SCOS OKD variant, then strip away all the RHEL repos and just keep the plashet.
+# If we are building the SCOS OKD 9 variant, then strip away all the RHEL repos and just keep the plashet.
 # Temporary workaround until we have all packages for SCOS in CentOS Stream.
-if [ "$osname" = scos ]; then
+# If we are building the SCOS OKD 10 variant, then we need some RHEL packages for now.
+if [ "$osname" = scos ] && [ "${centos_version}" != "10" ]; then
     info "Neutering RHEL repos for SCOS"
     awk '/server-ose/,/^$/' "$repo_path" > "$repo_path.tmp"
     mv "$repo_path.tmp" "$repo_path"
 fi
+
+centos_version=$(source /usr/lib/os-release; echo "${VERSION}" | cut -d "." -f 2)
+# Get RHEL 9 repos for C10S builds for now
+if [ "$osname" = scos ] && [ "${centos_version}" = "10" ]; then
+    curl --fail -L http://base-4-19-rhel96.ocp.svc.cluster.local >> "$repo_path"
+fi
+
 
 cat "$repo_path"

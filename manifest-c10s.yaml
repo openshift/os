@@ -1,0 +1,29 @@
+# Manifest for CentOS Stream CoreOS 10
+
+metadata:
+  license: MIT
+  name: scos
+  summary: CentOS Stream CoreOS 10
+
+variables:
+  osversion: "c10s"
+  inherit_tier_x: true
+
+# Include manifests common to all RHEL and CentOS Stream versions
+include:
+  - common.yaml
+
+repos:
+  - c10s-baseos
+  - c10s-appstream
+
+automatic-version-prefix: "10.<date:%Y%m%d%H%M>"
+# Eventually we should try to build these images as part of the c10s composes.
+# In that case, the versioning should instead be exactly the same as the pungi
+# compose ID.
+
+mutate-os-release: "10"
+
+# Packages that are only in SCOS and not in RHCOS
+packages:
+ - centos-stream-release
