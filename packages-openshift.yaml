@@ -33,7 +33,7 @@ postprocess:
     for x in $(find /etc/yum.repos.d/ -name '*.repo'); do
       # ignore repo files that are mountpoints since they're likely secrets
       if ! mountpoint "$x"; then
-        sed -i -e s,enabled=1,enabled=0, $x
+        sed -i -e 's/enabled\s*=\s*1/enabled=0/g' $x
       fi
     done
 

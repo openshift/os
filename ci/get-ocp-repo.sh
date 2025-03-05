@@ -29,11 +29,50 @@ info() {
     echo "INFO:" "$@" >&2
 }
 
+cleanup_repos() {
+    # if we had installed the packages and created symlinks, remove it
+    if rpm -q centos-release-cloud; then
+        dnf remove -y centos-release-{cloud,nfv,virt}-common
+        find "/usr/share/distribution-gpg-keys/centos" -type l -exec rm -f {} \;
+        echo "Removed all symbolic links and packages installed for scos"
+    fi
+    # remove ocp.repo file
+    if [ -n "$ocp_manifest" ]; then
+        if [ -z "$output_dir" ]; then
+            output_dir=$(dirname "$ocp_manifest")
+        fi
+    else
+        if [ -z "$output_dir" ]; then
+            output_dir="$cosa_workdir/src/config"
+        fi
+    fi
+    rm "$output_dir/ocp.repo"
+    echo "Removed repo file $output_dir/ocp.repo"
+}
+
+create_gpg_keys() {
+    # Check if centos-stream-release is installed and centos-release-cloud is not
+    if rpm -q centos-stream-release && ! rpm -q centos-release-cloud; then
+        dnf install -y centos-release-{cloud,nfv,virt}-common
+    fi
+
+    # Create directory for CentOS distribution GPG keys
+    mkdir -p /usr/share/distribution-gpg-keys/centos
+    # Create symbolic links for GPG keys
+    if [ ! -e "/usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official" ]; then
+        ln -s /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial /usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+        ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Cloud
+        ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
+        ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-NFV
+        ln -s {/etc/pki/rpm-gpg,/usr/share/distribution-gpg-keys/centos}/RPM-GPG-KEY-CentOS-SIG-Virtualization
+    fi
+}
+
 cosa_workdir=
 ocp_manifest=
 output_dir=
 rc=0
-options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer:,output-dir: -- "$@") || rc=$?
+options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer:,output-dir:,cleanup,create-gpg-keys -- "$@") || rc=$?
 [ $rc -eq 0 ] || print_usage_and_exit
 eval set -- "$options"
 while [ $# -ne 0 ]; do
@@ -42,6 +81,8 @@ while [ $# -ne 0 ]; do
         --cosa-workdir) cosa_workdir=$2; shift;;
         --ocp-layer) ocp_manifest=$2; shift;;
         --output-dir) output_dir=$2; shift;;
+        --cleanup) cleanup_repos; exit 0;;
+        --create-gpg-keys) create_gpg_keys; exit 0;;
         --) break;;
         *) echo "$0: invalid argument: $1" >&2; exit 1;;
     esac
@@ -50,8 +91,6 @@ done
 
 if [ -n "$ocp_manifest" ]; then
     # --ocp-layer path
-    rhel_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
-    info "Got RHEL version $rhel_version from /usr/lib/os-release"
     ocp_version=$(rpm-ostree compose tree --print-only "$ocp_manifest" | jq -r '.metadata.ocp_version')
     ocp_version=${ocp_version//./-}
     info "Got OpenShift version $ocp_version from $ocp_manifest"
@@ -60,6 +99,21 @@ if [ -n "$ocp_manifest" ]; then
 
     if [ -z "$output_dir" ]; then
         output_dir=$(dirname "$ocp_manifest")
+    fi
+
+    # get rhel version corresponding to the release so we can get the
+    # correct OpenShift rpms from those for scos. These packages are not
+    # available in CentOS Stream
+    if [ "$osname" = scos ]; then
+        workdir=$(dirname "$ocp_manifest")
+        manifest="$workdir/manifest.yaml"
+        json=$(rpm-ostree compose tree --print-only "$manifest")
+        version=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
+        rhel_version=$(cut -f2 -d. <<< "$version")
+        info "Got RHEL version $rhel_version from rhel manifest for scos"
+    else
+        rhel_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
+        info "Got RHEL version $rhel_version from /usr/lib/os-release"
     fi
 else
     [ -n "$cosa_workdir" ]
@@ -132,7 +186,16 @@ fi
 if [ "$osname" = scos ]; then
     info "Neutering RHEL repos for SCOS"
     awk '/server-ose/,/^$/' "$repo_path" > "$repo_path.tmp"
+    # only pull in certain Openshift packages as the rest come from the c9s repo
+    sed -i '/^baseurl = /a includepkgs=openshift-* ose-aws-ecr-* ose-azure-acr-* ose-gcp-gcr-*' "$repo_path.tmp"
+    # add the contents of the CentOS Stream repo
+    workdir="$cosa_workdir/src/config"
+    if [ -n "$ocp_manifest" ]; then
+        workdir=$(dirname "$ocp_manifest")
+    fi
+    cat "$workdir/c9s.repo" >> "$repo_path.tmp"
     mv "$repo_path.tmp" "$repo_path"
+    create_gpg_keys
 fi
 
 cat "$repo_path"
