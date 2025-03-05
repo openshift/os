@@ -89,6 +89,9 @@ else
         info "Building pure SCOS variant. Exiting..."
         exit 0
     elif [ "$osname" = scos ]; then
+        info "Building OKD variant"
+        centos_version_prefix=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
+        centos_version=$(cut -f2 -d. <<< "$centos_version_prefix")
         # We still need the OCP repos for now unfortunately because not
         # everything is in the Stream repo. For the RHEL version, just use the
         # default variant's one.
@@ -130,7 +133,7 @@ fi
 # If we are building the SCOS OKD 9 variant, then strip away all the RHEL repos and just keep the plashet.
 # Temporary workaround until we have all packages for SCOS in CentOS Stream.
 # If we are building the SCOS OKD 10 variant, then we need some RHEL packages for now.
-if [ "$osname" = scos ]; then
+if [ "$osname" = scos ] && [ "${centos_version}" != "10" ]; then
     info "Neutering RHEL repos for SCOS"
     awk '/server-ose/,/^$/' "$repo_path" > "$repo_path.tmp"
     mv "$repo_path.tmp" "$repo_path"
