@@ -52,8 +52,9 @@ cleanup_repos() {
 
 create_gpg_keys() {
     # Check if centos-stream-release is installed and centos-release-cloud is not
+    # enablerepo added in case the repo is disabled (when building extensions)
     if rpm -q centos-stream-release && ! rpm -q centos-release-cloud; then
-        dnf install -y centos-release-{cloud,nfv,virt}-common
+        dnf install -y centos-release-{cloud,nfv,virt}-common --enablerepo extras-common
     fi
 
     # Create directory for CentOS distribution GPG keys
