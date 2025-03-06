@@ -27,7 +27,7 @@
 #   --security-opt label=disable -t localhost/openshift-node-c9s \
 #   src/config
 
-FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos
+FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos as build
 ARG OPENSHIFT_CI=0
 # Avoid shipping modified .pyc files. Due to https://github.com/ostreedev/ostree/issues/1469,
 # any Python apps that run (e.g. dnf) will cause pyc creation.
@@ -38,3 +38,10 @@ RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/et
   if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --output-dir /etc/yum.repos.d --cleanup; fi && \
   find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \; && \
   ostree container commit
+
+FROM build as metadata
+RUN --mount=type=bind,target=/run/src /run/src/scripts/generate-metadata
+
+FROM build
+COPY --from=metadata /usr/share/openshift /usr/share/openshift
+LABEL io.openshift.metalayer=true
