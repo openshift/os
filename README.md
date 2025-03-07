@@ -1,5 +1,6 @@
 # RHEL CoreOS and CentOS Stream CoreOS config
 
+
 This repository is the "config" repository used to build RHEL CoreOS and CentOS
 Stream CoreOS using [coreos-assembler].
 
