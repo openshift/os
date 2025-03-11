@@ -44,7 +44,7 @@ def get_rpmdb_pkglist():
         n, e, v, r, a = line.split()
         # canonicalize none to 0 to match rpm-ostree semantics
         if e == '(none)':
-            e = 0
+            e = '0'
         rpmdb.append([n, e, v, r, a])
 
     # sort it by package name to be nice to humans who like JSON
