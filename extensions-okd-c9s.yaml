@@ -56,6 +56,9 @@ extensions:
       - x86_64
     repos:
       - c9s-nfv
+      # nfv-mirror is needed while building scos node images through CI in case the composes have already moved kernel version
+      # this is true for any other package as well - so we will need to find a better solution for this [TODO]
+      - c9s-nfv-mirror
     packages:
       - kernel-rt-core
       - kernel-rt-kvm

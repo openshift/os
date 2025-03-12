@@ -194,7 +194,11 @@ if [ "$osname" = scos ]; then
     if [ -n "$ocp_manifest" ]; then
         workdir=$(dirname "$ocp_manifest")
     fi
+    # pull in the mirror repo as well in case there are newer versions in the composes
+    # and we require older versions - this happens because we build the node images async
+    # and the composes move fast.
     cat "$workdir/c9s.repo" >> "$repo_path.tmp"
+    cat "$workdir/c9s-mirror.repo" >> "$repo_path.tmp"
     mv "$repo_path.tmp" "$repo_path"
     create_gpg_keys
 fi
