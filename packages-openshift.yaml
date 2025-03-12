@@ -13,7 +13,8 @@ packages:
   # The packages below are present in CentOS Stream/RHEL,
   # and depend on one or more of the above.
   - NetworkManager-ovs
-  - ose-aws-ecr-image-credential-provider
+  # XXX: There should also be ose-aws-ecr-image-credential-provider here. See
+  # common.yaml.
   - ose-azure-acr-image-credential-provider
   - ose-gcp-gcr-image-credential-provider
 
