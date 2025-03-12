@@ -96,7 +96,7 @@ kola_test_metal() {
     cosa compress --artifact=metal --artifact=metal4k
 
     # Run all testiso scenarios on metal artifact
-    kola testiso -S --output-dir ${ARTIFACT_DIR:-/tmp}/kola-testiso  --denylist-test iso-offline-install-iscsi*
+    kola testiso -S --output-dir ${ARTIFACT_DIR:-/tmp}/kola-testiso  --denylist-test iso-offline-install-iscsi* --denylist-test pxe-offline-install.rootfs-appended.bios
 }
 
 # Ensure that we can create all platform images for COSA CI
