@@ -24,12 +24,11 @@ RUN createrepo_c /usr/share/rpm-ostree/extensions/
 # Generate extensions.json for meta.json, written to a bind-mounted path during the build.
 # Use dnf repoquery to print 'name: version,' for each RPM
 # sed to remove the comma from the last RPM
-RUN sh -c 'echo "{" > /tmp/extensions.json && \
-dnf repoquery --repofrompath=extensions,/usr/share/rpm-ostree/extensions/ \
+RUN (echo "{" && \
+(dnf repoquery --repofrompath=extensions,/usr/share/rpm-ostree/extensions/ \
   --quiet --disablerepo=* --enablerepo=extensions \
   --queryformat "\"%{name}\": \"%{evr}.%{arch}\"," | \
-sed "$ s/,$//" >> /tmp/extensions.json && \
-echo "}" >> /tmp/extensions.json'
+sed "$ s/,$//") && echo "}") >> /tmp/extensions.json
 
 ## Final container that has the extensions repo dir
 FROM registry.access.redhat.com/ubi9/ubi:latest
