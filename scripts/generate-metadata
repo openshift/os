@@ -42,6 +42,10 @@ def get_rpmdb_pkglist():
     rpmdb = []
     for line in out.splitlines():
         n, e, v, r, a = line.split()
+        if n == 'gpg-pubkey':
+            # those aren't real packages, it's just how rpm represents imported
+            # GPG keys
+            continue
         # canonicalize none to 0 to match rpm-ostree semantics
         if e == '(none)':
             e = '0'
