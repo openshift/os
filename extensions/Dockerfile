@@ -7,7 +7,7 @@ RUN mkdir /os
 WORKDIR /os
 ADD . .
 ARG OPENSHIFT_CI=0
-ARG VARIANT
+ARG VARIANT=""
 RUN if [ "${OPENSHIFT_CI}" != 0 ]; then ci/get-ocp-repo.sh --ocp-layer packages-openshift.yaml; fi
 RUN if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIONS="extensions-${VARIANT}.yaml"; else MANIFEST="manifest.yaml"; EXTENSIONS="extensions.yaml"; fi && rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ ./"${MANIFEST}" ./"${EXTENSIONS}"
 
