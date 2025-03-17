@@ -81,7 +81,7 @@ cosa_build() {
 # Build QEMU image and run all kola tests
 kola_test_qemu() {
     cosa buildextend-qemu
-    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola --rerun --allow-rerun-success tags=needs-internet
+    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola --rerun --allow-rerun-success tags=needs-internet "$@"
 }
 
 # Build metal, metal4k & live images and run kola tests
@@ -301,13 +301,13 @@ main() {
             ;;
         "scos-9-build-test-qemu")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "c9s"
             cosa_build
-            kola_test_qemu
+            kola_test_qemu --tag '!openshift'
             ;;
         "scos-9-build-test-metal")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "c9s"
             cosa_build
             kola_test_metal
             ;;
