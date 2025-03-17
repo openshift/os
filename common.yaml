@@ -276,10 +276,6 @@ packages:
  - dnf
  # https://issues.redhat.com/browse/OCPBUGS-35247
  - subscription-manager
- # XXX: This should be in packages-openshift.yaml instead. For now,
- # it's in the base until the equivalent functionality lands in RHEL:
- # https://issues.redhat.com/browse/RHEL-82921
- - ose-aws-ecr-image-credential-provider
 
 packages-x86_64:
   # Temporary add of open-vm-tools. Should be removed when containerized
