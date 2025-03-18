@@ -270,10 +270,6 @@ main() {
             cosa_init "$2"
             prepare_repos
             ;;
-        "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
-            cosa_init "ocp-rhel-9.6"
-            cosa_build
-            ;;
         # this is called by cosa's CI
         "rhcos-cosa-prow-pr-ci")
             setup_user
