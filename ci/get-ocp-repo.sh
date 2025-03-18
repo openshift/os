@@ -93,6 +93,8 @@ set -x
 
 if [ -n "$ocp_manifest" ]; then
     # --ocp-layer path
+    rhel_version=$(source /usr/lib/os-release; echo ${VERSION_ID//./})
+    info "Got RHEL version $rhel_version from /usr/lib/os-release"
     ocp_version=$(rpm-ostree compose tree --print-only "$ocp_manifest" | jq -r '.metadata.ocp_version')
     ocp_version=${ocp_version//./-}
     info "Got OpenShift version $ocp_version from $ocp_manifest"
@@ -131,7 +133,7 @@ else
     # first, make sure we're looking at the right manifest
     manifest="$cosa_workdir/src/config/manifest.yaml"
     if [ -f "$cosa_workdir/src/config.json" ]; then
-        variant="$(jq --raw-output '."coreos-assembler.config-variant"' "$cosa_workdir/src/config.json")"
+        variant="$(jq --raw-output '."coreos-assembler.config-variant"' < "$cosa_workdir"/src/config.json)"
         manifest="$cosa_workdir/src/config/manifest-${variant}.yaml"
         info "Using variant ${variant}"
     fi
@@ -146,6 +148,9 @@ else
         info "Building pure SCOS variant. Exiting..."
         exit 0
     elif [ "$osname" = scos ]; then
+        info "Building OKD variant"
+        centos_version_prefix=$(jq -r '.["automatic-version-prefix"]' <<< "$json")
+        centos_version=$(cut -f2 -d. <<< "$centos_version_prefix")
         # We still need the OCP repos for now unfortunately because not
         # everything is in the Stream repo. For the RHEL version, just use the
         # default variant's one.
@@ -189,7 +194,8 @@ fi
 # If we are building the SCOS OKD 9 variant, then strip away all the RHEL repos and just keep the plashet.
 # Temporary workaround until we have all packages for SCOS in CentOS Stream.
 # If we are building the SCOS OKD 10 variant, then we need some RHEL packages for now.
-if [ "$osname" = scos ] && [ "${version}" != "10" ]; then
+centos_version=$(source /usr/lib/os-release; echo "${VERSION}" | cut -d "." -f 2)
+if [ "$osname" = scos ] && [ "${centos_version}" != "10" ]; then
     info "Neutering RHEL repos for SCOS"
     awk '/server-ose/,/^$/' "$repo_path" > "$repo_path.tmp"
     # only pull in certain Openshift packages as the rest come from the c9s repo
@@ -208,5 +214,10 @@ if [ "$osname" = scos ] && [ "${version}" != "10" ]; then
     create_gpg_keys
 fi
 
-info "Final repo config"
+# Get RHEL 9 repos for C10S builds for now
+if [ "$osname" = scos ] && [ "${centos_version}" = "10" ]; then
+    curl --fail -L http://base-4-19-rhel96.ocp.svc.cluster.local >> "$repo_path"
+fi
+
+
 cat "$repo_path"
