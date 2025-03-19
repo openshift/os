@@ -74,7 +74,9 @@ cosa_build() {
     cosa fetch
     # Only build the ostree image by default
     cosa build ostree
-    # Build extensions container
+}
+
+cosa_build_extensions() {
     cosa buildextend-extensions-container
 }
 
@@ -275,12 +277,14 @@ main() {
             setup_user
             cosa_init "ocp-rhel-9.6"
             cosa_build
+            cosa_build_extensions
             kola_test_qemu
             ;;
         "rhcos-9-build-test-qemu")
             setup_user
             cosa_init "ocp-rhel-9.6"
             cosa_build
+            cosa_build_extensions
             kola_test_qemu
             ;;
         "rhcos-9-build-test-metal")
