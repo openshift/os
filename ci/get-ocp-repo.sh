@@ -73,7 +73,7 @@ cosa_workdir=
 ocp_manifest=
 output_dir=
 rc=0
-options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer:,output-dir:,cleanup,create-gpg-keys -- "$@") || rc=$?
+options=$(getopt --options h --longoptions help,cosa-workdir:,ocp-layer:,output-dir:,cleanup -- "$@") || rc=$?
 [ $rc -eq 0 ] || print_usage_and_exit
 eval set -- "$options"
 while [ $# -ne 0 ]; do
@@ -83,7 +83,6 @@ while [ $# -ne 0 ]; do
         --ocp-layer) ocp_manifest=$2; shift;;
         --output-dir) output_dir=$2; shift;;
         --cleanup) cleanup_repos; exit 0;;
-        --create-gpg-keys) create_gpg_keys; exit 0;;
         --) break;;
         *) echo "$0: invalid argument: $1" >&2; exit 1;;
     esac

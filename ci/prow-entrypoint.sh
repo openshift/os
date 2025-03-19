@@ -74,14 +74,16 @@ cosa_build() {
     cosa fetch
     # Only build the ostree image by default
     cosa build ostree
-    # Build extensions container
+}
+
+cosa_build_extensions() {
     cosa buildextend-extensions-container
 }
 
 # Build QEMU image and run all kola tests
 kola_test_qemu() {
     cosa buildextend-qemu
-    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola --rerun --allow-rerun-success tags=needs-internet
+    cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola --rerun --allow-rerun-success tags=needs-internet "$@"
 }
 
 # Build metal, metal4k & live images and run kola tests
@@ -270,21 +272,19 @@ main() {
             cosa_init "$2"
             prepare_repos
             ;;
-        "build" | "init-and-build-default")  # TODO: change prow job to use init-and-build-default
-            cosa_init "ocp-rhel-9.6"
-            cosa_build
-            ;;
         # this is called by cosa's CI
         "rhcos-cosa-prow-pr-ci")
             setup_user
             cosa_init "ocp-rhel-9.6"
             cosa_build
+            cosa_build_extensions
             kola_test_qemu
             ;;
         "rhcos-9-build-test-qemu")
             setup_user
             cosa_init "ocp-rhel-9.6"
             cosa_build
+            cosa_build_extensions
             kola_test_qemu
             ;;
         "rhcos-9-build-test-metal")
@@ -301,13 +301,13 @@ main() {
             ;;
         "scos-9-build-test-qemu")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "c9s"
             cosa_build
-            kola_test_qemu
+            kola_test_qemu --tag '!openshift'
             ;;
         "scos-9-build-test-metal")
             setup_user
-            cosa_init "okd-c9s"
+            cosa_init "c9s"
             cosa_build
             kola_test_metal
             ;;
