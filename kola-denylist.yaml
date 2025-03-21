@@ -90,8 +90,3 @@
   tracker: https://github.com/openshift/os/pull/1498
   osversion:
     - c10s
-
-- pattern: ext.config.rpm-ostree.replace-rt-kernel
-  tracker: https://github.com/openshift/os/issues/1315
-  osversion:
-    - c10s
