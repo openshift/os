@@ -38,6 +38,13 @@ and handling in 20-chrony and chrony-helper using the defaults
 lands in downstream packages. See upstream thread:
 https://listengine.tuxfamily.org/chrony.tuxfamily.org/chrony-dev/2020/05/msg00022.html
 
+22rhcos-mpathd
+--------------
+
+Override default multipath config to have multipath enabled by default.
+The default multipath.conf avoids any devices being multipathed by default,
+which is not what we want in RHCOS.
+
 25rhcos-azure-udev
 ------------------
 

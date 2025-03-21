@@ -91,26 +91,6 @@
   osversion:
     - c10s
 
-- pattern: multipath.day1
-  tracker: https://github.com/openshift/os/pull/1498
-  osversion:
-    - c10s
-
-- pattern: multipath.day2
-  tracker: https://github.com/openshift/os/pull/1498
-  osversion:
-    - c10s
-
-- pattern: ext.config.shared.root-reprovision.luks.multipath
-  tracker: https://github.com/openshift/os/pull/1498
-  osversion:
-    - c10s
-
-- pattern: iso-offline-install.mpath.bios
-  tracker: https://github.com/openshift/os/pull/1498
-  osversion:
-    - c10s
-
 - pattern: ext.config.rpm-ostree.replace-rt-kernel
   tracker: https://github.com/openshift/os/issues/1315
   osversion:
