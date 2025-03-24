@@ -42,8 +42,8 @@ postprocess:
   - |
     #!/usr/bin/bash
     set -euo pipefail
-    ln -sr /run/secrets/etc-pki-entitlement /etc/pki/entitlement-host
-    ln -sr /run/secrets/rhsm /etc/rhsm-host
+    ln -sfr /run/secrets/etc-pki-entitlement /etc/pki/entitlement-host
+    ln -sfr /run/secrets/rhsm /etc/rhsm-host
 
   - |
     #!/usr/bin/env bash
@@ -93,7 +93,7 @@ postprocess:
     # sed -i '/conmon.*=/d' /etc/crio/crio.conf
     # Oh right but the MCO overrides that too so...
     mkdir -p /usr/libexec/crio
-    ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
+    ln -sfr /usr/bin/conmon /usr/libexec/crio/conmon
 
   # Inject OpenShift-specific release fields
   - |
