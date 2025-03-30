@@ -4,6 +4,13 @@
 
 repos:
   - c9s-sig-virtualization
+  # Some of the extensions here have version bindings to host packages. Add the
+  # mirrors since those retain multiple versions of packages in case the latest
+  # compose has already moved since the last base image build.
+  - c9s-baseos-mirror
+  - c9s-appstream-mirror
+  - c9s-nfv-mirror
+  - c9s-rt-mirror
 
 extensions:
   # https://issues.redhat.com/browse/RFE-4177
@@ -57,9 +64,6 @@ extensions:
       - x86_64
     repos:
       - c9s-nfv
-      # nfv-mirror is needed while building scos node images through CI in case the composes have already moved kernel version
-      # this is true for any other package as well - so we will need to find a better solution for this [TODO]
-      - c9s-nfv-mirror
     packages:
       - kernel-rt-core
       - kernel-rt-kvm
