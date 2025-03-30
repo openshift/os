@@ -274,6 +274,9 @@ packages:
  - policycoreutils-python-utils
  # https://github.com/coreos/fedora-coreos-tracker/issues/1687
  - dnf
+ # This is used by rpm-ostree treefile-apply to deal with
+ # https://gitlab.com/fedora/bootc/tracker/-/issues/59
+ - 'dnf-command(versionlock)'
  # https://issues.redhat.com/browse/OCPBUGS-35247
  - subscription-manager
 
