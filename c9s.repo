@@ -10,7 +10,7 @@ baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compo
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
 [c9s-appstream]
 name=CentOS Stream 9 - AppStream
@@ -18,7 +18,7 @@ baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compo
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
 [c9s-extras-common]
 name=CentOS Stream 9 - Extras packages
@@ -29,7 +29,7 @@ baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/x86_64/extras-comm
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
 
 [c9s-nfv]
 name=CentOS Stream 9 - NFV
@@ -37,7 +37,7 @@ baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compo
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
 [c9s-rt]
 name=CentOS Stream 9 - RT
@@ -45,7 +45,7 @@ baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compo
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
 [c9s-sig-nfv]
 name=CentOS Stream 9 - SIG NFV
@@ -53,7 +53,7 @@ baseurl=https://mirror.stream.centos.org/SIGs/9-stream/nfv/$basearch/openvswitch
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-NFV
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-NFV
 
 [c9s-sig-virtualization]
 name=CentOS Stream 9 - SIG Virtualization
@@ -61,7 +61,7 @@ baseurl=https://mirror.stream.centos.org/SIGs/9-stream/virt/$basearch/kata-conta
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Virtualization
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
 
 [c9s-sig-cloud-okd]
 name=CentOS Stream 9 - SIG Cloud OKD 4.19
@@ -69,4 +69,4 @@ baseurl=https://mirror.stream.centos.org/SIGs/9-stream/cloud/$basearch/okd-4.19/
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-SIG-Cloud
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud
