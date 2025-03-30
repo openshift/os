@@ -29,15 +29,31 @@
 
 FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos as build
 ARG OPENSHIFT_CI=0
-# Avoid shipping modified .pyc files. Due to https://github.com/ostreedev/ostree/issues/1469,
-# any Python apps that run (e.g. dnf) will cause pyc creation.
-RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/etc/yum.repos.d/secret.repo  \
-  find /usr -name '*.pyc' -exec mv {} {}.bak \; && \
-  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /etc/yum.repos.d; fi && \
-  /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml && \
-  if [ "${OPENSHIFT_CI}" != 0 ]; then /run/src/ci/get-ocp-repo.sh --output-dir /etc/yum.repos.d --cleanup; fi && \
-  find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \; && \
-  ostree container commit
+RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/etc/yum.repos.d/secret.repo <<EOF
+    set -xeuo pipefail
+
+    # Avoid shipping modified .pyc files. Due to
+    # https://github.com/ostreedev/ostree/issues/1469, any Python apps that
+    # run (e.g. dnf) will cause pyc creation. We do this by backing them up and
+    # restoring them at the end.
+    find /usr -name '*.pyc' -exec mv {} {}.bak \;
+
+    # fetch repos from in-cluster mirrors if we're running in OpenShift CI
+    if [ "${OPENSHIFT_CI}" != 0 ]; then
+        /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /etc/yum.repos.d
+    fi
+
+    # this is where all the real work happens
+    /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml
+
+    # do any cleanups necessary to undo what `get-ocp-repo.sh` did
+    if [ "${OPENSHIFT_CI}" != 0 ]; then
+        /run/src/ci/get-ocp-repo.sh --output-dir /etc/yum.repos.d --cleanup
+    fi
+
+    find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \;
+    ostree container commit
+EOF
 
 FROM build as metadata
 RUN --mount=type=bind,target=/run/src /run/src/scripts/generate-metadata
