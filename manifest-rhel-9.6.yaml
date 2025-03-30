@@ -6,6 +6,7 @@ metadata:
   summary: RHEL CoreOS 9.6
 
 variables:
+  id: "rhel"
   osversion: "rhel-9.6"
   inherit_tier_x: true
 

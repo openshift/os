@@ -4,6 +4,24 @@ metadata:
   # inject when building the layered image.
   ocp_version: "4.19"
 
+conditional-include:
+  - if: id == "rhel"
+    include:
+      repos:
+        - rhel-9.6-baseos
+        - rhel-9.6-appstream
+        - rhel-9.6-early-kernel
+        - rhel-9.6-fast-datapath
+        - rhel-9.6-server-ose-4.19
+  - if: id == "centos"
+    include:
+      repos:
+        - c9s-baseos
+        - c9s-appstream
+        - c9s-sig-nfv
+        - c9s-sig-cloud-okd
+        - rhel-9.6-server-ose-4.19
+
 packages:
   # The packages below are required by OpenShift/OKD
   # but are not present in CentOS Stream and RHEL.

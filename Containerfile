@@ -47,9 +47,10 @@ RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/et
     # https://github.com/CentOS/centos-bootc/issues/393
     mkdir -p /var/opt
 
+    source /etc/os-release
     # this is where all the real work happens
     rpm-ostree experimental compose treefile-apply \
-        /run/src/packages-openshift.yaml
+        --var id=$ID /run/src/packages-openshift.yaml
 
     # do any cleanups necessary to undo what `get-ocp-repo.sh` did
     if [ "${OPENSHIFT_CI}" != 0 ]; then
