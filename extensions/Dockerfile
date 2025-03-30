@@ -7,17 +7,18 @@ RUN mkdir /os
 WORKDIR /os
 ADD . .
 ARG OPENSHIFT_CI=0
-ARG VARIANT=""
 RUN if [ "${OPENSHIFT_CI}" != 0 ]; then ci/get-ocp-repo.sh --ocp-layer packages-openshift.yaml; fi
 RUN --mount=type=secret,id=yumrepos,target=/os/secret.repo <<EOF
     set -xeuo pipefail
 
-    if [[ -n "${VARIANT}" ]]; then
-        MANIFEST="manifest-${VARIANT}.yaml"
-        EXTENSIONS="extensions-${VARIANT}.yaml"
+    . /etc/os-release
+    # XXX: we can drop the rhcos check once we've dropped the `ocp-rhel-9.6` variant
+    if [ $ID = rhel ] || [ $ID = rhcos ]; then
+        MANIFEST="manifest-rhel-9.6.yaml"
+        EXTENSIONS="extensions-ocp-rhel-9.6.yaml"
     else
-        MANIFEST="manifest.yaml"
-        EXTENSIONS="extensions.yaml"
+        MANIFEST="manifest-c9s.yaml"
+        EXTENSIONS="extensions-okd-c9s.yaml"
     fi
 
     rpm-ostree compose extensions --rootfs=/ \
