@@ -40,7 +40,7 @@ RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/et
 
     # fetch repos from in-cluster mirrors if we're running in OpenShift CI
     if [ "${OPENSHIFT_CI}" != 0 ]; then
-        /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /etc/yum.repos.d
+        /run/src/ci/get-ocp-repo.sh /etc/yum.repos.d/ocp.repo
     fi
 
     # XXX: patch cri-o spec to use tmpfiles
@@ -52,9 +52,9 @@ RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/et
     rpm-ostree experimental compose treefile-apply \
         --var id=$ID /run/src/packages-openshift.yaml
 
-    # do any cleanups necessary to undo what `get-ocp-repo.sh` did
+    # cleanup the repo file we injected
     if [ "${OPENSHIFT_CI}" != 0 ]; then
-        /run/src/ci/get-ocp-repo.sh --output-dir /etc/yum.repos.d --cleanup
+        rm /etc/yum.repos.d/ocp.repo
     fi
 
     find /usr -name '*.pyc.bak' -exec sh -c 'mv $1 ${1%.bak}' _ {} \;

@@ -13,7 +13,6 @@ extensions:
       # XXX: temporarily add rhel-9.4-appstream for crun-wasm
       # https://github.com/openshift/os/issues/1680
       # https://issues.redhat.com/browse/COS-3075
-      # NOTE: when reverting this, also revert the associated hack in get-ocp-repo.sh
       - rhel-9.4-appstream
     packages:
       - crun-wasm

@@ -60,7 +60,7 @@ cosa_init() {
 
 # Initialize the .repo files
 prepare_repos() {
-    src/config/ci/get-ocp-repo.sh --cosa-workdir .
+    src/config/ci/get-ocp-repo.sh src/config/ocp.repo
 }
 
 # Do a cosa build & cosa build-extensions only.
