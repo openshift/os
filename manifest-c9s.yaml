@@ -17,6 +17,7 @@ include:
 repos:
   - c9s-baseos
   - c9s-appstream
+  - c9s-extras-common
 
 automatic-version-prefix: "9.0.<date:%Y%m%d>"
 # This ensures we're semver-compatible which OpenShift wants
@@ -26,3 +27,6 @@ mutate-os-release: "9"
 
 packages:
  - centos-stream-release
+ - centos-release-cloud-common
+ - centos-release-nfv-common
+ - centos-release-virt-common
