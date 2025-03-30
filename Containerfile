@@ -43,8 +43,13 @@ RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/et
         /run/src/ci/get-ocp-repo.sh --ocp-layer /run/src/packages-openshift.yaml --output-dir /etc/yum.repos.d
     fi
 
+    # XXX: patch cri-o spec to use tmpfiles
+    # https://github.com/CentOS/centos-bootc/issues/393
+    mkdir -p /var/opt
+
     # this is where all the real work happens
-    /run/src/scripts/apply-manifest /run/src/packages-openshift.yaml
+    rpm-ostree experimental compose treefile-apply \
+        /run/src/packages-openshift.yaml
 
     # do any cleanups necessary to undo what `get-ocp-repo.sh` did
     if [ "${OPENSHIFT_CI}" != 0 ]; then
