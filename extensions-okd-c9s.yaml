@@ -20,6 +20,7 @@ extensions:
     packages:
       - libreswan
       - NetworkManager-libreswan
+      - openvswitch3.5-ipsec
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
     packages:
