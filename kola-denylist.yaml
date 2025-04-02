@@ -33,12 +33,6 @@
 #- pattern: pxe-offline-install.rootfs-appended.bios
 #  tracker: https://github.com/openshift/os/issues/1768
 
-- pattern: "*kdump*"
-  tracker: https://gitlab.com/redhat/centos-stream/containers/bootc/-/issues/1169
-  osversion:
-    - c9s
-    - rhel-9.6
-
 - pattern: ostree.sync
   tracker: https://github.com/openshift/os/issues/1720
   arches:
