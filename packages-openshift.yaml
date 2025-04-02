@@ -20,7 +20,8 @@ conditional-include:
         - c9s-appstream
         - c9s-sig-nfv
         - c9s-sig-cloud-okd
-        - rhel-9.6-server-ose-4.19
+        # XXX: this shouldn't be here; see related XXX in Containerfile
+        - rhel-9.6-server-ose-4.19-okd
 
 packages:
   # The packages below are required by OpenShift/OKD
