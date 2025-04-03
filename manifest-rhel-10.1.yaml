@@ -1,0 +1,32 @@
+# Manifest for RHCOS based on RHEL 10.1
+
+metadata:
+  license: MIT
+  name: rhcos
+  summary: RHEL CoreOS 10.1
+
+variables:
+  osversion: "rhel-10.1"
+  inherit_tier_x: true
+
+# Include manifests common to all RHEL and CentOS Stream versions
+include:
+  - common.yaml
+
+# XXX get rhel 10.1 repos in prow
+repos:
+  - rhel-10.1-baseos
+  - rhel-10.1-appstream
+
+automatic-version-prefix: "10.1.<date:%Y%m%d>"
+# This ensures we're semver-compatible which OpenShift wants
+automatic-version-suffix: "-"
+
+mutate-os-release: "10.1"
+
+# Packages that are only in RHCOS and not in SCOS or that have special
+# constraints that do not apply to SCOS
+packages:
+ # We include the generic release package and tweak the os-release info in a
+ # post-process script
+ - redhat-release
