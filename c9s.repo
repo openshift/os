@@ -22,7 +22,10 @@ gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Officia
 
 [c9s-extras-common]
 name=CentOS Stream 9 - Extras packages
-baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/$basearch/extras-common
+# Note: the hardcoded x86_64 is not a mistake. Extras just has noarch RPMs that
+# contain GPG keys and repo files but for some reason only the x86_64 repo has
+# them...
+baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/x86_64/extras-common
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
