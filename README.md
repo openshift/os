@@ -16,9 +16,10 @@ supported:
 - `rhel-9.6`: RHEL 9.6-based CoreOS; without OpenShift components.
 - `ocp-rhel-9.6`: RHEL 9.6-based CoreOS; including OpenShift components.
 - `c9s`/`c10s`: CentOS Stream-based CoreOS, without OKD components.
+- `rhel-10.1`: RHEL 10.1-based CoreOS; without OpenShift components.
 
 In the future, the `ocp-*` variants will be removed. Instead, OpenShift
-components will be layered by deriving from the `rhel-9.X`/`c9s` images.
+components will be layered by deriving from the `rhel-9.X`/`rhel-10.X`/`c9s`/`c10s` images.
 
 The default variant is `ocp-rhel-9.6`.
 
