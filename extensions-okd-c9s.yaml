@@ -2,6 +2,11 @@
 # https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
+# RULE: Do not add repos to specific extensions below if the extension is not
+# multi-arch, but the repos are. Instead, put them in the global repos list at
+# the top. Otherwise, we can have consistency issues across arches. See e.g.
+# https://issues.redhat.com/browse/OCPBUGS-52293.
+
 repos:
   - c9s-sig-virtualization
   # Some of the extensions here have version bindings to host packages. Add the

@@ -2,18 +2,24 @@
 # https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
+# RULE: Do not add repos to specific extensions below if the extension is not
+# multi-arch, but the repos are. Instead, put them in the global repos list at
+# the top. Otherwise, we can have consistency issues across arches. See e.g.
+# https://issues.redhat.com/browse/OCPBUGS-52293.
+
+repos:
+  # XXX: temporarily add rhel-9.4-appstream for crun-wasm
+  # https://github.com/openshift/os/issues/1680
+  # https://issues.redhat.com/browse/COS-3075
+  # For wasm extension, but placed here to respect the RULE above.
+  - rhel-9.4-appstream
+
 extensions:
   # https://issues.redhat.com/browse/RFE-4177
   wasm:
     architectures:
       - x86_64
       - aarch64
-    repos:
-      - rhel-9.6-server-ose-4.19
-      # XXX: temporarily add rhel-9.4-appstream for crun-wasm
-      # https://github.com/openshift/os/issues/1680
-      # https://issues.redhat.com/browse/COS-3075
-      - rhel-9.4-appstream
     packages:
       - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
@@ -59,6 +65,7 @@ extensions:
     architectures:
       - x86_64
     repos:
+      # this is only available for x86_64, so keep here
       - rhel-9.6-nfv
     packages:
       - kernel-rt-core
@@ -75,8 +82,6 @@ extensions:
     architectures:
       - x86_64
       - s390x
-    repos:
-      - rhel-9.6-server-ose-4.19
     packages:
       - kata-containers
   # https://issues.redhat.com/browse/COS-2402
