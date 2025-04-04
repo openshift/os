@@ -69,6 +69,13 @@ finish() {
         fatal "FIPS mode is not enabled."
     fi
 
+    # on EL10 fips-mode-setup was removed and these steps are
+    # no longer needed. Please delete this function and sysroot_bwrap
+    # when EL9 is no longer supported.
+    if [ ! -e /sysroot/usr/bin/fips-mode-setup ]; then
+        return 0
+    fi
+
     # If we're running from a live system, then set things up so that the dracut fips
     # module will find the kernel binary.  TODO change dracut to look in /usr/lib/modules/$(uname -r)
     # directly.
