@@ -8,7 +8,6 @@
 # https://issues.redhat.com/browse/OCPBUGS-52293.
 
 repos:
-  - c9s-sig-virtualization
   # Some of the extensions here have version bindings to host packages. Add the
   # mirrors since those retain multiple versions of packages in case the latest
   # compose has already moved since the last base image build.
@@ -23,8 +22,6 @@ extensions:
   #   architectures:
   #     - x86_64
   #     - aarch64
-  #   repos:
-  #     - appstream
   #   packages:
   #     - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
@@ -68,6 +65,7 @@ extensions:
     architectures:
       - x86_64
     repos:
+      # this is not available on all arches, so keep here and not in the global repo list
       - c9s-nfv
     packages:
       - kernel-rt-core
@@ -79,11 +77,11 @@ extensions:
   # https://github.com/openshift/machine-config-operator/pull/2456
   # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
   # GRPA-3123
-  # - kata-containers
   sandboxed-containers:
     architectures:
       - x86_64
     repos:
+      # this is not available on all arches, so keep here and not in the global repo list
       - c9s-sig-virtualization
     packages:
       - kata-containers
