@@ -45,44 +45,53 @@
   tracker: https://github.com/openshift/os/issues/1751
   osversion:
     - c10s
+    - rhel-10.1
 
 # Will fail until we have proper RHEL 10 builds of OCP packages
 - pattern: ext.config.version.rhel-major-version
   tracker: TODO
   osversion:
     - c10s
+    - rhel-10.1
 
 - pattern: multipath.day1
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
     - c10s
+    - rhel-10.1
 
 - pattern: multipath.day2
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
     - c10s
-
-- pattern: multipath.partition
-  tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
-  osversion:
-    - c10s
-
-- pattern: iso-offline-install*mpath.bios
-  tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
-  osversion:
-    - c10s
+    - rhel-10.1
 
 - pattern: ext.config.shared.root-reprovision.luks.multipath
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
     - c10s
+    - rhel-10.1
 
-- pattern: ext.config.shared.networking.nm-ifcfg-rh-plugin
-  tracker: https://github.com/openshift/os/pull/1759#issuecomment-2779700581
+# To be removed once 3433 merged and contained in next fedora-coreos-config
+# submodule bump
+- pattern: fips.enable
+  tracker: https://github.com/coreos/fedora-coreos-config/pull/3433
   osversion:
     - c10s
+    - rhel-10.1
 
+# To be removed once 3434 merged and contained in next fedora-coreos-config
+# submodule bump
 - pattern: ext.config.shared.networking.team-dhcp-via-ignition
-  tracker: https://github.com/openshift/os/pull/1759#issuecomment-2779700581
+  tracker: https://github.com/coreos/fedora-coreos-config/pull/3434
   osversion:
     - c10s
+    - rhel-10.1
+# 
+# To be removed once 3434 merged and contained in next fedora-coreos-config
+# submodule bump
+- pattern: ext.config.shared.networking.nm-ifcfg-rh-plugin
+  tracker: TODO
+  osversion:
+    - c10s
+    - rhel-10.1
