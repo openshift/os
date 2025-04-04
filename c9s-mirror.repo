@@ -9,7 +9,7 @@ baseurl=https://mirror.stream.centos.org/9-stream/BaseOS/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
 [c9s-appstream-mirror]
 name=CentOS Stream 9 - AppStream
@@ -17,7 +17,7 @@ baseurl=https://mirror.stream.centos.org/9-stream/AppStream/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
 [c9s-nfv-mirror]
 name=CentOS Stream 9 - NFV
@@ -25,7 +25,7 @@ baseurl=https://mirror.stream.centos.org/9-stream/NFV/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
 [c9s-rt-mirror]
 name=CentOS Stream 9 - RT
@@ -33,4 +33,4 @@ baseurl=https://mirror.stream.centos.org/9-stream/RT/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
-gpgkey=file:///usr/share/distribution-gpg-keys/centos/RPM-GPG-KEY-CentOS-Official
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial

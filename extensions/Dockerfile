@@ -7,9 +7,7 @@ RUN mkdir /os
 WORKDIR /os
 ADD . .
 ARG OPENSHIFT_CI=0
-ARG VARIANT=""
-RUN if [ "${OPENSHIFT_CI}" != 0 ]; then ci/get-ocp-repo.sh --ocp-layer packages-openshift.yaml; fi
-RUN --mount=type=secret,id=yumrepos,target=/os/secret.repo if [[ -n "${VARIANT}" ]]; then MANIFEST="manifest-${VARIANT}.yaml"; EXTENSIONS="extensions-${VARIANT}.yaml"; else MANIFEST="manifest.yaml"; EXTENSIONS="extensions.yaml"; fi && rpm-ostree compose extensions --rootfs=/ --output-dir=/usr/share/rpm-ostree/extensions/ ./"${MANIFEST}" ./"${EXTENSIONS}"
+RUN --mount=type=secret,id=yumrepos,target=/os/secret.repo extensions/build.sh
 
 ## Creates the repo metadata for the extensions.
 ## This uses Fedora as a lowest-common-denominator because it will work on
