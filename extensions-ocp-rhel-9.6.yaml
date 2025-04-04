@@ -18,6 +18,8 @@ extensions:
       - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
   ipsec:
+    repos:
+      - rhel-9.6-fast-datapath
     packages:
       - libreswan
       - NetworkManager-libreswan
