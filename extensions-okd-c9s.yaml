@@ -8,6 +8,7 @@
 # https://issues.redhat.com/browse/OCPBUGS-52293.
 
 repos:
+  - c9s-sig-nfv
   # Some of the extensions here have version bindings to host packages. Add the
   # mirrors since those retain multiple versions of packages in case the latest
   # compose has already moved since the last base image build.
