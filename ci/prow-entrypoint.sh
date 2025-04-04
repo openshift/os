@@ -99,29 +99,6 @@ kola_test_metal() {
     kola testiso -S --output-dir ${ARTIFACT_DIR:-/tmp}/kola-testiso  --denylist-test iso-offline-install-iscsi* --denylist-test pxe-offline-install.rootfs-appended.bios
 }
 
-# Ensure that we can create all platform images for COSA CI
-cosa_buildextend_all() {
-    # Build RHCOS non-qemu artifacts 
-    cosa osbuild   \
-        aliyun     \
-        aws        \
-        azure      \
-        azurestack \
-        dasd       \
-        gcp        \
-        ibmcloud   \
-        kubevirt   \
-        live       \
-        metal      \
-        metal4k    \
-        nutanix    \
-        openstack  \
-
-    # These few still aren't in OSBuild yet
-    cosa buildextend powervs
-    cosa buildextend vmware
-}
-
 # Basic syntaxt validation for manifests
 validate() {
     # Create a temporary copy
