@@ -189,6 +189,32 @@ postprocess:
     ---
     EOF
 
+  # Inject symlink for Two Node OpenShift with Fencing (TNF)
+  # This is a workaround to allow pacemaker to use a pre-release resource agent for etcd
+  # This should be removed after https://issues.redhat.com/browse/OCPEDGE-1706 is completed
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    rpm-ostree install --apply-live dnf-utils -y
+    set +e
+    python -m dnf.cli.main > /dev/null
+    if [ $? -ne 0 ]; then
+      exit 1
+    fi
+    python -m dnf.cli.main repoquery -l resource-agents | grep /usr/lib/ocf/resource.d/heartbeat/podman-etcd
+    if [ $? -eq 0 ]; then
+      rpm-ostree apply-live remove dnf-utils || dnf remove dnf-utils -y
+      dnf clean all
+      rpm-ostree cleanup -bpm
+      exit 0
+    fi
+    rpm-ostree apply-live remove dnf-utils || dnf remove dnf-utils -y
+    dnf clean all
+    rpm-ostree cleanup -bpm
+    set -e
+    mkdir -p /usr/lib/ocf/resource.d/ocp-tnf
+    ln -s /usr/local/lib/ocf/resource.d/ocp-tnf/podman-etcd /usr/lib/ocf/resource.d/ocp-tnf/podman-etcd
+
   - |
     #!/usr/bin/env bash
     set -xeo pipefail
