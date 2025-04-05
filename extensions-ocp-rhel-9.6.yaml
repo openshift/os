@@ -8,10 +8,14 @@
 # https://issues.redhat.com/browse/OCPBUGS-52293.
 
 repos:
-  # XXX: temporarily add rhel-9.4-appstream for crun-wasm
+  # For crun-wasm (wasm) and kata-containers (sandboxed-containers).
+  # Repo placed here to respect the rule above.
+  - rhel-9.6-server-ose-4.19
+  # XXX: temporarily add rhel-9.4-appstream for crun-wasm since llvm
+  # libraries can't be found in rhel-9.6-appstream.
   # https://github.com/openshift/os/issues/1680
   # https://issues.redhat.com/browse/COS-3075
-  # For wasm extension, but placed here to respect the RULE above.
+  # Repo placed here to respect the rule above.
   - rhel-9.4-appstream
 
 extensions:
