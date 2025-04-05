@@ -2,17 +2,26 @@
 # https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
 # and https://github.com/coreos/fedora-coreos-tracker/issues/401
 
-# RULE: Do not add repos to specific extensions below if the extension is not
-# multi-arch, but the repos are. Instead, put them in the global repos list at
-# the top. Otherwise, we can have consistency issues across arches. See e.g.
-# https://issues.redhat.com/browse/OCPBUGS-52293.
+# RULE: If repos support all architectures then put them in the global repos list
+# at the top of this file (directly below this comment). If we don't we can have
+# consistency issues across arches. See e.g. https://issues.redhat.com/browse/OCPBUGS-52293.
 
 repos:
-  # XXX: temporarily add rhel-9.4-appstream for crun-wasm
+  # Generically used for various extensions.
+  # Repo placed here to respect the rule above.
+  - rhel-9.6-appstream
+  # For crun-wasm (wasm) and kata-containers (sandboxed-containers).
+  # Repo placed here to respect the rule above.
+  - rhel-9.6-server-ose-4.19
+  # XXX: temporarily add rhel-9.4-appstream for crun-wasm since llvm
+  # libraries can't be found in rhel-9.6-appstream.
   # https://github.com/openshift/os/issues/1680
   # https://issues.redhat.com/browse/COS-3075
-  # For wasm extension, but placed here to respect the RULE above.
+  # Repo placed here to respect the rule above.
   - rhel-9.4-appstream
+  # For two-node-ha extension.
+  # Repo placed here to respect the rule above.
+  - rhel-9.6-highavailability
 
 extensions:
   # https://issues.redhat.com/browse/RFE-4177
@@ -65,7 +74,7 @@ extensions:
     architectures:
       - x86_64
     repos:
-      # this is only available for x86_64, so keep here
+      # this is not available on all arches, so keep here and not in the global repo list
       - rhel-9.6-nfv
     packages:
       - kernel-rt-core
@@ -77,7 +86,6 @@ extensions:
   # https://github.com/openshift/machine-config-operator/pull/2456
   # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
   # GRPA-3123
-  # - kata-containers
   sandboxed-containers:
     architectures:
       - x86_64
@@ -103,6 +111,3 @@ extensions:
       - pacemaker
       - pcs
       - fence-agents-all
-    repos:
-      - rhel-9.6-appstream
-      - rhel-9.6-highavailability
