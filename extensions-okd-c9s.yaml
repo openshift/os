@@ -81,6 +81,7 @@ extensions:
   sandboxed-containers:
     architectures:
       - x86_64
+      # - s390x # Not currently available on s390x in CentOS.
     repos:
       # this is not available on all arches, so keep here and not in the global repo list
       - c9s-sig-virtualization
