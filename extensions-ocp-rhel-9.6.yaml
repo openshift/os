@@ -7,6 +7,9 @@
 # consistency issues across arches. See e.g. https://issues.redhat.com/browse/OCPBUGS-52293.
 
 repos:
+  # Generically used for various extensions.
+  # Repo placed here to respect the rule above.
+  - rhel-9.6-appstream
   # For crun-wasm (wasm) and kata-containers (sandboxed-containers).
   # Repo placed here to respect the rule above.
   - rhel-9.6-server-ose-4.19
@@ -16,6 +19,9 @@ repos:
   # https://issues.redhat.com/browse/COS-3075
   # Repo placed here to respect the rule above.
   - rhel-9.4-appstream
+  # For two-node-ha extension.
+  # Repo placed here to respect the rule above.
+  - rhel-9.6-highavailability
 
 extensions:
   # https://issues.redhat.com/browse/RFE-4177
@@ -105,6 +111,3 @@ extensions:
       - pacemaker
       - pcs
       - fence-agents-all
-    repos:
-      - rhel-9.6-appstream
-      - rhel-9.6-highavailability
