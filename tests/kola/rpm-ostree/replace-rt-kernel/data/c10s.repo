@@ -1,0 +1,43 @@
+# This repo is based on the c10s.repo file at the top-level, but *always* refers
+# to the mirrors and never to the latest compose output. For more information, see:
+# https://github.com/openshift/os/commit/15c7bf96b70b014f6dd55f25195cf1a341b6c6e0
+
+[baseos]
+name=CentOS Stream 10 - BaseOS
+baseurl=https://mirror.stream.centos.org/10-stream/BaseOS/$basearch/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+
+[appstream]
+name=CentOS Stream 10 - AppStream
+baseurl=https://mirror.stream.centos.org/10-stream/AppStream/$basearch/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+
+[extras-common]
+name=CentOS Stream 10 - Extras packages
+baseurl=https://mirror.stream.centos.org/SIGs/10-stream/extras/$basearch/extras-common
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+
+[nfv]
+name=CentOS Stream 10 - NFV
+baseurl=https://mirror.stream.centos.org/10-stream/NFV/$basearch/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+
+[rt]
+name=CentOS Stream 10 - RT
+baseurl=https://mirror.stream.centos.org/10-stream/RT/$basearch/os
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1

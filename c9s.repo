@@ -20,17 +20,6 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
-[c9s-extras-common]
-name=CentOS Stream 9 - Extras packages
-# Note: the hardcoded x86_64 is not a mistake. Extras just has noarch RPMs that
-# contain GPG keys and repo files but for some reason only the x86_64 repo has
-# them...
-baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/x86_64/extras-common
-gpgcheck=1
-repo_gpgcheck=0
-enabled=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
-
 [c9s-nfv]
 name=CentOS Stream 9 - NFV
 baseurl=https://composes.stream.centos.org/production/latest-CentOS-Stream/compose/NFV/$basearch/os
@@ -47,6 +36,21 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 
+# Note: the hardcoded x86_64 is not a mistake. Extras just has noarch RPMs that
+# contain GPG keys and repo files but for some reason only the x86_64 repo has
+# them... Drop hardcoded arch once https://pagure.io/centos-infra/issue/1635 is fixed
+# Note: We can't find a composes.stream.centos.org URL for this repo
+# so we use the mirror.stream.centos.org URL here.
+[c9s-extras-common]
+name=CentOS Stream 9 - Extras packages
+baseurl=https://mirror.stream.centos.org/SIGs/9-stream/extras/x86_64/extras-common
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
+
+# Note: We can't find a composes.stream.centos.org URL for this repo
+# so we use the mirror.stream.centos.org URL here.
 [c9s-sig-nfv]
 name=CentOS Stream 9 - SIG NFV
 baseurl=https://mirror.stream.centos.org/SIGs/9-stream/nfv/$basearch/openvswitch-2/
@@ -55,6 +59,8 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-NFV
 
+# Note: We can't find a composes.stream.centos.org URL for this repo
+# so we use the mirror.stream.centos.org URL here.
 [c9s-sig-virtualization]
 name=CentOS Stream 9 - SIG Virtualization
 baseurl=https://mirror.stream.centos.org/SIGs/9-stream/virt/$basearch/kata-containers/
@@ -63,6 +69,8 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
 
+# Note: We can't find a composes.stream.centos.org URL for this repo
+# so we use the mirror.stream.centos.org URL here.
 [c9s-sig-cloud-okd]
 name=CentOS Stream 9 - SIG Cloud OKD 4.19
 baseurl=https://mirror.stream.centos.org/SIGs/9-stream/cloud/$basearch/okd-4.19/

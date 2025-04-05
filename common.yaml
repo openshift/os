@@ -31,15 +31,18 @@ conditional-include:
   - if: basearch != "s390x"
     # And remove some cruft from grub2
     include: fedora-coreos-config/manifests/grub2-removals.yaml
-  - if: osversion == "c9s"
-    include: manifest-el9-shared.yaml
-  - if: osversion == "rhel-9.6"
-    include: manifest-el9-shared.yaml
   # Packages specific to el9
   - if: osversion == "c9s"
-    include: fedora-coreos-config/manifests/shared-el9.yaml
+    include:
+      - fedora-coreos-config/manifests/shared-el9.yaml
+      - manifest-el9-shared.yaml
   - if: osversion == "rhel-9.6"
-    include: fedora-coreos-config/manifests/shared-el9.yaml
+    include:
+      - fedora-coreos-config/manifests/shared-el9.yaml
+      - manifest-el9-shared.yaml
+  - if: osversion == "c10s"
+    include:
+      - fedora-coreos-config/manifests/shared-el10.yaml
   - if: inherit_tier_x == true
     include: fedora-coreos-config/manifests/tier-x.yaml
   - if: inherit_tier_x == false
@@ -222,7 +225,6 @@ packages:
  # Bootloader updater
  - bootupd
  # Containers
- - containernetworking-plugins
  - container-selinux
  # Needed for newer rpm-ostree
  - "'skopeo >= 2:1.7.0'"
@@ -253,9 +255,6 @@ packages:
  - qemu-guest-agent
  # passwd was obsoleted by shadow-utils in F40+, but still needed here
  - passwd
- # Gluster - Used for Openshift e2e gluster testcases
- # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
- - glusterfs-fuse
  # Needed for kernel-devel extension: https://bugzilla.redhat.com/show_bug.cgi?id=1885408
  # x86_64 and s390x have these packages installed as dependencies of other packages, ppc64le does not
  # FIXME: once the below BZs have been resolved to remove perl dependencies, this can be done in the extensions script

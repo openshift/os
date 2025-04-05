@@ -25,9 +25,15 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     case "${major}" in
         9)
             repo_name=c9s.repo
+            if [ ! -e /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official ]; then
+                runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official-SHA256 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+            fi
             ;;
         10)
             repo_name=c10s.repo
+            if [ ! -e /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256 ]; then
+                runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official-SHA256 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+            fi
             ;;
         *)  fatal "Unhandled major RHEL/SCOS VERSION=${major}"
             ;;
@@ -36,7 +42,6 @@ case "${AUTOPKGTEST_REBOOT_MARK:-}" in
     # setup repos
     runv rm -rf /etc/yum.repos.d/*
     runv cp "$KOLA_EXT_DATA/$repo_name" /etc/yum.repos.d/cs.repo
-    runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
     # Disable all repos except baseos and appstream as not all of them have support for all RHCOS/SCOS supported architectures
     runv sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/cs.repo
     runv sed -i '/\[baseos\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/cs.repo

@@ -1,0 +1,36 @@
+# These are the official c10s repos. They are slower to update, but contain older
+# versions of packages, which is useful when pinning for lack of a "coreos-pool"
+# equivalent. When no pinning is needed you may find the compose repo URLs
+# defined in c10s.repo are quicker to get new content.
+
+[c10s-baseos-mirror]
+name=CentOS Stream 10 - BaseOS
+baseurl=https://mirror.stream.centos.org/10-stream/BaseOS/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+
+[c10s-appstream-mirror]
+name=CentOS Stream 10 - AppStream
+baseurl=https://mirror.stream.centos.org/10-stream/AppStream/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+
+[c10s-nfv-mirror]
+name=CentOS Stream 10 - NFV
+baseurl=https://mirror.stream.centos.org/10-stream/NFV/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+
+[c10s-rt-mirror]
+name=CentOS Stream 10 - RT
+baseurl=https://mirror.stream.centos.org/10-stream/RT/$basearch/os
+gpgcheck=1
+repo_gpgcheck=0
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256

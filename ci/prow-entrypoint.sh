@@ -82,16 +82,14 @@ cosa_build_extensions() {
 
 # Build QEMU image and run all kola tests
 kola_test_qemu() {
-    cosa buildextend-qemu
+    cosa osbuild qemu
     cosa kola run --parallel 2 --output-dir ${ARTIFACT_DIR:-/tmp}/kola --rerun --allow-rerun-success tags=needs-internet "$@"
 }
 
 # Build metal, metal4k & live images and run kola tests
 kola_test_metal() {
     # Build metal + installer now so we can test them
-    cosa buildextend-metal
-    cosa buildextend-metal4k
-    cosa buildextend-live
+    cosa osbuild metal metal4k live
 
     # Compress the metal and metal4k images now so we're testing
     # installs with the image format we ship
@@ -99,34 +97,6 @@ kola_test_metal() {
 
     # Run all testiso scenarios on metal artifact
     kola testiso -S --output-dir ${ARTIFACT_DIR:-/tmp}/kola-testiso  --denylist-test iso-offline-install-iscsi* --denylist-test pxe-offline-install.rootfs-appended.bios
-}
-
-# Ensure that we can create all platform images for COSA CI
-cosa_buildextend_all() {
-    cosa buildextend-aliyun
-    cosa buildextend-aws
-    cosa buildextend-azure
-    cosa buildextend-azurestack
-    cosa buildextend-dasd
-    cosa buildextend-gcp
-    cosa buildextend-ibmcloud
-    cosa buildextend-kubevirt
-    cosa buildextend-live
-    cosa buildextend-metal
-    cosa buildextend-metal4k
-    cosa buildextend-nutanix
-    cosa buildextend-openstack
-    cosa buildextend-powervs
-    cosa buildextend-vmware
-
-    # Will be done in another step
-    # cosa buildextend-qemu
-
-    # Currently not available for RHCOS
-    # cosa buildextend-digitalocean
-    # cosa buildextend-exoscale
-    # cosa buildextend-virtualbox
-    # cosa buildextend-vultr
 }
 
 # Basic syntaxt validation for manifests
@@ -312,10 +282,16 @@ main() {
             kola_test_metal
             ;;
         "scos-10-build-test-qemu")
-            exit 0
+            setup_user
+            cosa_init "c10s"
+            cosa_build
+            kola_test_qemu --tag '!openshift'
             ;;
         "scos-10-build-test-metal")
-            exit 0
+            setup_user
+            cosa_init "c10s"
+            cosa_build
+            kola_test_metal
             ;;
         "rhcos-10-build-test-qemu")
             exit 0
