@@ -22,6 +22,9 @@ repos:
   # For two-node-ha extension.
   # Repo placed here to respect the rule above.
   - rhel-9.6-highavailability
+  # For ipsec extension include the fast-datapath repo.
+  # Repo placed here to respect the rule above.
+  - rhel-9.6-fast-datapath
 
 extensions:
   # https://issues.redhat.com/browse/RFE-4177
@@ -33,8 +36,6 @@ extensions:
       - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
   ipsec:
-    repos:
-      - rhel-9.6-fast-datapath
     packages:
       - libreswan
       - NetworkManager-libreswan
