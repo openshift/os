@@ -6,20 +6,20 @@
 - pattern: basic.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
-    - c9s
-    - c10s
+    - centos-9
+    - centos-10
 
 - pattern: iso-live-login.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
-    - c9s
-    - c10s
+    - centos-9
+    - centos-10
 
 - pattern: iso-as-disk.uefi-secure
   tracker: https://github.com/openshift/os/issues/1237
   osversion:
-    - c9s
-    - c10s
+    - centos-9
+    - centos-10
 
 # The 4.17 and 4.18 build of Ignition encounters a FIPS panic so
 # we are using the 4.16 build for now while that is under investigation.
@@ -44,56 +44,56 @@
 - pattern: ostree.sync
   tracker: https://github.com/openshift/os/issues/1751
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 # Will fail until we have proper RHEL 10 builds of OCP packages
 - pattern: ext.config.version.rhel-major-version
   tracker: TODO
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 - pattern: multipath.day1
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 - pattern: multipath.day2
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 - pattern: multipath.partition
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 - pattern: iso-offline-install*mpath.bios
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 - pattern: ext.config.shared.root-reprovision.luks.multipath
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1894
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 # Waiting for submodule bump
 - pattern: ext.config.shared.networking.nm-ifcfg-rh-plugin
   tracker: https://github.com/openshift/os/pull/1759#issuecomment-2779700581
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
 
 # Waiting for submodule bump
 - pattern: ext.config.shared.networking.team-dhcp-via-ignition
   tracker: https://github.com/openshift/os/pull/1759#issuecomment-2779700581
   osversion:
-    - c10s
+    - centos-10
     - rhel-10.1
