@@ -1,0 +1,21 @@
+[Unit]
+Description=Update Bootloader for aarch64 systems
+Documentation=https://issues.redhat.com/browse/OCPBUGS-54594
+ConditionArchitecture=arm64
+ConditionFirmware=uefi
+ConditionKernelCommandLine=!ignition.firstboot
+ConditionPathExists=!/run/ostree-live
+ConditionPathExists=!/var/lib/coreos-update-bootloader-aarch64-OCPBUGS-54594.stamp
+RequiresMountsFor=/boot
+
+[Service]
+Type=oneshot
+# Only run once regardless of success or failure so we touch
+# our stamp file here.
+ExecStartPre=touch /var/lib/coreos-update-bootloader-aarch64-OCPBUGS-54594.stamp
+ExecStart=/usr/libexec/coreos-update-bootloader
+RemainAfterExit=yes
+MountFlags=slave
+
+[Install]
+WantedBy=multi-user.target

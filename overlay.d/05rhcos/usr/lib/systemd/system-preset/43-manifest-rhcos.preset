@@ -22,3 +22,8 @@ enable nmstate.service
 # This unit is not activated on OSTree systems, but it still pulls in
 # `network-online.target`. Explicitly disable it.
 disable dnf-makecache.timer
+
+# Enable the unit to update the bootloader on aarch64
+# machines so they can boot 9.6+ kernels.
+# https://issues.redhat.com/browse/OCPBUGS-54594
+enable coreos-bootupctl-update-aarch64.service
