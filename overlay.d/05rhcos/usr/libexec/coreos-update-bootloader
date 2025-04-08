@@ -1,0 +1,112 @@
+#!/bin/bash
+set -euo pipefail
+
+# https://issues.redhat.com/browse/OCPBUGS-54594
+
+# This script updates the bootloader using bootupd when it's safe
+# and manually otherwise. Right now bootupd doesn't support RAID-1
+# setups and also not sure of the behavior if there are multiple
+# EFI-SYSTEM labeled filesystems attached.
+
+# Function that actually does the manual copy
+copy_to_esp_device() {
+    local device=$1
+    mount $device /boot/efi
+    echo "[Before Update: ${device}]"
+    find /boot/efi/ -type f | xargs sha256sum
+    cp -rp /usr/lib/bootupd/updates/EFI /boot/efi
+    echo "[After Update: ${device}]"
+    find /boot/efi/ -type f | xargs sha256sum
+    umount /boot/efi
+}
+
+# Handle RAID case manually since bootupd doesn't support it.
+# https://github.com/coreos/bootupd/issues/132
+update_raid_esp() {
+    local boot_raid_device=$1
+    local devices_json="${2}"
+    echo "Detected boot raid device is: $boot_raid_device"
+    # Next we'll find all the devices that are a part of that
+    # RAID array that have an ESP (i.e. a vfat formatted partition
+    # with a label that starts with "esp-", like "esp-1", "esp-2").
+    # and we'll capture the device name for the partition.
+    esp_partitions=$(
+        jq --arg raid_device "${boot_raid_device}" -r '
+            .blockdevices[]
+            | select(.children[]?.children[]?.name == $raid_device)
+            | .children[]
+            | select(
+                (.fstype == "vfat") and
+                (.parttype == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b")
+              )
+            | .name' <<< "${devices_json}")
+    for part in $esp_partitions; do
+        echo "Found ESP replica in ${part}; updating"
+        copy_to_esp_device $part
+    done
+}
+
+main() {
+    # Grab the info about the systems disks from `lsblk`.
+    block_devices_json=$(lsblk --paths --output-all --json)
+
+    # Find the device the boot filesystem is mounted from
+    # (i.e. /dev/md126 or /dev/sda3).
+    boot_fs_device=$(findmnt -n -o SOURCE --target /boot)
+
+    # Grab the JSON for the boot partition (i.e. /dev/sda3). This partition
+    # could hold the filesystem directly or it could be a linux_raid_member
+    # in which case the $boot_fs_device will be in the "children" of this
+    # device. Choose .[0] here since we only need to look at the first device
+    # (only RAID will have more than 1 anyway).
+    boot_fs_partition_json=$(
+        jq --arg boot_fs_device "${boot_fs_device}" -r '
+            [
+            .blockdevices[].children[]?
+            | select(
+                .name == $boot_fs_device or
+                .children[]?.name == $boot_fs_device
+            )
+            ] | .[0]' <<< "${block_devices_json}")
+    if [ "${boot_fs_partition_json}" == "null" ]; then
+        echo "Couldn't gather information about ${boot_fs_device}" >&2
+        exit 1
+    fi
+
+    # Grab the partition fstype (useful to determine if it's RAID)
+    boot_fs_partition_fstype=$(jq -r '.fstype' <<< "${boot_fs_partition_json}")
+
+    # Determine how many devices are attached with ESP filesystems.
+    num_efi_system_devices=$(
+        jq -r '
+        [
+        .blockdevices[]
+        | select(.children[]?.parttype == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b")
+        ] | length' <<< "${block_devices_json}")
+
+    # Now do the updates based on what situation we are in.
+    if [ "${boot_fs_partition_fstype}" == 'linux_raid_member' ]; then
+        # If it's RAID we'll update manually.
+        update_raid_esp $boot_fs_device "${block_devices_json}"
+    elif [ "${num_efi_system_devices}" -gt 1 ]; then
+        echo "Detected more than one ESP device in a non-RAID setup"
+        echo "Falling back to manual copy"
+        # If there is more than one ESP device in a non-RAID setup
+        # then we'll need to manually do the copy to make sure we
+        # copy only to the device we're booted from.
+        esp_device=$(
+            jq --arg boot_fs_device "$boot_fs_device" -r '
+            .blockdevices[]
+            | select(.children[]?.name == $boot_fs_device)
+            | .children[]
+            | select(.parttype == "c12a7328-f81f-11d2-ba4b-00a0c93ec93b")
+            | .name' <<< "${block_devices_json}")
+        copy_to_esp_device $esp_device
+    else
+        echo "Found ESP; calling 'bootupctl update'"
+        bootupctl update
+    fi
+    sync # write data out to backing devices
+}
+
+main
