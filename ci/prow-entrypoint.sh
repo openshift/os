@@ -294,10 +294,16 @@ main() {
             kola_test_metal
             ;;
         "rhcos-10-build-test-qemu")
-            exit 0
+            setup_user
+            cosa_init "rhel-10.1"
+            cosa_build
+            kola_test_qemu --tag '!openshift'
             ;;
         "rhcos-10-build-test-metal")
-            exit 0
+            setup_user
+            cosa_init "rhel-10.1"
+            cosa_build
+            kola_test_metal
             ;;
         *)
             # This case ensures that we exhaustively list the tests that should

@@ -32,7 +32,7 @@ conditional-include:
     # And remove some cruft from grub2
     include: fedora-coreos-config/manifests/grub2-removals.yaml
   # Packages specific to el9
-  - if: osversion == "c9s"
+  - if: osversion == "centos-9"
     include:
       - fedora-coreos-config/manifests/shared-el9.yaml
       - manifest-el9-shared.yaml
@@ -40,7 +40,7 @@ conditional-include:
     include:
       - fedora-coreos-config/manifests/shared-el9.yaml
       - manifest-el9-shared.yaml
-  - if: osversion == "c10s"
+  - if: osversion == "centos-10"
     include:
       - fedora-coreos-config/manifests/shared-el10.yaml
   - if: inherit_tier_x == true

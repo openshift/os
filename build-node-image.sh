@@ -1,7 +1,7 @@
 #!/bin/bash
-set -euo pipefail
+set -euxo pipefail
 
-# This script builds the OpenShift node image. It's called from `Containerfile`.    set -xeuo pipefail
+# This script builds the OpenShift node image. It's called from `Containerfile`.
 
 # Avoid shipping modified .pyc files. Due to
 # https://github.com/ostreedev/ostree/issues/1469, any Python apps that
@@ -35,7 +35,7 @@ mkdir -p /var/opt
 
 # this is where all the real work happens
 rpm-ostree experimental compose treefile-apply \
-    --var id=$ID /run/src/packages-openshift.yaml
+    --var "osversion=${ID}-${VERSION_ID}" /run/src/packages-openshift.yaml
 
 # cleanup any repo files we injected
 rm -f /etc/yum.repos.d/{ocp,git,okd}.repo

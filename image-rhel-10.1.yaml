@@ -1,0 +1,34 @@
+# See https://github.com/coreos/coreos-assembler/pull/298
+size: 16
+
+# We default to a container image
+deploy-via-container: true
+
+# Disable networking by default on firstboot. We can drop this once cosa stops
+# defaulting to `ip=dhcp,dhcp6 rd.neednet=1` when it doesn't see this key.
+ignition-network-kcmdline: []
+
+# add the requisite OCP metadata to our container image
+# but xref https://github.com/openshift/os/issues/1047
+ostree-container-inject-openshift-cvo-labels: true
+
+# vmware-secure-boot changes the EFI secure boot option.
+# set false here due to https://bugzilla.redhat.com/show_bug.cgi?id=2106055
+vmware-secure-boot: false
+
+# rhel9_64Guest requires hardware version 18 and vSphere 7.0U3
+# https://kb.vmware.com/s/article/88157
+vmware-os-type: rhel8_64Guest
+# VMware hardware versions: https://kb.vmware.com/s/article/1003746
+# Supported VMware versions: https://lifecycle.vmware.com/
+vmware-hw-version: 15
+
+# see https://github.com/coreos/coreos-assembler/pull/3607
+# Defaults for AWS
+aws-imdsv2-only: false
+aws-volume-type: "gp2"
+aws-x86-boot-mode: "legacy-bios"
+
+# Enable 'erofs' by default for the rootfs in the Live ISO/PXE artifacts
+live-rootfs-fstype: "erofs"
+live-rootfs-fsoptions: "-zlzma,level=6 -Eall-fragments,fragdedupe=inode -C1048576 --quiet"

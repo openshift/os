@@ -5,7 +5,14 @@ metadata:
   ocp_version: "4.19"
 
 conditional-include:
-  - if: id == "rhel"
+  - if:
+    - osversion != "rhel-9.6"
+    - osversion != "rhel-10.1"
+    - osversion != "centos-9"
+    - osversion != "centos-10"
+    include:
+      repos: [ENOEXIST] # We want an error in this case
+  - if: osversion == "rhel-9.6"
     include:
       repos:
         - rhel-9.6-baseos
@@ -13,14 +20,37 @@ conditional-include:
         - rhel-9.6-early-kernel
         - rhel-9.6-fast-datapath
         - rhel-9.6-server-ose-4.19
-  - if: id == "centos"
+  - if: osversion == "rhel-10.1"
+    include:
+      repos:
+        - rhel-10.1-baseos
+        - rhel-10.1-appstream
+        #- rhel-10.1-early-kernel
+        # XXX Not built for rhel 10 yet
+        #- rhel-10.1-fast-datapath
+        #- rhel-10.1-server-ose-4.19
+        - rhel-9.6-fast-datapath
+        - rhel-9.6-server-ose-4.19
+        - rhel-9.6-appstream-containernetworking
+  - if: osversion == "centos-9"
     include:
       repos:
         - c9s-baseos
         - c9s-appstream
         - c9s-sig-nfv
         - c9s-sig-cloud-okd
-        # XXX: this shouldn't be here; see related XXX in Containerfile
+        # XXX: this shouldn't be here; see related XXX in build-node-image.sh
+        - rhel-9.6-server-ose-4.19-okd
+  - if: osversion == "centos-10"
+    include:
+      repos:
+        - c10s-baseos
+        - c10s-appstream
+        - c10s-sig-nfv
+        - c10s-sig-cloud-okd
+        # XXX: this shouldn't be here; see related XXX in build-node-image.sh
+        # XXX: using 9.6 repo for now until 10.1 plashets exist
+        # - rhel-10.1-server-ose-4.19-okd
         - rhel-9.6-server-ose-4.19-okd
 
 packages:
