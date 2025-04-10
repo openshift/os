@@ -2,17 +2,17 @@
 # -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; -*-
 # ex: ts=8 sw=4 sts=4 et filetype=sh
 
-# We want to provide Azure udev rules as part of the initrd, so that Ignition
-# is able to detect disks and act on them.
+# These udev rules support certain VM types that present managed disks as
+# NVMe devices instead of traditional SCSI devices (e.g. Standard_M16bds_v3,
+# Standard_M16bs_v3, Standard_L8s_v4). The rules allow the Azure Disk CSI
+# driver to perform LUN-based disk detection when mounting these NVMe disks.
+# The azure-vm-utils package provides these udev rules[1], but it wont be added
+# until EL10 [2]. This can be dropped when moving to EL10, provided the
+# package is included at that time.
 #
-# The WALinuxAgent-udev has been changed to install udev rules into
-# the initramfs [1], but that change isn't in el8 yet. This can be
-# dropped when moving to el9.
-#
-# [1] https://src.fedoraproject.org/rpms/WALinuxAgent/c/521b67bc8575f53a30b4b2c4e63292e67483a4e1?branch=rawhide
+# [1] https://github.com/Azure/azure-vm-utils/blob/9c596916b6774f24420dac0ee7a72a6c9ddb5060/udev/80-azure-disk.rules
+# [2] https://issues.redhat.com/browse/RHEL-73904
 
 install() {
-    inst_multiple \
-        /usr/lib/udev/rules.d/66-azure-storage.rules \
-        /usr/lib/udev/rules.d/99-azure-product-uuid.rules
+    inst_rules /usr/lib/udev/rules.d/80-azure-disk.rules
 }

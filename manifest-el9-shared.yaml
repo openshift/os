@@ -14,6 +14,13 @@ remove-from-packages:
   - - zram-generator
     - "/usr/lib/systemd/zram-generator.conf"
 
+# The azure-vm-utils package provides these udev rules, but it wont be added
+# until EL10[1]. This can be dropped when moving to EL10, provided the
+# package is included at that time.
+# [1]:https://issues.redhat.com/browse/RHEL-73904
+ostree-layers:
+  - overlay/25rhcos-azure-udev
+
 postprocess:
   - |
     #!/usr/bin/bash
