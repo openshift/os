@@ -109,3 +109,11 @@
   tracker: https://issues.redhat.com/browse/RHEL-86436
   osversion:
     - rhel-10.1
+
+- pattern: ext.config.rpm-ostree.replace-rt-kernel
+  tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1923
+  arches:
+    - ppc64le
+  osversion:
+    - centos-10
+    - rhel-10.1
