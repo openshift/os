@@ -25,8 +25,9 @@ postprocess:
   - |
     #!/usr/bin/bash
     set -xeuo pipefail
-    # Disable composefs for now on el9 due to ppc64le/kernel-64k bugs:
-    # https://issues.redhat.com/browse/RHEL-63985
+    # Set composefs to `maybe` for now because older bootimages
+    # could be starting with an OSTree that's not new enough.
+    # https://github.com/openshift/os/issues/1678
     if [ -f /usr/lib/ostree/prepare-root.conf ]; then
       grep -q 'enabled = true' /usr/lib/ostree/prepare-root.conf
       sed -i -e 's,enabled = true,enabled = maybe,' /usr/lib/ostree/prepare-root.conf
