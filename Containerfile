@@ -27,7 +27,7 @@
 #   --security-opt label=disable -t localhost/openshift-node-c9s \
 #   src/config
 
-FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos as build
+FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c10s-coreos as build
 ARG OPENSHIFT_CI=0
 RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/etc/yum.repos.d/secret.repo /run/src/build-node-image.sh
 
