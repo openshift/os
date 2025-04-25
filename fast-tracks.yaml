@@ -1,0 +1,13 @@
+c9s-appstream-back-tracks:
+  from: c9s-appstream
+  packages:
+    # While we wait we can pull this from c9s
+    # https://gitlab.com/redhat/centos-stream/release-engineering/pungi-centos/-/merge_requests/969
+    - ignition*
+rhel-9.6-server-ose-4.19-back-tracks:
+  from: rhel-9.6-server-ose-4.19
+  packages:
+    # While we wait we can pull this from rhel-9.6 openshift rhaos repos
+    # https://gitlab.com/redhat/centos-stream/release-engineering/pungi-centos/-/merge_requests/969
+    # which will then flow into RHEL 10.1.
+    - ignition*

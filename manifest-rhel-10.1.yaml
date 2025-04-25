@@ -20,6 +20,10 @@ repos:
   - rhel-10.1-appstream
   # Early kernel repo not available for now
   # - rhel-10.1-early-kernel
+  # While we wait we can pull this from rhel-9.6
+  # https://gitlab.com/redhat/centos-stream/release-engineering/pungi-centos/-/merge_requests/969
+  # which will then flow into RHEL 10.1.
+  - rhel-9.6-server-ose-4.19-back-tracks
 
 automatic-version-prefix: "10.1.<date:%Y%m%d>"
 # This ensures we're semver-compatible which OpenShift wants

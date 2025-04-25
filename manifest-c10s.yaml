@@ -18,6 +18,9 @@ repos:
   - c10s-baseos
   - c10s-appstream
   - c10s-extras-common
+  # While we wait we can pull this from c9s
+  # https://gitlab.com/redhat/centos-stream/release-engineering/pungi-centos/-/merge_requests/969
+  - c9s-appstream-back-tracks
 
 automatic-version-prefix: "10.0.<date:%Y%m%d>"
 # This ensures we're semver-compatible which OpenShift wants
