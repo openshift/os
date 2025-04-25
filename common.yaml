@@ -6,6 +6,7 @@ include:
   - fedora-coreos-config/manifests/file-transfer.yaml
   - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
+  - fedora-coreos-config/manifests/tier-x.yaml
   # RHCOS owned packages
   - packages-rhcos.yaml
 
@@ -41,10 +42,6 @@ conditional-include:
   - if: osversion == "centos-10"
     include:
       - fedora-coreos-config/manifests/shared-el10.yaml
-  - if: inherit_tier_x == true
-    include: fedora-coreos-config/manifests/tier-x.yaml
-  - if: inherit_tier_x == false
-    include: fedora-coreos-config/manifests/tier-x-dupes.yaml
 
 documentation: false
 
