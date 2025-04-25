@@ -27,9 +27,6 @@ ostree-layers:
   - overlay/30lvmdevices
 
 conditional-include:
-  - if: basearch != "s390x"
-    # And remove some cruft from grub2
-    include: fedora-coreos-config/manifests/grub2-removals.yaml
   # Packages specific to el9
   - if: osversion == "centos-9"
     include:
