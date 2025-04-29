@@ -18,7 +18,6 @@ RUN rm -f /etc/yum.repos.d/*.repo \
 && curl -L https://raw.githubusercontent.com/coreos/fedora-coreos-config/testing-devel/fedora-archive.repo -o /etc/yum.repos.d/fedora-archive.repo
 RUN dnf install -y createrepo_c
 RUN createrepo_c /usr/share/rpm-ostree/extensions/
-
 # Generate extensions.json for meta.json.
 # Use dnf repoquery to print 'name: version,' for each RPM
 # sed to remove the comma from the last RPM
