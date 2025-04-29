@@ -117,11 +117,3 @@
   osversion:
     - centos-10
     - rhel-10.1
-
-# We are currently adding a dead symlink to allow MCO to install a pacemaker
-# resource agent in Two Node OpenShift with Fencing (TNF). This will be removed
-# once the underlying agent is shipped as part of the `two-node-ha` extension
-# and the TNF controller in etcd is updated to initialize pacemaker clusters
-# via the version shipped in the extension.
-- pattern: ext.config.shared.files.validate-symlinks
-  tracker: https://issues.redhat.com/browse/OCPEDGE-1706
