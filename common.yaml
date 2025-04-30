@@ -6,7 +6,7 @@ include:
   - fedora-coreos-config/manifests/file-transfer.yaml
   - fedora-coreos-config/manifests/networking-tools.yaml
   - fedora-coreos-config/manifests/user-experience.yaml
-  - fedora-coreos-config/manifests/shared-workarounds.yaml
+  - fedora-coreos-config/manifests/tier-x.yaml
   # RHCOS owned packages
   - packages-rhcos.yaml
 
@@ -25,12 +25,8 @@ ostree-layers:
   - overlay/30rhcos-nvme-compat-udev
   - overlay/30gcp-udev-rules
   - overlay/30lvmdevices
-  - overlay/40grub
 
 conditional-include:
-  - if: basearch != "s390x"
-    # And remove some cruft from grub2
-    include: fedora-coreos-config/manifests/grub2-removals.yaml
   # Packages specific to el9
   - if: osversion == "centos-9"
     include:
@@ -43,10 +39,6 @@ conditional-include:
   - if: osversion == "centos-10"
     include:
       - fedora-coreos-config/manifests/shared-el10.yaml
-  - if: inherit_tier_x == true
-    include: fedora-coreos-config/manifests/tier-x.yaml
-  - if: inherit_tier_x == false
-    include: fedora-coreos-config/manifests/tier-x-dupes.yaml
 
 documentation: false
 
