@@ -1,1 +1,1 @@
-../../../../fedora-coreos-config/tests/kola/data/commonlib.sh
+../../data/commonlib.sh
