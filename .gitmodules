@@ -1,4 +1,0 @@
-[submodule "fedora-coreos-config"]
-	path = fedora-coreos-config
-	url = https://github.com/coreos/fedora-coreos-config
-	branch = testing-devel
