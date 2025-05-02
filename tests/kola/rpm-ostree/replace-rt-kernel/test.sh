@@ -22,22 +22,19 @@ basearch=$(arch)
 case "${AUTOPKGTEST_REBOOT_MARK:-}" in
 "")
     major=$(. /usr/lib/os-release && echo "${CPE_NAME}" | grep -Eo '[0-9]{1,2}')
-    case "${major}" in
-        9)
-            repo_name=c9s.repo
-            if [ ! -e /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official ]; then
-                runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official-SHA256 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
-            fi
-            ;;
-        10)
-            repo_name=c10s.repo
-            if [ ! -e /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256 ]; then
-                runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official-SHA256 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
-            fi
-            ;;
-        *)  fatal "Unhandled major RHEL/SCOS VERSION=${major}"
-            ;;
-    esac
+    if match_maj_ver "9"; then
+        repo_name=c9s.repo
+        if [ ! -e /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official ]; then
+            runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official-SHA256 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-Official
+        fi
+    elif match_maj_ver "10"; then
+        repo_name=c10s.repo
+        if [ ! -e /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256 ]; then
+            runv curl -sSLf https://centos.org/keys/RPM-GPG-KEY-CentOS-Official-SHA256 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
+        fi
+    else
+        fatal "Unhandled major RHEL/SCOS VERSION=${major}"
+    fi
 
     # setup repos
     runv rm -rf /etc/yum.repos.d/*
