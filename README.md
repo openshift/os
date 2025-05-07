@@ -1,32 +1,27 @@
-# RHEL CoreOS and CentOS Stream CoreOS config
+# OpenShift Node Image
 
-This repository is the "config" repository used to build RHEL CoreOS and CentOS
-Stream CoreOS using [coreos-assembler].
+This repository defines the OpenShift node image. This is the `rhel-coreos` or
+`stream-coreos` image in the OpenShift release payload.
 
-There was a previous git repository inside the Red Hat firewall that was never
-published. The history of that repository is entangled with various private
-things and is omitted. This repository is now canonical.
+The extensions image (i.e. `rhel-coreos-extensions`) is also defined here, in
+[the extensions directory](extensions/).
 
-## Variants
+> [!NOTE]
+> Historically, this repo also contained the manifests for RHEL CoreOS (RHCOS)
+> and CentOS Stream CoreOS (SCOS). These manifests now live [in a separate
+> repo](https://github.com/coreos/rhel-coreos-config). That repo produces a
+> _base image_ containing only RHEL/CentOS Stream content. _This_ repo builds
+> `FROM` that base image and adds OpenShift components (`kubelet`, `oc`,
+> `cri-o`, etc.).
 
-To support building both a RHEL-based and a CentOS Stream-based CoreOS, the
-coreos-assembler concept of [variants] is used. The following variants are
-supported:
+## Building
 
-- `rhel-9.6`: RHEL 9.6-based CoreOS; without OpenShift components.
-- `ocp-rhel-9.6`: RHEL 9.6-based CoreOS; including OpenShift components.
-- `c9s`/`c10s`: CentOS Stream-based CoreOS, without OKD components.
-- `rhel-10.1`: RHEL 10.1-based CoreOS; without OpenShift components.
-
-In the future, the `ocp-*` variants will be removed. Instead, OpenShift
-components will be layered by deriving from the `rhel-9.X`/`rhel-10.X`/`c9s`/`c10s` images.
-
-The default variant is `ocp-rhel-9.6`.
+See the instructions in [building.md](docs/building.md).
 
 ## Reporting issues
 
-The issue tracker for this repository is only used to track the development
-work related to RHEL CoreOS.
+The issue tracker for this repository is only used to track the development work
+related to the OpenShift node image.
 
 **Please report OKD or CentOS Stream CoreOS issues in the [OKD issue tracker].**
 
@@ -35,18 +30,6 @@ work related to RHEL CoreOS.
 ## Frequently Asked Questions
 
 A lot of common questions are answered in the [FAQ](docs/faq.md).
-
-## Building and developing CentOS Stream CoreOS
-
-See the [SCOS development doc](docs/development-scos.md).
-
-## Building and developing RHEL CoreOS
-
-See the [RHCOS development doc](docs/development-rhcos.md).
-
-## CI Configuration
-
-See [OpenShift CI notes](docs/openshift-ci-notes.md) for more information.
 
 [coreos-assembler]: https://github.com/coreos/coreos-assembler/
 [OKD issue tracker]: https://github.com/openshift/okd/issues
