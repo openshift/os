@@ -69,7 +69,6 @@ extensions:
       - c10s-nfv
     packages:
       - kernel-rt-core
-      - kernel-rt-kvm
       - kernel-rt-modules
       - kernel-rt-modules-extra
       - kernel-rt-devel
