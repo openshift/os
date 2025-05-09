@@ -1,5 +1,0 @@
-# This is a poor man's version of an override lockfile for rhel-10.1. When needed
-# we gather any overrides NEVRs here to keep them in one place. When not needed,
-# empty or comment out this file (except this comment).
-
-#packages:
