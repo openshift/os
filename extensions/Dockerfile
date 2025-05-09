@@ -1,5 +1,11 @@
 ## Downloads the extensions given the extensions.yaml
-FROM registry.ci.openshift.org/rhcos-devel/rhel-coreos:latest as os
+# To build this, you will have to use `--from` to override the base
+# image with the one built from ./Containerfile living at the root of
+# the project. E.g:
+#
+# podman build --from localhost/pipeline:stream-coreos ...
+#
+FROM overridden as os
 # Expects os to be cloned and this build run from the top level dir like:
 # podman build -f extensions/Dockerfile .
 # also expects submodules to be initialized
@@ -24,7 +30,7 @@ RUN (echo "{" && \
 sed "$ s/,$//") && echo "}") >> /usr/share/rpm-ostree/extensions.json
 
 ## Final container that has the extensions repo dir
-FROM registry.access.redhat.com/ubi9/ubi:latest
+FROM registry.access.redhat.com/ubi10-beta/ubi:latest
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 # Make this the last layer, this is similar to the metalayer trick in the node
 # image, but this one is specific to rpm-ostree extensions.
