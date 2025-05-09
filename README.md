@@ -14,6 +14,23 @@ The extensions image (i.e. `rhel-coreos-extensions`) is also defined here, in
 > `FROM` that base image and adds OpenShift components (`kubelet`, `oc`,
 > `cri-o`, etc.).
 
+```mermaid
+flowchart BT
+    el_rpms["RHEL/CentOS Stream RPMs"]
+    ocp_rpms["OpenShift RPMs"]
+    node["OCP/OKD node layer
+          (cri-o, kubelet, oc, ...)"]
+    coreos["RHCOS/SCOS base
+            (kernel, systemd, ...)"]
+
+    subgraph Node Image
+        coreos ~~~ node
+    end
+    
+    ocp_rpms --> node
+    el_rpms --> coreos
+```
+
 ## Building
 
 See the instructions in [building.md](docs/building.md).
