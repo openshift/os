@@ -13,12 +13,6 @@ repos:
   # For crun-wasm (wasm) and kata-containers (sandboxed-containers).
   # Repo placed here to respect the rule above.
   - rhel-9.6-server-ose-4.19
-  # XXX: temporarily add rhel-9.4-appstream for crun-wasm since llvm
-  # libraries can't be found in rhel-9.6-appstream.
-  # https://github.com/openshift/os/issues/1680
-  # https://issues.redhat.com/browse/COS-3075
-  # Repo placed here to respect the rule above.
-  - rhel-9.4-appstream
   # For two-node-ha extension.
   # Repo placed here to respect the rule above.
   - rhel-9.6-highavailability
