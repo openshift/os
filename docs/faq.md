@@ -143,19 +143,32 @@ RHCOS/OCP version | RHEL version
 
 ## Q: How do I determine what version of an RPM is included in an RHCOS release?
 
-Since OpenShift 4.12, the operating system is shipped as a bootable container image.  See [layering docs](https://docs.openshift.com/container-platform/4.12/post_installation_configuration/coreos-layering.html#coreos-layering).
+In the future, the package list for a given OCP release will be displayed in [the OpenShift release controller](https://amd64.ocp.releases.ci.openshift.org/). Currently, only diffs are displayed.
 
-For example, you can do:
+Starting from 4.19+, it's possible to query the RPM list using `oc`:
+
+```
+$ # note this requires a pull secret set up at the canonical locations or in $REGISTRY_AUTH_FILE
+$ oc adm release info --rpmdb --rpmdb-cache=/tmp/rpmdbs \
+    quay.io/openshift-release-dev/ocp-release:4.20.0-ec.0-x86_64
+Package contents:
+  NetworkManager-1:1.52.0-1.el9_6
+  ...
+```
+
+This is a cheap operation and _does not_ download the whole image.
+
+For older releases, you can use the OpenShift release controller to get a link to the internal RHEL CoreOS release browser. Alternatively, since 4.12, the operating system is shipped as a bootable container image, which means you can do:
 
 ```bash
-$ podman run --rm -ti $(oc adm release info --image-for=rhel-coreos-8 quay.io/openshift-release-dev/ocp-release:4.12.13-x86_64) rpm -q kernel
-kernel-4.18.0-372.51.1.el8_6.x86_64
+$ podman run --rm -ti $(oc adm release info --image-for=rhel-coreos quay.io/openshift-release-dev/ocp-release:4.18.14-x86_64) rpm -q kernel
+kernel-5.14.0-427.68.1.el9_4.x86_64
 $
 ```
 
-(Note in OpenShift 4.13+, the image name is `rhel-coreos`)
+But note this downloads the whole image. Also note that for OpenShift 4.12, the image name was `rhel-coreos-8` and not `rhel-coreos`.
 
-For older releases using `machine-os-content`, key packages such as the kernel are exposed as metadata properties:
+For releases older than 4.12 which used `machine-os-content`, key packages such as the kernel are exposed as metadata properties:
 
 ```bash
 $ oc image info (oc adm release info --image-for=machine-os-content quay.io/openshift-release-dev/ocp-release:4.9.0-rc.1-x86_64) | grep com.coreos.rpm
@@ -170,22 +183,6 @@ $ oc image info (oc adm release info --image-for=machine-os-content quay.io/open
 $
 ```
 
-The full contents of each RHCOS release are visible in the [release browser](https://releases-rhcos-art.apps.ocp-virt.prod.psi.redhat.com/) via the "OS contents" link next to each build.
-It's a known issue (bug) that this web page is only accessible inside the private RHT network.
-
-Alternately, you can query the metadata directly (but note that this URL is subject to change).
-
-```bash
-$ curl -Ls https://releases-rhcos-art.apps.ocp-virt.prod.psi.redhat.com/storage/releases/rhcos-4.5/45.82.202007140205-0/x86_64/commitmeta.json | jq '.["rpmostree.rpmdb.pkglist"][] | select(.[0] == "cri-o")'
-[
-  "cri-o",
-  "0",
-  "1.18.2",
-  "18.rhaos4.5.git754d46b.el8",
-  "x86_64"
-]
-```
-
 ## Q: How do I manually find the extension RPMs?
 
 In 4.12 and earlier, the extension RPMs are shipped as part of the
@@ -194,10 +191,23 @@ can use `oc adm release info` to get the `machine-os-content` image URL for a
 particular release, and then e.g. use `oc image extract` or `podman create` +
 `podman copy` to extract the RPMs.
 
-In 4.13 and later, extensions are shipped as a separate image. The image label is
-`rhel-coreos-8-extensions` and the RPMs are located in `/usr/share/rpm-ostree/extensions`.
+In 4.13 and later, extensions are shipped as a separate image. The image name is
+`rhel-coreos-extensions` and the RPMs are located in `/usr/share/rpm-ostree/extensions`.
 The container also works as an HTTP server serving repodata containing the extensions
 RPMs (port 9091).
+
+In 4.19 and later, it's possible to cheaply query the extensions list:
+
+```bash
+$ oc image extract "$(oc adm release info --image-for=rhel-coreos-extensions quay.io/openshift-release-dev/ocp-release:4.19.0-rc.3-x86_64)[-1]" --file usr/share/rpm-ostree/extensions.json
+$ jq . extensions.json
+{
+  "NetworkManager-libreswan": "1.2.24-1.el9.x86_64",
+  "bison": "3.7.4-5.el9.x86_64",
+  "capstone": "4.0.2-10.el9.x86_64",
+  "corosync": "3.1.9-2.el9_6.x86_64",
+  ...
+```
 
 ## Q: How do I debug Ignition failures?
 
