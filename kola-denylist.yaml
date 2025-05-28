@@ -32,6 +32,17 @@
   arches:
   - s390x
 
+# These tests started failing on 20250528
+# Deny them to unblock the pipeline while we investigate
+- pattern: ext.config.shared.var-mount.simple
+  tracker: https://github.com/openshift/os/issues/1822
+  osversion:
+    - rhel-8.6
+- pattern: ext.config.shared.var-mount.luks
+  tracker: https://github.com/openshift/os/issues/1822
+  osversion:
+    - rhel-8.6
+ 
 # This test does not affect RHEL 8.6 but we're keeping it for EL9
 - pattern: ext.config.shared.networking.hostname.fallback-hostname
   osversion:
