@@ -143,9 +143,21 @@ RHCOS/OCP version | RHEL version
 
 ## Q: How do I determine what version of an RPM is included in an RHCOS release?
 
-In the future, the package list for a given OCP release will be displayed in [the OpenShift release controller](https://amd64.ocp.releases.ci.openshift.org/). Currently, only diffs are displayed.
+One normally does not care about a specific RHCOS release, but rather a specific
+_OpenShift release_. In that case, head over to [the release controller's
+page](https://amd64.ocp.releases.ci.openshift.org/) for that release. (Other
+arches: [arm64](https://arm64.ocp.releases.ci.openshift.org/),
+[s390x](https://s390x.ocp.releases.ci.openshift.org/),
+[ppc64le](https://ppc64le.ocp.releases.ci.openshift.org/).)
 
-Starting from 4.19+, it's possible to query the RPM list using `oc`:
+For 4.19 and newer, the package list is rendered by the release controller
+itself in the Node Image Info section. For 4.18 and older, the release
+controller will link to the internal RHCOS build browser (VPN required).
+
+### Finding RPM information from the CLI
+
+It is also possible to get this information from the CLI but it requires a pull
+secret. Starting from 4.19+, it's possible to query the RPM list using `oc`:
 
 ```
 $ # note this requires a pull secret set up at the canonical locations or in $REGISTRY_AUTH_FILE
@@ -185,16 +197,15 @@ $
 
 ## Q: How do I manually find the extension RPMs?
 
-In 4.12 and earlier, the extension RPMs are shipped as part of the
-`machine-os-content` image (in the `/extensions` directory of the image). As above, you
-can use `oc adm release info` to get the `machine-os-content` image URL for a
-particular release, and then e.g. use `oc image extract` or `podman create` +
-`podman copy` to extract the RPMs.
+As above, first check the release controller's page for the OpenShift release
+you're interested in. 
 
-In 4.13 and later, extensions are shipped as a separate image. The image name is
-`rhel-coreos-extensions` and the RPMs are located in `/usr/share/rpm-ostree/extensions`.
-The container also works as an HTTP server serving repodata containing the extensions
-RPMs (port 9091).
+For 4.19 and later, this information is rendered by the release controller
+itself in the Node Image Info section. For older releases, the release
+controller will link to the RHCOS release browser (VPN required) where extension
+metadata is available.
+
+### Finding extensions RPM information from the CLI
 
 In 4.19 and later, it's possible to cheaply query the extensions list:
 
@@ -208,6 +219,17 @@ $ jq . extensions.json
   "corosync": "3.1.9-2.el9_6.x86_64",
   ...
 ```
+
+In 4.13 and later, extensions are shipped as a separate image. The image name is
+`rhel-coreos-extensions` and the RPMs are located in `/usr/share/rpm-ostree/extensions`.
+The container also works as an HTTP server serving repodata containing the extensions
+RPMs (port 9091).
+
+In 4.12 and earlier, the extension RPMs are shipped as part of the
+`machine-os-content` image (in the `/extensions` directory of the image). As above, you
+can use `oc adm release info` to get the `machine-os-content` image URL for a
+particular release, and then e.g. use `oc image extract` or `podman create` +
+`podman copy` to extract the RPMs.
 
 ## Q: How do I debug Ignition failures?
 
