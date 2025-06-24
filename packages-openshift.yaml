@@ -189,15 +189,6 @@ postprocess:
     ---
     EOF
 
-  # Inject symlink for Two Node OpenShift with Fencing (TNF)
-  # This is a workaround to allow pacemaker to use a pre-release resource agent for etcd
-  # This should be removed after https://issues.redhat.com/browse/OCPEDGE-1706 is completed
-  - |
-    #!/usr/bin/env bash
-    set -xeuo pipefail
-    mkdir -p /usr/lib/ocf/resource.d/ocp-tnf
-    ln -s /usr/local/lib/ocf/resource.d/ocp-tnf/podman-etcd /usr/lib/ocf/resource.d/ocp-tnf/podman-etcd
-
   - |
     #!/usr/bin/env bash
     set -xeo pipefail
