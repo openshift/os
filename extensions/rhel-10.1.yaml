@@ -23,13 +23,14 @@ repos:
   # - rhel-10.1-fast-datapath
 
 extensions:
-  # https://issues.redhat.com/browse/RFE-4177
-  wasm:
-    architectures:
-      - x86_64
-      - aarch64
-    packages:
-      - crun-wasm
+  # Uncomment when the server-ose-4.20 repo exists for RHEL 10
+  # # https://issues.redhat.com/browse/RFE-4177
+  # wasm:
+  #   architectures:
+  #     - x86_64
+  #     - aarch64
+  #   packages:
+  #     - crun-wasm
  # Uncomment once fast-datapath repo exists for RHEL 10
  ## https://github.com/coreos/fedora-coreos-tracker/issues/1504
  #ipsec:
