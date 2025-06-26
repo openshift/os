@@ -3,7 +3,7 @@ packages:
   # but are not present in CentOS Stream and RHEL.
   - cri-o cri-tools conmon-rs
   - openshift-clients openshift-kubelet
-  - openvswitch3.4
+  - openvswitch3.5
   # The packages below are present in CentOS Stream/RHEL,
   # and depend on one or more of the above.
   - NetworkManager-ovs
