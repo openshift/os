@@ -99,3 +99,12 @@
 
 - pattern: ext.config.shared.multipath.resilient
   tracker: https://github.com/coreos/fedora-coreos-tracker/issues/1937
+
+- pattern: ostree.remote
+  tracker: https://github.com/coreos/rhel-coreos-config/issues/34
+  snooze: 2025-07-05
+  arches:
+    - x86_64
+    - aarch64
+    - ppc64le
+    - s390x
