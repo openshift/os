@@ -28,6 +28,16 @@ install() {
     inst_simple "$moddir/rhcos-fips-dracut-boot-fix.service" \
         "$systemdsystemunitdir/rhcos-fips-dracut-boot-fix.service"
 
+    # Golang 1.22 requires the fips shared object in the initrd to determine
+    # whether the system is in FIPS mode and ignition will panic if its missing
+    local src="/usr/lib64/ossl-modules/fips.so"
+    local dest="/usr/lib64/ossl-modules/fips.so"
+    if [ -f "$src" ]; then
+        inst_simple "$src" "$dest"
+    else
+        echo "Warning: $src not found!"
+    fi
+
     # Unconditionally include /etc/system-fips in the initrd. This has no
     # practical effect if fips=1 isn't also enabled. OTOH, it is a *requirement*
     # for a true FIPS boot: https://bugzilla.redhat.com/show_bug.cgi?id=1778940
