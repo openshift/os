@@ -1,0 +1,5 @@
+- pattern: ext.config.version.rhaos-pkgs-match-openshift
+  tracker: https://github.com/openshift/os/issues/1847
+  streams:
+    - 4.19-9.6
+    - 4.20-9.6
