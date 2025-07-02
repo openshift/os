@@ -1,0 +1,2 @@
+- pattern: ext.config.version.rhaos-pkgs-match-openshift
+  tracker: https://issues.redhat.com/projects/OCPBUGS/issues/OCPBUGS-58271

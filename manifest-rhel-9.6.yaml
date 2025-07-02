@@ -1,0 +1,8 @@
+metadata:
+  license: MIT
+  name: rhcos
+  summary: RHEL CoreOS 9.6
+
+variables:
+  id: "rhcos"
+  osversion: "rhel-9.6"
