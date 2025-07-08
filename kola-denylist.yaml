@@ -39,6 +39,3 @@
   arches:
     - ppc64le
 
-- pattern: ostree.remote
-  tracker: https://github.com/coreos/rhel-coreos-config/issues/34
-  snooze: 2025-07-05
