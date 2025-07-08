@@ -91,6 +91,4 @@
   tracker: "Deny upgrades until we have a RHEL9 build for 4.12"
   osversion:
     - rhel-9.0
-- pattern: ostree.remote
-  tracker: https://github.com/coreos/rhel-coreos-config/issues/34
-  snooze: 2025-07-07
+
