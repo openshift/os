@@ -1,5 +1,11 @@
+# This file documents currently known-to-fail kola tests. It is consumed by
+# coreos-assembler to automatically skip some tests. For more information,
+# see: https://github.com/coreos/coreos-assembler/pull/866.
+
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://github.com/openshift/os/issues/1847
-  streams:
-    - 4.19-9.6
-    - 4.20-9.6
+
+- pattern: rhcos.network.init-interfaces-test
+  tracker: https://github.com/openshift/os/issues/1852
+  arches:
+    - s390x
