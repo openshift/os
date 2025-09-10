@@ -12,7 +12,7 @@ repos:
   - rhel-9.6-appstream
   # For crun-wasm (wasm) and kata-containers (sandboxed-containers).
   # Repo placed here to respect the rule above.
-  - rhel-9.6-server-ose-4.20
+  - rhel-9.6-server-ose-4.21
   # For two-node-ha extension.
   # Repo placed here to respect the rule above.
   - rhel-9.6-highavailability

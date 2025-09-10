@@ -36,7 +36,7 @@ To build SCOS:
 ```
 podman build . --secret id=yumrepos,src=/path/to/all.repo \
   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
-  --security-opt label=disable -t localhost/stream-coreos:4.20
+  --security-opt label=disable -t localhost/stream-coreos:4.21
 ```
 
 To build RHCOS, the command is identical, but you must pass in the RHCOS base

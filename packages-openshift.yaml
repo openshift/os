@@ -2,7 +2,7 @@ metadata:
   # This should match the /etc/os-release manipulation we do below when
   # injecting `OPENSHIFT_VERSION`. It's used by CI to determine the repos to
   # inject when building the layered image.
-  ocp_version: "4.20"
+  ocp_version: "4.21"
 
 conditional-include:
   - if:
@@ -19,7 +19,7 @@ conditional-include:
         - rhel-9.6-appstream
         - rhel-9.6-early-kernel
         - rhel-9.6-fast-datapath
-        - rhel-9.6-server-ose-4.20
+        - rhel-9.6-server-ose-4.21
   - if: osversion == "rhel-10.1"
     include:
       repos:
@@ -28,9 +28,9 @@ conditional-include:
         #- rhel-10.1-early-kernel
         # XXX Not built for rhel 10 yet
         #- rhel-10.1-fast-datapath
-        #- rhel-10.1-server-ose-4.20
+        #- rhel-10.1-server-ose-4.21
         - rhel-9.6-fast-datapath
-        - rhel-9.6-server-ose-4.20
+        - rhel-9.6-server-ose-4.21
         - rhel-9.6-appstream-containernetworking
   - if: osversion == "centos-9"
     include:
@@ -40,7 +40,7 @@ conditional-include:
         - c9s-sig-nfv
         - c9s-sig-cloud-okd
         # XXX: this shouldn't be here; see related XXX in build-node-image.sh
-        - rhel-9.6-server-ose-4.20-okd
+        - rhel-9.6-server-ose-4.21-okd
   - if: osversion == "centos-10"
     include:
       repos:
@@ -50,8 +50,8 @@ conditional-include:
         - c10s-sig-cloud-okd
         # XXX: this shouldn't be here; see related XXX in build-node-image.sh
         # XXX: using 9.6 repo for now until 10.1 plashets exist
-        # - rhel-10.1-server-ose-4.20-okd
-        - rhel-9.6-server-ose-4.20-okd
+        # - rhel-10.1-server-ose-4.21-okd
+        - rhel-9.6-server-ose-4.21-okd
 
 packages:
   # The packages below are required by OpenShift/OKD
@@ -149,7 +149,7 @@ postprocess:
     #!/usr/bin/env bash
     set -xeuo pipefail
     cat >> /usr/lib/os-release <<EOF
-    OPENSHIFT_VERSION="4.20"
+    OPENSHIFT_VERSION="4.21"
     EOF
 
   - |
