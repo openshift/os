@@ -13,7 +13,7 @@ repos:
   # For crun-wasm (wasm) and kata-containers (sandboxed-containers).
   # Repo placed here to respect the rule above.
   # XXX Move to 10.1 plashets when available
-  - rhel-9.6-server-ose-4.20
+  - rhel-9.6-server-ose-4.21
   # For two-node-ha extension.
   # Repo placed here to respect the rule above.
   - rhel-10.1-highavailability
@@ -23,7 +23,7 @@ repos:
   # - rhel-10.1-fast-datapath
 
 extensions:
-  # Uncomment when the server-ose-4.20 repo exists for RHEL 10
+  # Uncomment when the server-ose-4.21 repo exists for RHEL 10
   # # https://issues.redhat.com/browse/RFE-4177
   # wasm:
   #   architectures:

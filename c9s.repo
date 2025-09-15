@@ -66,6 +66,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
 
 # Note: We can't find a composes.stream.centos.org URL for this repo
 # so we use the mirror.stream.centos.org URL here.
+# This needs to be updated to okd-4.21 once it becomes available
 [c9s-sig-cloud-okd]
 name=CentOS Stream 9 - SIG Cloud OKD 4.20 
 baseurl=https://mirror.stream.centos.org/SIGs/9-stream/cloud/$basearch/okd-4.20/
