@@ -34,18 +34,6 @@ extensions:
       - kernel-modules
       - kernel-modules-extra
     match-base-evr: kernel
-  # GRPA-2822
-  # https://github.com/openshift/machine-config-operator/pull/1330
-  # https://github.com/openshift/enhancements/blob/master/enhancements/support-for-realtime-kernel.md
-  kernel-rt:
-    architectures:
-      - x86_64
-    packages:
-      - kernel-rt-core
-      - kernel-rt-kvm
-      - kernel-rt-modules
-      - kernel-rt-modules-extra
-      - kernel-rt-devel
   # https://github.com/openshift/machine-config-operator/pull/2456
   # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
   # GRPA-3123

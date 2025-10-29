@@ -2,7 +2,7 @@
 base: registry.access.redhat.com/ubi8/ubi:latest
 # These are the packages whose NEVRAs are included as labels on the image.
 labeled-packages:
-  - kernel kernel-rt-core
+  - kernel
   - ostree rpm-ostree
   - ignition
   - systemd
