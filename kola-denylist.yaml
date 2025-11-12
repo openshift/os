@@ -39,3 +39,5 @@
   arches:
     - ppc64le
 
+- pattern: ext.config.version.rhaos-pkgs-match-openshift
+  tracker: https://github.com/openshift/os/issues/1865
