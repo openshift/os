@@ -22,3 +22,6 @@
 # but not denylisted here so it can run on the rhcos pipeline
 #- pattern: iso-offline-install-iscsi.ibft.bios
 #  tracker: https://github.com/openshift/os/issues/1492
+
+- pattern: ext.config.version.rhaos-pkgs-match-openshift
+  tracker: https://github.com/openshift/os/issues/1865
