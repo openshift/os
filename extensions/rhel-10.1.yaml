@@ -55,6 +55,7 @@ extensions:
     packages:
       - kernel-devel
       - kernel-headers
+      - perl-interpreter
     match-base-evr: kernel
   # These are already in the base, so they're not OS extensions, but they're
   # useful to have in RPM form to install in kmod build containers.
