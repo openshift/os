@@ -31,7 +31,6 @@ conditional-include:
         #- rhel-10.1-server-ose-4.21
         - rhel-9.6-fast-datapath
         - rhel-9.6-server-ose-4.21
-        - rhel-9.6-appstream-containernetworking
   - if: osversion == "centos-9"
     include:
       repos:
