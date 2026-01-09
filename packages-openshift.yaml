@@ -64,6 +64,7 @@ packages:
   - ose-aws-ecr-image-credential-provider
   - ose-azure-acr-image-credential-provider
   - ose-gcp-gcr-image-credential-provider
+  - ose-crio-credential-provider
 
 postprocess:
   # This is part of e.g. fedora-repos in Fedora; we now want to include it by default
