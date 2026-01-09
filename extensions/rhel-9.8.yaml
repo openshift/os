@@ -21,13 +21,6 @@ repos:
   - rhel-9.8-fast-datapath
 
 extensions:
-  # https://issues.redhat.com/browse/RFE-4177
-  wasm:
-    architectures:
-      - x86_64
-      - aarch64
-    packages:
-      - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
   ipsec:
     packages:
