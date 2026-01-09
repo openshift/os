@@ -31,13 +31,12 @@ extensions:
   #     - aarch64
   #   packages:
   #     - crun-wasm
- # Uncomment once fast-datapath repo exists for RHEL 10
- ## https://github.com/coreos/fedora-coreos-tracker/issues/1504
- #ipsec:
- #  packages:
- #    - libreswan
- #    - NetworkManager-libreswan
- #    - openvswitch3.5-ipsec
+  # https://github.com/coreos/fedora-coreos-tracker/issues/1504
+  ipsec:
+    packages:
+      - libreswan
+      - NetworkManager-libreswan
+      - openvswitch3.5-ipsec
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
     packages:
