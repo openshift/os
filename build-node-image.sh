@@ -23,9 +23,9 @@ source /etc/os-release
 # should come from CentOS. We should eventually sever this.
 if [ $ID = centos ]; then
     # this says: "if the line starts with [.*], turn off printing. if the line starts with [our-repo], turn it on."
-    awk "/\[.*\]/{p=0} /\[rhel-9.6-server-ose-4.21\]/{p=1} p" /etc/yum.repos.d/*.repo > /etc/yum.repos.d/okd.repo.tmp
-    sed -i -e 's,\[rhel-9.6-server-ose-4.21\],\[rhel-9.6-server-ose-4.21-okd\],' /etc/yum.repos.d/okd.repo.tmp
-    echo 'includepkgs=openshift-*,ose-aws-ecr-*,ose-azure-acr-*,ose-gcp-gcr-*,ose-crio-*' >> /etc/yum.repos.d/okd.repo.tmp
+    awk "/\[.*\]/{p=0} /\[rhel-9.8-server-ose-4.22\]/{p=1} p" /etc/yum.repos.d/*.repo > /etc/yum.repos.d/okd.repo.tmp
+    sed -i -e 's,\[rhel-9.8-server-ose-4.22\],\[rhel-9.8-server-ose-4.22-okd\],' /etc/yum.repos.d/okd.repo.tmp
+    echo 'includepkgs=openshift-*,ose-aws-ecr-*,ose-azure-acr-*,ose-gcp-gcr-*,ose-crio-* ' >> /etc/yum.repos.d/okd.repo.tmp
     mv /etc/yum.repos.d/okd.repo{.tmp,}
 fi
 
