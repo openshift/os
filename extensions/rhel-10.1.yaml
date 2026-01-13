@@ -19,8 +19,7 @@ repos:
   - rhel-10.1-highavailability
   # For ipsec extension include the fast-datapath repo.
   # Repo placed here to respect the rule above.
-  # XXX uncomment when this repo exists for RHEL10
-  # - rhel-10.1-fast-datapath
+  - rhel-10.1-fast-datapath
 
 extensions:
   # Uncomment when the server-ose-4.21 repo exists for RHEL 10
