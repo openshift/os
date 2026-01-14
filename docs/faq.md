@@ -486,7 +486,6 @@ The examples below use kernel-rt, but it's a similar process for the kernel-64k 
 ```
 rpm-ostree override remove kernel kernel-core kernel-modules kernel-modules-extra \
   --install kernel-rt-core-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
-  --install kernel-rt-kvm-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
   --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
   --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
 ```
@@ -504,7 +503,6 @@ Otherwise, to exactly undo just the kernel -> kernel-rt transition:
 ```
 rpm-ostree override reset kernel kernel-core kernel-modules kernel-modules-extra \
   --uninstall kernel-rt-core \
-  --uninstall kernel-rt-kvm \
   --uninstall kernel-rt-modules \
   --uninstall kernel-rt-modules-extra
 ```
@@ -519,9 +517,8 @@ rpm-ostree override replace \
 #### Replacing kernel-rt with a different version
 
 ```
-rpm-ostree uninstall kernel-rt-core kernel-rt-kvm kernel-rt-modules kernel-rt-modules \
+rpm-ostree uninstall kernel-rt-core kernel-rt-modules kernel-rt-modules \
   --install kernel-rt-core-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
-  --install kernel-rt-kvm-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
   --install kernel-rt-modules-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm \
   --install kernel-rt-modules-extra-4.18.0-305.34.2.rt7.107.el8_4.x86_64.rpm
 ```
