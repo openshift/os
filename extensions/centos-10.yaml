@@ -17,13 +17,6 @@ repos:
   - c10s-rt-mirror
 
 extensions:
-  # https://issues.redhat.com/browse/RFE-4177
-  # wasm:
-  #   architectures:
-  #     - x86_64
-  #     - aarch64
-  #   packages:
-  #     - crun-wasm
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
   ipsec:
     packages:
