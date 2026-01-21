@@ -19,6 +19,10 @@ RHAOS_PACKAGE_EXCEPTIONS=(
     # toolbox doesn't always match the target ocp version because it
     # is included in the base-image which spans multiple versions
     toolbox
+    # cri-o hasn't been built for 4.22 yet
+    cri-o
+    # conmon currently is missing 4.19+ vesions of the package
+    conmon-rs
 )
 
 exception_pattern=$(echo ${RHAOS_PACKAGE_EXCEPTIONS[@]} | tr " " "|")
