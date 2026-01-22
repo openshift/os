@@ -13,7 +13,16 @@ set -xeuo pipefail
 # source the environment variables to get OPENSHIFT_VERSION
 source /etc/os-release
 
-rpm -qa | grep "rhaos" > /tmp/rhaos-packages.txt
+# There are packages that are known to not match the
+# targeted version of openshift. Exlude them from the test.
+RHAOS_PACKAGE_EXCEPTIONS=(
+    toolbox
+    conmon
+)
+
+exception_pattern=$(echo ${RHAOS_PACKAGE_EXCEPTIONS[@]} | tr " " "|")
+
+rpm -qa | grep "rhaos" | grep -Ev "${exception_pattern}" > /tmp/rhaos-packages.txt
 
 if grep -v "rhaos${OPENSHIFT_VERSION}" /tmp/rhaos-packages.txt; then
     fatal "Error: rhaos packages do not match OpenShift version"
