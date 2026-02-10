@@ -25,6 +25,9 @@ sed "$ s/,$//") && echo "}") >> /usr/share/rpm-ostree/extensions.json
 
 ## Final container that has the extensions repo dir
 FROM registry.access.redhat.com/ubi9/ubi:latest
+# Add a label so the extensions image can be identified
+LABEL io.openshift.os.extensions=true
+# Copy in the extensions repo
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 # Make this the last layer, this is similar to the metalayer trick in the node
 # image, but this one is specific to rpm-ostree extensions.
