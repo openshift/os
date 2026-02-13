@@ -1,7 +1,7 @@
 ## Downloads the extensions given the extensions.yaml
 FROM registry.ci.openshift.org/rhcos-devel/rhel-coreos:latest as os
 # Expects os to be cloned and this build run from the top level dir like:
-# podman build -f extensions/Dockerfile .
+# podman build -f extensions/Containerfile .
 # also expects submodules to be initialized
 RUN mkdir /os
 WORKDIR /os
