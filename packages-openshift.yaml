@@ -25,13 +25,9 @@ conditional-include:
       repos:
         - rhel-10.2-baseos
         - rhel-10.2-appstream
-        #- rhel-10.2-early-kernel
+        - rhel-10.2-early-kernel
         - rhel-10.2-fast-datapath
-        # XXX Not built for rhel 10 yet
-        #- rhel-10.2-fast-datapath
-        #- rhel-10.2-server-ose-4.22
-        - rhel-9.8-fast-datapath
-        - rhel-9.8-server-ose-4.22
+        - rhel-10.2-server-ose-4.22
   - if: osversion == "centos-9"
     include:
       repos:
