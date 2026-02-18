@@ -7,7 +7,7 @@ metadata:
 conditional-include:
   - if:
     - osversion != "rhel-9.6"
-    - osversion != "rhel-10.1"
+    - osversion != "rhel-10.2"
     - osversion != "centos-9"
     - osversion != "centos-10"
     include:
@@ -20,17 +20,14 @@ conditional-include:
         - rhel-9.6-early-kernel
         - rhel-9.6-fast-datapath
         - rhel-9.6-server-ose-4.21
-  - if: osversion == "rhel-10.1"
+  - if: osversion == "rhel-10.2"
     include:
       repos:
-        - rhel-10.1-baseos
-        - rhel-10.1-appstream
-        #- rhel-10.1-early-kernel
-        # XXX Not built for rhel 10 yet
-        #- rhel-10.1-fast-datapath
-        #- rhel-10.1-server-ose-4.21
-        - rhel-9.6-fast-datapath
-        - rhel-9.6-server-ose-4.21
+        - rhel-10.2-baseos
+        - rhel-10.2-appstream
+        - rhel-10.2-early-kernel
+        - rhel-10.2-fast-datapath
+        - rhel-10.2-server-ose-4.21
   - if: osversion == "centos-9"
     include:
       repos:
@@ -48,8 +45,8 @@ conditional-include:
         - c10s-sig-nfv
         - c10s-sig-cloud-okd
         # XXX: this shouldn't be here; see related XXX in build-node-image.sh
-        # XXX: using 9.6 repo for now until 10.1 plashets exist
-        # - rhel-10.1-server-ose-4.21-okd
+        # XXX: using 9.6 repo for now until 10.2 plashets exist
+        # - rhel-10.2-server-ose-4.21-okd
         - rhel-9.6-server-ose-4.21-okd
 
 packages:
