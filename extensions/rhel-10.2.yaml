@@ -12,8 +12,7 @@ repos:
   - rhel-10.2-appstream
   # For kata-containers (sandboxed-containers).
   # Repo placed here to respect the rule above.
-  # XXX Move to 10.2 plashets when available
-  - rhel-9.8-server-ose-4.22
+  - rhel-10.2-server-ose-4.22
   # For two-node-ha extension.
   # Repo placed here to respect the rule above.
   - rhel-10.2-highavailability
