@@ -4,8 +4,3 @@
 
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://github.com/openshift/os/issues/1847
-
-- pattern: rhcos.network.init-interfaces-test
-  tracker: https://github.com/openshift/os/issues/1852
-  arches:
-    - s390x
