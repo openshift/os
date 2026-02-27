@@ -2,7 +2,11 @@
 # coreos-assembler to automatically skip some tests. For more information,
 # see: https://github.com/coreos/coreos-assembler/pull/866.
 
-- pattern: rhcos.network.init-interfaces-test
-  tracker: https://github.com/openshift/os/issues/1852
-  arches:
-    - s390x
+# For openshift/os only kola tests tagged with the `openshift` tag
+# are tested in build-node-image job in the pipeline.
+
+##- pattern: rhcos.test.name
+##  tracker: https://github.com/openshift/os/issues/xxxx
+##  snooze: 2026-xx-xx
+##  arches:
+##    - aarch64
