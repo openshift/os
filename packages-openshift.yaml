@@ -17,6 +17,8 @@ conditional-include:
       repos:
         - rhel-9.8-baseos
         - rhel-9.8-appstream
+        # Temporarilly enable 9.6 repo too
+        - rhel-9.6-appstream
         - rhel-9.8-early-kernel
         - rhel-9.8-fast-datapath
         - rhel-9.8-server-ose-4.22
