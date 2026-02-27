@@ -4,6 +4,7 @@
 ##   description: Verify that packages coming from the rhaos
 ##     branches match the OpenShift version.
 ##     This is RHCOS only.
+##   tags: openshift
 
 set -xeuo pipefail
 
