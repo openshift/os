@@ -24,6 +24,9 @@ conditional-include:
     include:
       repos:
         - rhel-10.2-baseos
+        # Runc was removed in rhel-10
+        # crio-o was not built based on crun yet
+        - rhel-9.8-appstream
         - rhel-10.2-appstream
         - rhel-10.2-early-kernel
         - rhel-10.2-fast-datapath
