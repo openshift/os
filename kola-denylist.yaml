@@ -25,3 +25,6 @@
 
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://github.com/openshift/os/issues/1865
+
+- pattern: rhcos.upgrade.from-ocp-rhcos
+  tracker: https://redhat.atlassian.net/browse/OCPBUGS-60668
