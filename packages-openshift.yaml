@@ -132,6 +132,38 @@ postprocess:
 
   - |
     #!/usr/bin/env bash
+    set -xeo pipefail
+    # Ensure that the containers user & group are created as part of the image.
+    # We can not move users/groups from the image to dynamically created ones
+    # until we fix https://github.com/bootc-dev/bootc/issues/1179.
+    # See https://redhat.atlassian.net/browse/OCPBUGS-64841 and commit message
+    # for the full details.
+
+    # Only do that when doing a container build
+    if [[ -f /run/.containerenv ]] && [[ -f /usr/lib/sysusers.d/crio.conf ]]; then
+      # First, cleanup the broken entries from /etc/passwd|group|shadow|gshadow
+      sed -i "/^containers:/d" /etc/{passwd,group,shadow,gshadow}
+
+      # We're running as part of a derivation; `systemd-sysusers` will not work
+      # because it doesn't go through NSS. Hackily put the /usr/lib files in /etc
+      # temporarily then put them back.
+      mv /etc/passwd /etc/passwd.bak
+      mv /etc/group /etc/group.bak
+      mv /usr/lib/passwd /etc/passwd
+      mv /usr/lib/group /etc/group
+
+      # Re-create the user/group/shadow/gshadow entries
+      systemd-sysusers crio.conf
+
+      # Put everything back in place
+      mv /etc/passwd /usr/lib/passwd
+      mv /etc/group /usr/lib/group
+      mv /etc/passwd.bak /etc/passwd
+      mv /etc/group.bak /etc/group
+    fi
+
+  - |
+    #!/usr/bin/env bash
     set -xeuo pipefail
     # crio should stop hardcoding things in their config file!
     # We are apparently somehow pulling in a conmon override in RHCOS
