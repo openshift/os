@@ -27,28 +27,29 @@ SCOS or RHCOS image (see building instructions in
 
 ## Building
 
-If the base image is SCOS, then the OKD node image is built (`stream-coreos`).
-If the base image is RHCOS, then the OCP node image is built (`rhel-coreos`).
-The default base image is SCOS (CentOS Stream 10).
+Each variant has a `build-args-*.conf` file that specifies the base image
+and metadata for that build. Choose the appropriate one for your target:
 
-To build SCOS:
+- `build-args-9.8-4.22.conf` — RHCOS on RHEL 9.8
+- `build-args-10.2-4.22.conf` — RHCOS on RHEL 10.2
+- `build-args-c10s-4.22.conf` — SCOS on CentOS Stream 10
+
+To build:
 
 ```
-podman build . --secret id=yumrepos,src=/path/to/all.repo \
+podman build . --build-arg-file build-args-c10s-4.22.conf \
+  --secret id=yumrepos,src=/path/to/all.repo \
   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
   --security-opt label=disable -t localhost/stream-coreos:4.22
 ```
 
-To build RHCOS, the command is identical, but you must pass in the RHCOS base
-image using `--from`:
+To override the base image (e.g. to use a locally built OCI archive),
+pass `--from`:
 
 ```
-podman build --from quay.io/openshift-release-dev/ocp-v4.0-art-dev:rhel-9.6-coreos ...
-```
-
-To build from a local OCI archive (e.g. from a cosa workdir), you can use the
-`oci-archive` transport:
-
-```
-podman build --from oci-archive:$(ls builds/latest/x86_64/*.ociarchive) ...
+podman build . --build-arg-file build-args-c10s-4.22.conf \
+  --from oci-archive:$(ls builds/latest/x86_64/*.ociarchive) \
+  --secret id=yumrepos,src=/path/to/all.repo \
+  -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
+  --security-opt label=disable -t localhost/stream-coreos:4.22
 ```
