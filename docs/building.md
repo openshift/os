@@ -29,14 +29,14 @@ SCOS or RHCOS image (see building instructions in
 
 If the base image is SCOS, then the OKD node image is built (`stream-coreos`).
 If the base image is RHCOS, then the OCP node image is built (`rhel-coreos`).
-The default base image is SCOS.
+The default base image is SCOS (CentOS Stream 10).
 
 To build SCOS:
 
 ```
 podman build . --secret id=yumrepos,src=/path/to/all.repo \
   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
-  --security-opt label=disable -t localhost/stream-coreos:4.21
+  --security-opt label=disable -t localhost/stream-coreos:4.22
 ```
 
 To build RHCOS, the command is identical, but you must pass in the RHCOS base
