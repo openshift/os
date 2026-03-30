@@ -8,7 +8,6 @@ conditional-include:
   - if:
     - osversion != "rhel-9.8"
     - osversion != "rhel-10.2"
-    - osversion != "centos-9"
     - osversion != "centos-10"
     include:
       repos: [ENOEXIST] # We want an error in this case
@@ -28,15 +27,6 @@ conditional-include:
         - rhel-10.2-early-kernel
         - rhel-10.2-fast-datapath
         - rhel-10.2-server-ose-4.22
-  - if: osversion == "centos-9"
-    include:
-      repos:
-        - c9s-baseos
-        - c9s-appstream
-        - c9s-sig-nfv
-        - c9s-sig-cloud-okd
-        # XXX: this shouldn't be here; see related XXX in build-node-image.sh
-        - rhel-9.8-server-ose-4.22-okd
   - if: osversion == "centos-10"
     include:
       repos:
