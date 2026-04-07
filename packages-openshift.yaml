@@ -62,6 +62,9 @@ packages:
   - ose-azure-acr-image-credential-provider
   - ose-gcp-gcr-image-credential-provider
   - ose-crio-credential-provider
+  # Override runc version until RHEL version catches up for runc 1.4-3
+  # See OCPBUGS-77244
+  - runc
 
 postprocess:
   # This is part of e.g. fedora-repos in Fedora; we now want to include it by default
