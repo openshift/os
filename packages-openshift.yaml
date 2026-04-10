@@ -48,6 +48,18 @@ conditional-include:
         # XXX: using 9.8 repo for now until 10.2 plashets exist
         # - rhel-10.2-server-ose-4.22-okd
         - rhel-9.8-server-ose-4.22-okd
+  - if: osversion == "rhel-9.8"
+    include:
+      packages:
+        # Override runc version until RHEL version catches up for runc 1.4-3
+        # See OCPBUGS-77244
+        - runc
+  - if: osversion == "centos-9"
+    include:
+      packages:
+        # Override runc version until RHEL version catches up for runc 1.4-3
+        # See OCPBUGS-77244
+        - runc
 
 packages:
   # The packages below are required by OpenShift/OKD
@@ -62,9 +74,6 @@ packages:
   - ose-azure-acr-image-credential-provider
   - ose-gcp-gcr-image-credential-provider
   - ose-crio-credential-provider
-  # Override runc version until RHEL version catches up for runc 1.4-3
-  # See OCPBUGS-77244
-  - runc
 
 postprocess:
   # This is part of e.g. fedora-repos in Fedora; we now want to include it by default
