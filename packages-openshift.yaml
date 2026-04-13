@@ -12,21 +12,9 @@ conditional-include:
     - osversion != "centos-10"
     include:
       repos: [ENOEXIST] # We want an error in this case
-  - if: osversion == "rhel-9.8"
-    include:
-      repos:
-        - rhel-98-baseos
-        - rhel-98-appstream
-        - rhel-9-fast-datapath-rpms
-        - rhel-9-server-ose-rpms
-  - if: osversion == "rhel-10.2"
-    include:
-      repos:
-        - rhel-10.2-baseos
-        - rhel-10.2-appstream
-        - rhel-10.2-early-kernel
-        - rhel-10.2-fast-datapath
-        - rhel-10.2-server-ose-4.22
+  # rhel-9.8 and rhel-10.2: no explicit repo includes needed.
+  # ART injects art-unsigned.repo with the correct arch-specific repos.
+  # build-node-image.sh ensures CentOS repos are not added for RHEL builds.
   - if: osversion == "centos-9"
     include:
       repos:
