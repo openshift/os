@@ -571,3 +571,13 @@ eval $(mdadm --detail --export /dev/md/imsm0)
 coreos-installer install /dev/md/coreos --append-karg rd.md.uuid=$MD_UUID \
   <other install args as usual, e.g. --ignition-url, --console, ...>
 ```
+
+## Q: After updating to 4.19, composefs root (`/`) mountpoint is showing 100% usage
+
+With 4.20 we transitionned to a composefs-backed root mountpoint. Composefs is an EROFS (Read-Only filesystem) that contains the root filesystem. This EROFS
+contains only the metadata and references to files that are deployed as the rootfs (think all the system binaries and directory hierarchy). This is mostly
+metadata, that's why it's only a few megabytes in size, and it will always report 100% usage, because it's read only: there is no notion of free space.
+
+Every version of the system will have its own unique composefs EROFS image.
+
+With composefs, `/` is backed by `/sysroot` and any disk monitoring tools should be updated to watch the `/sysroot` mountpoint, which is the real physical root.
