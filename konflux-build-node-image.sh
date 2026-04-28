@@ -66,7 +66,7 @@ ln -sr /usr/bin/conmon /usr/libexec/crio/conmon
 # in the branch-specific packages-openshift.yaml. For master, we use
 # the latest version.
 cat >> /usr/lib/os-release <<EOF
-OPENSHIFT_VERSION="4.22"
+OPENSHIFT_VERSION="4.23"
 EOF
 
 # Generate MOTD
