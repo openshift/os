@@ -1,0 +1,79 @@
+#!/usr/bin/python3 -u
+
+"""
+This script generates /usr/share/buildinfo/labels.json, which provides embedded
+metadata for security scanners that only have filesystem access (not OCI image
+metadata).
+
+For RHEL builds, IMAGE_NAME and IMAGE_CPE must be set (via build-args file).
+For non-RHEL builds (e.g. SCOS/OKD), no labels.json is written.
+"""
+
+import datetime
+import json
+import os
+import sys
+
+LABELS_FILE = "/usr/share/buildinfo/labels.json"
+
+
+def parse_os_release():
+    """Parse /etc/os-release into a dict."""
+    release = {}
+    with open('/etc/os-release') as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            k, v = line.split('=', 1)
+            release[k] = v.strip('"\'')
+    return release
+
+
+def main():
+    image_name = os.environ.get('IMAGE_NAME', '')
+    image_cpe = os.environ.get('IMAGE_CPE', '')
+    target_arch = os.environ.get('TARGETARCH', '')
+
+    os.makedirs(os.path.dirname(LABELS_FILE), exist_ok=True)
+
+    if not all([image_name, image_cpe, target_arch]):
+        os_release = parse_os_release()
+        if os_release.get('ID') == 'rhel':
+            print("error: IMAGE_NAME, IMAGE_CPE, and TARGETARCH must be set for RHEL builds",
+                  file=sys.stderr)
+            return 1
+        return
+
+    # Ideally the creation date we set here is consistent with the creation date
+    # of the OCI image itself. We'll get that once we're hermetic and we hook
+    # up SOURCE_DATE_EPOCH. So prepare for that eventuality, but for now just
+    # use the current time (which will be a few seconds different from the OCI
+    # timestamp, which is still fine for our purposes).
+    source_date_epoch = os.environ.get('SOURCE_DATE_EPOCH', '')
+    if source_date_epoch:
+        created = datetime.datetime.fromtimestamp(
+            int(source_date_epoch), tz=datetime.timezone.utc
+        ).strftime('%Y-%m-%dT%H:%M:%SZ')
+    else:
+        created = datetime.datetime.now(
+            tz=datetime.timezone.utc
+        ).strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    # this schema is documented at:
+    # https://github.com/RedHatProductSecurity/security-data-guidelines/blob/main/schema/embedded_metadata.v1.schema.json
+    labels = {
+        'architecture': target_arch,
+        'cpe': image_cpe,
+        'name': image_name,
+        'org.opencontainers.image.created': created,
+    }
+
+    os.makedirs(os.path.dirname(LABELS_FILE), exist_ok=True)
+    with open(LABELS_FILE, encoding='utf-8', mode='w') as f:
+        json.dump(labels, f, sort_keys=True, indent=2)
+        f.write('\n')
+
+
+if __name__ == '__main__':
+    sys.exit(main())
