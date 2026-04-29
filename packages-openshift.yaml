@@ -14,11 +14,11 @@ conditional-include:
   - if: osversion == "rhel-9.8"
     include:
       repos:
-        - rhel-9.8-baseos
-        - rhel-9.8-appstream
+        - rhel-9-baseos
+        - rhel-9-appstream
         - rhel-9.8-early-kernel
-        - rhel-9.8-fast-datapath
-        - rhel-9.8-server-ose-4.22
+        - rhel-9-fast-datapath
+        - rhel-9-server-ose
   - if: osversion == "rhel-10.2"
     include:
       repos:
@@ -37,7 +37,7 @@ conditional-include:
         # XXX: this shouldn't be here; see related XXX in build-node-image.sh
         # XXX: using 9.8 repo for now until 10.2 plashets exist
         # - rhel-10.2-server-ose-4.22-okd
-        - rhel-9.8-server-ose-4.22-okd
+        - rhel-9-server-ose-okd
 
 packages:
   # The packages below are required by OpenShift/OKD
