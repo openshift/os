@@ -6,8 +6,9 @@ set -euo pipefail
 # content.
 
 urls=(
-    # theoretically that's the only one we need
-    "http://base-4-22-rhel98.ocp.svc.cluster.local"
+    # NB: we use rhel9 here for pre-release 9.8 content. switch back to 98 once
+    # it's GA and there are proper repos
+    "http://base-4-22-rhel9.ocp.svc.cluster.local"
     "http://base-4-22-rhel102.ocp.svc.cluster.local"
 )
 

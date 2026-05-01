@@ -8,18 +8,17 @@ conditional-include:
   - if:
     - osversion != "rhel-9.8"
     - osversion != "rhel-10.2"
-    - osversion != "centos-9"
     - osversion != "centos-10"
     include:
       repos: [ENOEXIST] # We want an error in this case
   - if: osversion == "rhel-9.8"
     include:
       repos:
-        - rhel-9.8-baseos
-        - rhel-9.8-appstream
+        - rhel-9-baseos
+        - rhel-9-appstream
         - rhel-9.8-early-kernel
-        - rhel-9.8-fast-datapath
-        - rhel-9.8-server-ose-4.22
+        - rhel-9-fast-datapath
+        - rhel-9-server-ose
   - if: osversion == "rhel-10.2"
     include:
       repos:
@@ -28,15 +27,6 @@ conditional-include:
         - rhel-10.2-early-kernel
         - rhel-10.2-fast-datapath
         - rhel-10.2-server-ose-4.22
-  - if: osversion == "centos-9"
-    include:
-      repos:
-        - c9s-baseos
-        - c9s-appstream
-        - c9s-sig-nfv
-        - c9s-sig-cloud-okd
-        # XXX: this shouldn't be here; see related XXX in build-node-image.sh
-        - rhel-9.8-server-ose-4.22-okd
   - if: osversion == "centos-10"
     include:
       repos:
@@ -47,7 +37,7 @@ conditional-include:
         # XXX: this shouldn't be here; see related XXX in build-node-image.sh
         # XXX: using 9.8 repo for now until 10.2 plashets exist
         # - rhel-10.2-server-ose-4.22-okd
-        - rhel-9.8-server-ose-4.22-okd
+        - rhel-9-server-ose-okd
 
 packages:
   # The packages below are required by OpenShift/OKD
