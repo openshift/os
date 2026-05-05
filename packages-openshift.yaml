@@ -86,6 +86,21 @@ postprocess:
     semanage boolean --modify --on container_use_cephfs      # RHBZ#1694045
     semanage boolean --modify --on virt_use_samba            # RHBZ#1754825
 
+  # Disable empty password authentication (HIGH severity, all compliance profiles)
+  # RHCOS nodes are managed infrastructure with no use case for empty passwords.
+  # The RHEL pam RPM ships nullok by default; authselect's without-nullok feature
+  # removes it using the supported RHEL mechanism.
+  # See: https://github.com/authselect/authselect/commit/e1fbbdc
+  - |
+    #!/usr/bin/env bash
+    set -xeuo pipefail
+    authselect select sssd without-nullok --force
+    # Verify nullok was actually removed
+    if grep -q nullok /etc/pam.d/system-auth /etc/pam.d/password-auth; then
+      echo "ERROR: nullok still present after authselect" >&2
+      exit 1
+    fi
+
   # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/812
   # https://bugzilla.redhat.com/show_bug.cgi?id=1796537
   - |
