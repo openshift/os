@@ -33,6 +33,28 @@ fi
 # https://github.com/CentOS/centos-bootc/issues/393
 mkdir -p /var/opt
 
+# Disable repos that don't match the current OS version to avoid 401 errors
+# when rpm-ostree tries to access all repos. This replicates the conditional-include
+# logic that was previously in packages-openshift.yaml.
+if [ "$ID" = "rhel" ]; then
+    if [ "$VERSION_ID" = "9.8" ]; then
+        # Disable rhel-10.2 and centos repos for rhel-9.8 builds
+        for repo in /etc/yum.repos.d/{ocp,git,secret}.repo; do
+            [ -f "$repo" ] && sed -i -E '/^\[(rhel-10\.2|c10s)/,/^$/s/^enabled=1$/enabled=0/g' "$repo"
+        done
+    elif [ "$VERSION_ID" = "10.2" ]; then
+        # Disable rhel-9 and centos repos for rhel-10.2 builds
+        for repo in /etc/yum.repos.d/{ocp,git,secret}.repo; do
+            [ -f "$repo" ] && sed -i -E '/^\[(rhel-9|c10s)/,/^$/s/^enabled=1$/enabled=0/g' "$repo"
+        done
+    fi
+elif [ "$ID" = "centos" ] && [ "$VERSION_ID" = "10" ]; then
+    # Disable rhel repos for centos-10 builds
+    for repo in /etc/yum.repos.d/{ocp,git,secret}.repo; do
+        [ -f "$repo" ] && sed -i -E '/^\[rhel-/,/^$/s/^enabled=1$/enabled=0/g' "$repo"
+    done
+fi
+
 # Install the OCP packages. Repos have been configured above.
 rpm-ostree install \
     cri-o cri-tools conmon-rs \
