@@ -9,16 +9,16 @@
 repos:
   # Generically used for various extensions.
   # Repo placed here to respect the rule above.
-  - rhel-9-appstream
+  - rhel-9.8-appstream
   # For kata-containers (sandboxed-containers).
   # Repo placed here to respect the rule above.
-  - rhel-9-server-ose
+  - rhel-9.8-server-ose-5.0
   # For two-node-ha extension.
   # Repo placed here to respect the rule above.
-  - rhel-9-highavailability
+  - rhel-9.8-highavailability
   # For ipsec extension include the fast-datapath repo.
   # Repo placed here to respect the rule above.
-  - rhel-9-fast-datapath
+  - rhel-9.8-fast-datapath
 
 extensions:
   # https://github.com/coreos/fedora-coreos-tracker/issues/1504
@@ -63,7 +63,7 @@ extensions:
       - x86_64
     repos:
       # this is not available on all arches, so keep here and not in the global repo list
-      - rhel-9-nfv
+      - rhel-9.8-nfv
     packages:
       - kernel-rt-core
       - kernel-rt-modules
