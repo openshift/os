@@ -14,8 +14,11 @@ RUN --mount=type=bind,target=/run/src /run/src/scripts/generate-metadata
 RUN --mount=type=bind,target=/run/src /run/src/scripts/generate-labels
 
 FROM build
-COPY --from=metadata /usr/share/openshift /usr/share/openshift
 COPY --from=metadata /usr/share/buildinfo /usr/share/buildinfo
+# Copy in the meta.json. This needs to be the last operation that
+# creates a layer in the image build so that our `oc image extract img[-1]`
+# trick works. See https://github.com/coreos/fedora-coreos-pipeline/blob/80c2625b89185f8adc5568fae112484a427c5806/utils.groovy#L1004
+COPY --from=metadata /usr/share/openshift /usr/share/openshift
 ARG IMAGE_NAME
 ARG IMAGE_CPE
 ARG TARGETARCH
