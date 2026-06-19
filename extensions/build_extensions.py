@@ -36,6 +36,9 @@ def main() -> None:
     extensions = config.get("extensions", {})
     print(f"Found {len(extensions)} extensions")
 
+    # Get current architecture once for all extensions
+    current_arch = os.uname().machine
+
     for ext_name, ext_config in extensions.items():
         if not isinstance(ext_config, dict):
             continue
@@ -47,7 +50,6 @@ def main() -> None:
         # Check architecture filter if specified
         if "architectures" in ext_config:
             archs = ext_config["architectures"]
-            current_arch = os.uname().machine
             if current_arch not in archs:
                 print(f"Skipping {ext_name}: architecture {current_arch} not in {archs}")
                 continue
@@ -58,7 +60,7 @@ def main() -> None:
 
         # Use dnf download to get RPMs with all dependencies
         # Disable subscription-manager plugin to avoid hangs
-        cmd = ["dnf", "download", "--disableplugin=subscription-manager", "--resolve", "--alldeps", "--destdir=/usr/share/rpm-ostree/extensions/"] + packages
+        cmd = ["dnf", "download", f"--arch={current_arch}", "--arch=noarch", "--disableplugin=subscription-manager", "--resolve", "--alldeps", "--destdir=/usr/share/rpm-ostree/extensions/"] + packages
         print(f"  Running: {' '.join(cmd)}")
         sys.stdout.flush()
 
