@@ -1,6 +1,0 @@
-[coreos-continuous]
-name=CoreOS continuous (afterburn main; includes coreos/afterburn#1251)
-baseurl=https://download.copr.fedorainfracloud.org/results/@CoreOS/continuous/centos-stream-9-$basearch/
-enabled=1
-gpgcheck=0
-priority=1

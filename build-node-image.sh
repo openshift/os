@@ -37,12 +37,15 @@ mkdir -p /var/opt
 rpm-ostree experimental compose treefile-apply \
     --var "osversion=${ID}-${VERSION_ID}" /run/src/packages-openshift.yaml
 
-# --- DNM / PoC (coreos/afterburn#1251): replace afterburn with the coreos/continuous
-# build (afterburn main HEAD, includes "kubevirt: static gateway and DNS with DHCP").
-# coreos-continuous.repo was concatenated into git.repo above. `override replace`
-# forces the swap regardless of version, and the compose regenerates the initramfs,
-# so the patched afterburn lands in the initrd (where afterburn-network-kargs runs).
-rpm-ostree override replace --experimental --from repo=coreos-continuous afterburn
+# --- DNM / PoC (coreos/afterburn#1251): replace afterburn with a prebuilt el9 RPM of
+# afterburn main, which includes "kubevirt: Support static gateway and DNS with DHCP".
+# (The @CoreOS/continuous COPR EL9/EL10 builds are currently broken, so the RPM is
+# vendored in this PR and bind-mounted at /run/src.) `override replace` swaps the base
+# afterburn, and the compose regenerates the initramfs, so the patched binary lands in
+# the initrd where afterburn-network-kargs runs. x86_64-only PoC.
+if [ "$(uname -m)" = x86_64 ]; then
+    rpm-ostree override replace /run/src/afterburn-5.11.0-0.dev.pr1251.el9.x86_64.rpm
+fi
 
 # cleanup any repo files we injected
 rm -f /etc/yum.repos.d/{ocp,git,okd}.repo
