@@ -37,6 +37,13 @@ mkdir -p /var/opt
 rpm-ostree experimental compose treefile-apply \
     --var "osversion=${ID}-${VERSION_ID}" /run/src/packages-openshift.yaml
 
+# --- DNM / PoC (coreos/afterburn#1251): replace afterburn with the coreos/continuous
+# build (afterburn main HEAD, includes "kubevirt: static gateway and DNS with DHCP").
+# coreos-continuous.repo was concatenated into git.repo above. `override replace`
+# forces the swap regardless of version, and the compose regenerates the initramfs,
+# so the patched afterburn lands in the initrd (where afterburn-network-kargs runs).
+rpm-ostree override replace --experimental --from repo=coreos-continuous afterburn
+
 # cleanup any repo files we injected
 rm -f /etc/yum.repos.d/{ocp,git,okd}.repo
 
