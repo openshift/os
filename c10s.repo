@@ -1,12 +1,6 @@
-# These are compose repo URLs that represent the latest composes in
-# CentOS Stream 10. Sometimes these repos get content a little faster
-# than the mirror repos defined in c10s-mirror.repo, but they won't
-# have multiple versions of packages, which make them not ideal when
-# needing to pin on older package versions.
-
 [c10s-baseos]
 name=CentOS Stream 10 - BaseOS
-baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/BaseOS/$basearch/os
+baseurl=https://mirror.stream.centos.org/10-stream/BaseOS/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
@@ -14,7 +8,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
 
 [c10s-appstream]
 name=CentOS Stream 10 - AppStream
-baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/AppStream/$basearch/os
+baseurl=https://mirror.stream.centos.org/10-stream/AppStream/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
@@ -22,7 +16,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
 
 [c10s-nfv]
 name=CentOS Stream 10 - NFV
-baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/NFV/$basearch/os
+baseurl=https://mirror.stream.centos.org/10-stream/NFV/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
@@ -30,7 +24,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial-SHA256
 
 [c10s-rt]
 name=CentOS Stream 10 - RT
-baseurl=https://composes.stream.centos.org/stream-10/production/latest-CentOS-Stream/compose/RT/$basearch/os
+baseurl=https://mirror.stream.centos.org/10-stream/RT/$basearch/os
 gpgcheck=1
 repo_gpgcheck=0
 enabled=1
@@ -44,8 +38,6 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Extras-SHA512
 
-# Note: We can't find a composes.stream.centos.org URL for this repo
-# so we use the mirror.stream.centos.org URL here.
 [c10s-sig-nfv]
 name=CentOS Stream 10 - SIG NFV
 baseurl=https://mirror.stream.centos.org/SIGs/10-stream/nfv/$basearch/openvswitch-2/
@@ -54,8 +46,6 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-NFV
 
-# Note: We can't find a composes.stream.centos.org URL for this repo
-# so we use the mirror.stream.centos.org URL here.
 [c10s-sig-virtualization]
 name=CentOS Stream 10 - SIG Virtualization
 baseurl=https://mirror.stream.centos.org/SIGs/10-stream/virt/$basearch/kata-containers/
@@ -64,8 +54,6 @@ repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization
 
-# Note: We can't find a composes.stream.centos.org URL for this repo
-# so we use the mirror.stream.centos.org URL here.
 [c10s-sig-cloud-okd]
 name=CentOS Stream 10 - SIG Cloud OKD 4.22
 baseurl=https://mirror.stream.centos.org/SIGs/10-stream/cloud/$basearch/okd-4.22/
