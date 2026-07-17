@@ -1,0 +1,160 @@
+[rhel-9-appstream-rpms-x86_64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/x86_64/appstream/os/
+module_hotfixes = 1
+name = rhel-9-appstream-rpms-x86_64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-appstream-rpms-aarch64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/aarch64/appstream/os/
+module_hotfixes = 1
+name = rhel-9-appstream-rpms-aarch64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-appstream-rpms-s390x]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/s390x/appstream/os/
+module_hotfixes = 1
+name = rhel-9-appstream-rpms-s390x
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-appstream-rpms-ppc64le]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/ppc64le/appstream/os/
+module_hotfixes = 1
+name = rhel-9-appstream-rpms-ppc64le
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-baseos-rpms-x86_64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/x86_64/baseos/os/
+module_hotfixes = 1
+name = rhel-9-baseos-rpms-x86_64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-baseos-rpms-aarch64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/aarch64/baseos/os/
+module_hotfixes = 1
+name = rhel-9-baseos-rpms-aarch64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-baseos-rpms-s390x]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/s390x/baseos/os/
+module_hotfixes = 1
+name = rhel-9-baseos-rpms-s390x
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-baseos-rpms-ppc64le]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/ppc64le/baseos/os/
+module_hotfixes = 1
+name = rhel-9-baseos-rpms-ppc64le
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-fast-datapath-rpms-x86_64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel9/x86_64/fast-datapath/os/
+name = rhel-9-fast-datapath-rpms-x86_64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-fast-datapath-rpms-aarch64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel9/aarch64/fast-datapath/os/
+name = rhel-9-fast-datapath-rpms-aarch64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-fast-datapath-rpms-s390x]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel9/s390x/fast-datapath/os/
+name = rhel-9-fast-datapath-rpms-s390x
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-fast-datapath-rpms-ppc64le]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel9/ppc64le/fast-datapath/os/
+name = rhel-9-fast-datapath-rpms-ppc64le
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-highavailability-x86_64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/x86_64/highavailability/os/
+gpgcheck = 1
+name = rhel-9-highavailability-x86_64
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-highavailability-aarch64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/aarch64/highavailability/os/
+gpgcheck = 1
+name = rhel-9-highavailability-aarch64
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-highavailability-s390x]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/s390x/highavailability/os/
+gpgcheck = 1
+name = rhel-9-highavailability-s390x
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-highavailability-ppc64le]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/ppc64le/highavailability/os/
+gpgcheck = 1
+name = rhel-9-highavailability-ppc64le
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-nfv-x86_64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/x86_64/nfv/os/
+gpgcheck = 1
+name = rhel-9-nfv-x86_64
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-nfv-aarch64]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/x86_64/nfv/os/
+gpgcheck = 1
+name = rhel-9-nfv-aarch64
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-nfv-s390x]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/x86_64/nfv/os/
+gpgcheck = 1
+name = rhel-9-nfv-s390x
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-nfv-ppc64le]
+baseurl = https://rhsm-pulp.corp.redhat.com/content/e4s/rhel9/9.8/x86_64/nfv/os/
+gpgcheck = 1
+name = rhel-9-nfv-ppc64le
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+[rhel-9-server-ose-rpms-x86_64]
+baseurl = https://ocp-artifacts.engineering.redhat.com/pub/RHOCP/plashets/5.0/stream/el9/latest/x86_64/os/
+module_hotfixes = 1
+name = rhel-9-server-ose-rpms-x86_64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+sslcacert = /tmp/art/Current-IT-Root-CAs.pem
+
+[rhel-9-server-ose-rpms-aarch64]
+baseurl = https://ocp-artifacts.engineering.redhat.com/pub/RHOCP/plashets/5.0/stream/el9/latest/aarch64/os/
+module_hotfixes = 1
+name = rhel-9-server-ose-rpms-aarch64
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+sslcacert = /tmp/art/Current-IT-Root-CAs.pem
+
+[rhel-9-server-ose-rpms-s390x]
+baseurl = https://ocp-artifacts.engineering.redhat.com/pub/RHOCP/plashets/5.0/stream/el9/latest/s390x/os/
+module_hotfixes = 1
+name = rhel-9-server-ose-rpms-s390x
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+sslcacert = /tmp/art/Current-IT-Root-CAs.pem
+
+[rhel-9-server-ose-rpms-ppc64le]
+baseurl = https://ocp-artifacts.engineering.redhat.com/pub/RHOCP/plashets/5.0/stream/el9/latest/ppc64le/os/
+module_hotfixes = 1
+name = rhel-9-server-ose-rpms-ppc64le
+gpgcheck = 1
+gpgkey = file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+sslcacert = /tmp/art/Current-IT-Root-CAs.pem
+
