@@ -27,6 +27,9 @@ sed "$ s/,$//") && echo "}") >> /usr/share/rpm-ostree/extensions.json
 FROM registry.access.redhat.com/ubi9/ubi:latest
 # Add a label so the extensions image can be identified
 LABEL io.openshift.os.extensions=true
+# Identify the stream this extensions image is related to
+ARG STREAM_CLASS
+LABEL io.openshift.os.streamclass=${STREAM_CLASS}
 # Copy in the extensions repo
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 # Make this the last layer, this is similar to the metalayer trick in the node
