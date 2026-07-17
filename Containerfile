@@ -19,10 +19,12 @@ COPY --from=metadata /usr/share/buildinfo /usr/share/buildinfo
 ARG IMAGE_NAME
 ARG IMAGE_CPE
 ARG TARGETARCH
+ARG STREAM_CLASS
 LABEL name=${IMAGE_NAME}
 LABEL cpe=${IMAGE_CPE}
 LABEL architecture=${TARGETARCH}
 LABEL io.openshift.metalayer=true
+LABEL io.openshift.os.streamclass=${STREAM_CLASS}
 # Add a hack to get OpenShift tests working again because a
 # revert of the new architecture happened in
 # https://github.com/openshift/machine-config-operator/pull/5703
