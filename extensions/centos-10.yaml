@@ -8,13 +8,10 @@
 
 repos:
   - c10s-sig-nfv
-  # Some of the extensions here have version bindings to host packages. Add the
-  # mirrors since those retain multiple versions of packages in case the latest
-  # compose has already moved since the last base image build.
-  - c10s-baseos-mirror
-  - c10s-appstream-mirror
-  - c10s-nfv-mirror
-  - c10s-rt-mirror
+  - c10s-baseos
+  - c10s-appstream
+  - c10s-nfv
+  - c10s-rt
 
 extensions:
   ipsec:
