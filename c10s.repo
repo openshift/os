@@ -61,3 +61,7 @@ gpgcheck=1
 repo_gpgcheck=0
 enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud
+# Exclude el9 packages: the SIG okd-5.0 repo incorrectly contains el9/4.22
+# builds alongside el10s/5.0 builds. A CentOS 10 image must never install
+# el9 binaries (OKD-418).
+exclude=*.el9 *.el9.*

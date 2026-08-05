@@ -36,9 +36,11 @@ mkdir -p /var/opt
 dnf --disablerepo=* versionlock add '*'
 
 # Install the OCP packages. Limit to appropriate repos for this stream.
+# Pin openshift-* minimum versions to prevent cross-version contamination
+# when the SIG repo contains packages from multiple OKD releases (OKD-418).
 dnf --repo="${YUM_REPO_NAMES}" install -y \
     cri-o cri-tools conmon-rs \
-    openshift-clients openshift-kubelet \
+    "openshift-clients >= ${OPENSHIFT_VERSION}" "openshift-kubelet >= ${OPENSHIFT_VERSION}" \
     openvswitch3.5 \
     NetworkManager-ovs \
     ose-aws-ecr-image-credential-provider \
