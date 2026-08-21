@@ -32,6 +32,14 @@
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://issues.redhat.com/browse/OCPBUGS-42688
 
+# 4.17 and 4.18 releases are currently experiencing 403 forbidden errors while
+# fetching c9s kernels from mirror.stream.centos.org during this test
+- pattern: ext.config.shared.rpm-ostree.kernel-replace
+  tracker: https://github.com/coreos/rhel-coreos-config/issues/305
+  snooze: 2026-09-04
+  osversion:
+    - rhel-9.4
+
 # This test is failing only in prow, so it's skipped by prow
 # but not denylisted here so it can run on the rhcos pipeline
 #- pattern: iso-offline-install-iscsi.ibft.bios
