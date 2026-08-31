@@ -582,3 +582,7 @@ metadata, that's why it's only a few megabytes in size, and it will always repor
 Every version of the system will have its own unique composefs EROFS image.
 
 With composefs, `/` is backed by `/sysroot` and any disk monitoring tools should be updated to watch the `/sysroot` mountpoint, which is the real physical root.
+
+In some cases, after an upgrade, some nodes may have composefs enabled but not all of them. This is a known state caused by a bug in the MCO that
+cause some nodes to apply the update twice, causing them to get composefs enabled sooner than other. This has no impact and will resolve itself
+at the next update. See this [knowledge base article](https://access.redhat.com/solutions/7139041) for more details.
