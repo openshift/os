@@ -30,28 +30,28 @@ SCOS or RHCOS image (see building instructions in
 Each variant has a `build-args-*.conf` file that specifies the base image
 and metadata for that build. Choose the appropriate one for your target:
 
-- `build-args-5.0-9.8.conf` — RHCOS on RHEL 9.8
-- `build-args-5.0-10.2.conf` — RHCOS on RHEL 10.2
-- `build-args-5.0-c10s.conf` — SCOS on CentOS Stream 10
+- `build-args-5.1-10.2.conf` — RHCOS on RHEL 10.2
+- `build-args-5.1-9.8.conf` — RHCOS on RHEL 9.8
+- `build-args-5.1-c10s.conf` — SCOS on CentOS Stream 10
 
 To build:
 
 ```
-podman build --build-arg-file build-args-5.0-c10s.conf \
+podman build --build-arg-file build-args-5.1-c10s.conf \
   --secret id=yumrepos,src=/path/to/all.repo \
   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
-  --security-opt label=disable -t localhost/stream-coreos:5.0 .
+  --security-opt label=disable -t localhost/stream-coreos:5.1 .
 ```
 
 To override the base image (e.g. to use a locally built OCI archive),
 pass `--from`:
 
 ```
-podman build --build-arg-file build-args-5.0-c10s.conf \
+podman build --build-arg-file build-args-5.1-c10s.conf \
   --from oci-archive:$(ls builds/latest/x86_64/*.ociarchive) \
   --secret id=yumrepos,src=/path/to/all.repo \
   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
-  --security-opt label=disable -t localhost/stream-coreos:5.0 .
+  --security-opt label=disable -t localhost/stream-coreos:5.1 .
 ```
 
 ## Building Extensions Image
@@ -59,20 +59,20 @@ podman build --build-arg-file build-args-5.0-c10s.conf \
 Similar to the above, but use the extensions Containerfile instead:
 
 ```
-podman build --build-arg-file build-args-5.0-c10s.conf \
+podman build --build-arg-file build-args-5.1-c10s.conf \
   --secret id=yumrepos,src=/path/to/all.repo \
   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
-  --security-opt label=disable -t localhost/stream-coreos-extensions:5.0 \
+  --security-opt label=disable -t localhost/stream-coreos-extensions:5.1 \
   -f extensions/Containerfile .
 ```
 
 Overriding the node image as input:
 
 ```
-podman build --build-arg-file build-args-5.0-c10s.conf \
-  --from localhost/stream-coreos:5.0 \
+podman build --build-arg-file build-args-5.1-c10s.conf \
+  --from localhost/stream-coreos:5.1 \
   --secret id=yumrepos,src=/path/to/all.repo \
   -v /etc/pki/ca-trust:/etc/pki/ca-trust:ro \
-  --security-opt label=disable -t localhost/stream-coreos-extensions:5.0 \
+  --security-opt label=disable -t localhost/stream-coreos-extensions:5.1 \
   -f extensions/Containerfile .
 ```
