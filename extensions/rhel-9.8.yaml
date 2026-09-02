@@ -47,18 +47,15 @@ extensions:
       - kernel-rt-modules-core
       - kernel-rt-modules-extra
       - kernel-rt-devel
-### XXX: Drop kata until it can be in all the repos it needs to be in
-### for us to compose extensions.
-###
-### https://github.com/openshift/machine-config-operator/pull/2456
-### https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
-### GRPA-3123
-##sandboxed-containers:
-##  architectures:
-##    - x86_64
-##    - s390x
-##  packages:
-##    - kata-containers
+  # https://github.com/openshift/machine-config-operator/pull/2456
+  # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
+  # GRPA-3123
+  sandboxed-containers:
+    architectures:
+      - x86_64
+      - s390x
+    packages:
+      - kata-containers
   # https://issues.redhat.com/browse/COS-2402
   kernel-64k:
     architectures:
