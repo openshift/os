@@ -32,7 +32,7 @@
 # fetching c9s kernels from mirror.stream.centos.org during this test
 - pattern: ext.config.shared.rpm-ostree.kernel-replace
   tracker: https://github.com/coreos/rhel-coreos-config/issues/305
-  snooze: 2026-09-04
+  snooze: 2026-09-21
   osversion:
     - rhel-9.4
 
