@@ -28,13 +28,13 @@
 - pattern: ext.config.version.rhaos-pkgs-match-openshift
   tracker: https://issues.redhat.com/browse/OCPBUGS-42688
 
-# 4.17 and 4.18 releases are currently experiencing 403 forbidden errors while
-# fetching c9s kernels from mirror.stream.centos.org during this test
+# RHCOS 4.17 is EOL (end of Maintenance Support Apr 2026). The kernel-replace
+# test fails with HTTP 403 from mirror.stream.centos.org due to GeoIP mirror
+# routing. While we still build 4.17 occasionally for upgrade paths (4.16→4.18),
+# this test is not worth fixing on an EOL branch. The dnf download fix exists
+# on testing-devel and rhcos-4.18 (fedora-coreos-config PR #4405).
 - pattern: ext.config.shared.rpm-ostree.kernel-replace
   tracker: https://github.com/coreos/rhel-coreos-config/issues/305
-  snooze: 2026-10-21
-  osversion:
-    - rhel-9.4
 
 # This test is failing only in prow, so it's skipped by prow
 # but not denylisted here so it can run on the rhcos pipeline
