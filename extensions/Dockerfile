@@ -39,6 +39,15 @@ dnf repoquery --repofrompath=extensions,/usr/share/rpm-ostree/extensions/ \
 sed "$ s/,$//" >> /tmp/extensions.json && \
 echo "}" >> /tmp/extensions.json'
 
+# Also bake extensions.json into the image so it can be extracted from there
+# (e.g. via `oc image extract` or `podman run $img cat ...`). The write to
+# /tmp/extensions.json above is kept for coreos-assembler, which bind-mounts
+# that path into the build.
+RUN cp /tmp/extensions.json /usr/share/rpm-ostree/extensions.json
+
 ## Final container that has the extensions repo dir
 FROM registry.access.redhat.com/ubi9/ubi:latest
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
+# Make this the last layer, this is similar to the metalayer trick in the node
+# image, but this one is specific to rpm-ostree extensions.
+COPY --from=builder /usr/share/rpm-ostree/extensions.json /usr/share/rpm-ostree/extensions.json
