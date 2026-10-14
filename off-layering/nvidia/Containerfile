@@ -1,0 +1,26 @@
+# This builds the OCP4NV nodeimage/baseimage on top of the nodeimage/baseimage itself.
+ARG FROM
+FROM ${FROM}
+
+COPY off-layering/nvidia/voyager.repo  /etc/yum.repos.d/
+
+RUN <<EOF
+
+if [ -n "$VERSION" ]; then
+    OLD_VERSION=$(grep "^OSTREE_VERSION=" /usr/lib/os-release | cut -d"'" -f2)
+    [ -n "$OLD_VERSION" ] || { echo "Error: Could not extract version from os-release"; exit 1; }
+    sed -i "s|$OLD_VERSION|$VERSION|g" /usr/lib/os-release
+fi
+
+arch="$(uname -m)"
+dnf remove kernel-core --assumeyes
+
+kernel_name='kernel-core kernel-modules-extra'
+[ "$arch" = 'aarch64' ] && kernel_name='kernel-64k-core kernel-64k-modules-extra'
+
+dnf install --assumeyes --disablerepo=* --enablerepo=voyager $kernel_name
+
+kver=$(ls /usr/lib/modules)
+env DRACUT_NO_XATTR=1 dracut -vf /usr/lib/modules/$kver/initramfs.img "$kver"
+EOF
+
