@@ -1,0 +1,74 @@
+# RPMs as operating system extensions, distinct from the base ostree commit/image
+# https://github.com/openshift/enhancements/blob/master/enhancements/rhcos/extensions.md
+# and https://github.com/coreos/fedora-coreos-tracker/issues/401
+
+# RULE: If repos support all architectures then put them in the global repos list
+# at the top of this file (directly below this comment). If we don't we can have
+# consistency issues across arches. See e.g. https://issues.redhat.com/browse/OCPBUGS-52293.
+extensions:
+  # Uncomment when the server-ose-4.22 repo exists for RHEL 10
+  ipsec:
+    packages:
+      - libreswan
+      - NetworkManager-libreswan
+      - openvswitch3.5-ipsec
+  # https://github.com/coreos/fedora-coreos-tracker/issues/326
+  usbguard:
+    packages:
+      - usbguard
+  kerberos:
+    packages:
+      - krb5-workstation
+      - libkadm5
+  # https://github.com/kmods-via-containers/kmods-via-containers/issues/3
+  # https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/866
+  # These are currently overlaid onto the host so that they can be bind-mounted
+  # into build containers... in the future they should be a `development`
+  # extension: https://github.com/openshift/machine-config-operator/pull/2143.
+  # These are already in the base, so they're not OS extensions, but they're
+  # useful to have in RPM form to install in kmod build containers.
+  kernel:
+    kind: development
+    architectures:
+      - x86_64
+    packages:
+      - kernel
+      - kernel-core
+      - kernel-modules
+      - kernel-modules-extra
+      - kernel-devel
+      - kernel-headers
+    match-base-evr: kernel-core
+  # https://github.com/openshift/machine-config-operator/pull/2456
+  # https://github.com/openshift/enhancements/blob/master/enhancements/sandboxed-containers/sandboxed-containers-tech-preview.md
+  # GRPA-3123
+  sandboxed-containers:
+    architectures:
+      - x86_64
+      - s390x
+    packages:
+      - kata-containers
+  # https://issues.redhat.com/browse/COS-2402
+  kernel-64k:
+    kind: development
+    architectures:
+      - aarch64
+    packages:
+      - kernel-64k
+      - kernel-64k-core
+      - kernel-64k-modules
+      - kernel-64k-modules-core
+      - kernel-64k-modules-extra
+      - kernel-devel
+      - kernel-headers
+    match-base-evr: kernel-64k-core
+  # https://issues.redhat.com/browse/COS-2940
+  sysstat:
+    packages:
+      - sysstat
+  # https://issues.redhat.com/browse/OCPEDGE-1493
+  two-node-ha:
+    packages:
+      - pacemaker
+      - pcs
+      - fence-agents-all
