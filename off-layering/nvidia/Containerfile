@@ -1,8 +1,35 @@
 # This builds the OCP4NV nodeimage/baseimage on top of the nodeimage/baseimage itself.
+#
+# Everything this layer needs comes from entitled subscription content:
+#
+#   <REPO_KERNEL>         el10nv kernel (rhel-10-for-<arch>-nvidia-rpms by default)
+#   <REPO_SUPPLEMENTARY>  DOCA, MOFED, collectx-clxapi, mft
+#   <REPO_EXTENSIONS>     libunwind
+#   <REPO_CODEREADY>      libyaml-devel, pulled in by doca-networking-runtime's flexio-sdk
+#
+# The repo IDs are ARGs so CI can pass its compose-style names (for example
+# rhel-10.2-supplementary) instead of the subscription-manager names used on a
+# subscribed host. An empty value falls back to the subscription name.
+#
+# The OFED rdma-core stack comes from the NVIDIA partner repository declared in
+# off-layering/nvidia/doca.repo (disabled by default, enabled for this build). It
+# replaces the distro rdma-core and is the only source of the libmlx5.so.1
+# MLX5_1.25.1/1.27 symbols that doca-openvswitch links against.
 ARG FROM
 FROM ${FROM}
 
-COPY off-layering/nvidia/voyager.repo  /etc/yum.repos.d/
+# DOCA and OFED come from the NVIDIA partner repository.
+COPY off-layering/nvidia/doca.repo /etc/yum.repos.d/
+
+# MOFED ships only mlnx-ofa_kernel-64k built for kver.6.12.0_259.26.el10nv. That package
+# carries no kernel-uname-r dependency, so a mismatch would not fail on its own: the kernel
+# is pinned here and asserted below. Bump this only together with the MOFED build.
+ARG KERNEL_VERSION=6.12.0-259.26.el10nv
+
+ARG REPO_KERNEL=
+ARG REPO_SUPPLEMENTARY=
+ARG REPO_EXTENSIONS=
+ARG REPO_CODEREADY=
 
 RUN <<EOF
 
@@ -13,14 +40,135 @@ if [ -n "$VERSION" ]; then
 fi
 
 arch="$(uname -m)"
+
+# This heredoc is unquoted so the builder expands $VERSION, therefore the fallback
+# is written as plain shell rather than ${VAR:-default} syntax.
+repo_kernel="$REPO_KERNEL"
+if [ -z "$repo_kernel" ]; then
+    repo_kernel="rhel-10-for-$arch-nvidia-rpms"
+fi
+
 dnf remove kernel-core --assumeyes
 
 kernel_name='kernel-core kernel-modules-extra'
 [ "$arch" = 'aarch64' ] && kernel_name='kernel-64k-core kernel-64k-modules-extra'
 
-dnf install --assumeyes --disablerepo=* --enablerepo=voyager $kernel_name
+dnf install --assumeyes --disablerepo=* \
+    --enablerepo="${repo_kernel}" \
+    $(for p in $kernel_name; do printf '%s-%s.%s ' "$p" "$KERNEL_VERSION" "$arch"; done)
 
-kver=$(ls /usr/lib/modules)
-env DRACUT_NO_XATTR=1 dracut -vf /usr/lib/modules/$kver/initramfs.img "$kver"
+# Fail closed: MOFED is built against one kernel ABI and does not depend on it.
+# The module directory carries an arch suffix (e.g. .aarch64+64k), so compare the prefix.
+kdir="$(ls /usr/lib/modules)"
+case "$kdir" in
+    "${KERNEL_VERSION}".*) ;;
+    *) echo "installed kernel $kdir does not match pinned MOFED ABI $KERNEL_VERSION" >&2
+       exit 1 ;;
+esac
 EOF
 
+# OVS-DOCA has to be the host OVS from first boot, so it is installed into the image
+# rather than left to a post-kubelet operator. dracut runs after this layer so the
+# MOFED modules land in the initramfs.
+RUN <<'EOF'
+set -euxo pipefail
+
+arch="$(uname -m)"
+# kdir is the module directory (6.12.0-259.26.el10nv.aarch64+64k); kver is the bare
+# NVR used for matching MOFED, which encodes the ABI as kver.6.12.0_259.26.el10nv.
+kdir="$(ls /usr/lib/modules)"
+kver="$(printf '%s' "${kdir}" | sed 's/\.\(aarch64\|x86_64\|ppc64le\|s390x\).*//')"
+
+repo_extensions="${REPO_EXTENSIONS:-rhel-10-for-${arch}-extensions-rpms}"
+repo_supplementary="${REPO_SUPPLEMENTARY:-rhel-10-for-${arch}-supplementary-rpms}"
+repo_codeready="${REPO_CODEREADY:-codeready-builder-for-rhel-10-${arch}-rpms}"
+
+# aarch64 here always runs the 64k-page kernel, so it needs the -64k MOFED build.
+mofed_pkg='mlnx-ofa_kernel'
+if [ "$arch" = 'aarch64' ]; then
+    mofed_pkg='mlnx-ofa_kernel-64k'
+fi
+
+# Layering happens on the node image. rhel-coreos-base is the bootstrap and
+# live-media image: it carries no OCP components and cannot boot as a node.
+rpm -q cri-o conmon-rs openshift-clients
+
+# DOCA installs RPM-owned libraries under /opt/mellanox. RHCOS keeps /opt as a
+# symlink into /var, and /var is not lifecycled with this image, so those libraries
+# would not be there after a pivot. Keep the symlink and point just that subpath at
+# /usr instead, the way /opt/cni is already handled: the install then writes through
+# the link into the image itself.
+test "$(readlink /opt)" = "var/opt"
+mkdir -p /usr/lib/opt/mellanox /var/opt
+ln -sfn ../../usr/lib/opt/mellanox /var/opt/mellanox
+
+# The inbox OVS and the DOCA build own the same files; exactly one may exist.
+inbox_ovs="$(rpm -qa --qf '%{NAME}\n' 'openvswitch[0-9]*')"
+if [ -n "${inbox_ovs}" ]; then
+    dnf remove --assumeyes ${inbox_ovs}
+fi
+
+# The distro rdma-core carries Epoch: 1 deliberately (RHEL-275490): it has to always
+# outrank the OFED builds so a customer who ended up on them can get back to the
+# supported stack. So we opt in instead of outranking: for this build only, hide the
+# distro RDMA packages so the partner ones are the sole candidates. Never raise the
+# Epoch on the partner builds, that would defeat the escape hatch.
+#
+# The whole set has to land in one transaction. rdma-core-devel is not optional
+# (doca-networking-runtime pulls flexio-sdk, which requires it) and it requires
+# infiniband-diags, which needs perl from baseos.
+dnf install --assumeyes --allowerasing \
+    --enablerepo=doca-partner \
+    --setopt="rhel-10-for-${arch}-baseos-rpms.excludepkgs=libibverbs libibverbs-utils librdmacm librdmacm-utils libibumad ibacm srp_daemon rdma-core rdma-core-devel infiniband-diags" \
+    --setopt="rhel-10-for-${arch}-appstream-rpms.excludepkgs=libibverbs libibverbs-utils librdmacm librdmacm-utils libibumad ibacm srp_daemon rdma-core rdma-core-devel infiniband-diags" \
+    --enablerepo="${repo_extensions}" \
+    --enablerepo="${repo_supplementary}" \
+    --enablerepo="${repo_codeready}" \
+    libibverbs libibverbs-utils librdmacm librdmacm-utils libibumad \
+    ibacm infiniband-diags srp_daemon rdma-core \
+    "${mofed_pkg}" doca-networking-runtime mft
+
+# /var is not deployed, so re-create that subpath link at boot.
+cat > /usr/lib/tmpfiles.d/nvidia-doca.conf <<'TMPFILES'
+L /opt/mellanox - - - - ../../usr/lib/opt/mellanox
+TMPFILES
+
+# doca-openvswitch expects its state directories owned by openvswitch:hugetlbfs
+# (0750), but the OCP tmpfiles rule in openshift.conf declares
+# /var/lib/openvswitch and /var/lib/openvswitch/pki as root:root 0755 and is
+# re-applied on every boot. ovsdb-server then cannot create conf.db and its lock
+# file, so OVS never starts. The inbox openvswitch3.5 packages expect root:root,
+# which is why this only bites with the DOCA build.
+# tmpfiles applies the lexicographically FIRST file for a given path and reports
+# every later one as a duplicate, so this has to sort before openshift.conf,
+# not after it:
+#   openshift.conf:5: Duplicate line for path "/var/lib/openvswitch", ignoring.
+cat > /usr/lib/tmpfiles.d/00-nvidia-ovs.conf <<'TMPFILES'
+d /var/lib/openvswitch 0750 openvswitch hugetlbfs - -
+d /var/lib/openvswitch/pki 0750 openvswitch hugetlbfs - -
+d /run/openvswitch 0755 root root - -
+TMPFILES
+
+# Fail closed if that ordering assumption ever stops holding.
+[ "$(printf '%s\n' 00-nvidia-ovs.conf openshift.conf | LC_ALL=C sort | head -1)" = "00-nvidia-ovs.conf" ]
+
+# Fail closed: DOCA OVS must be the installed OVS, and its libraries must resolve.
+rpm -q doca-openvswitch
+test -x /usr/sbin/ovs-vswitchd
+rpm -q --whatprovides /usr/sbin/ovs-vswitchd
+if rpm -q 'openvswitch[0-9]*' >/dev/null 2>&1; then
+    echo "an inbox Open vSwitch package is still installed" >&2
+    exit 1
+fi
+
+# MOFED is built for one kernel ABI; assert rather than trust dnf to notice.
+rpm -q "${mofed_pkg}" | grep -F "kver.$(printf '%s' "${kver}" | sed 's/-/_/')"
+
+rpm -q --qf 'libibverbs %{VERSION}-%{RELEASE}\n' libibverbs
+rpm -q --provides libibverbs | grep -F 'libmlx5.so.1(MLX5_1.25.1)'
+rpm -q --provides libibverbs | grep -F 'libmlx5.so.1(MLX5_1.27)'
+ldconfig
+ldconfig -p | grep -F 'libclx_api.so.1'
+
+env DRACUT_NO_XATTR=1 dracut -vf "/usr/lib/modules/${kdir}/initramfs.img" "${kdir}"
+EOF

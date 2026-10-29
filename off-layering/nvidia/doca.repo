@@ -1,0 +1,9 @@
+[doca-partner]
+name=NVIDIA DOCA / OFED (Red Hat Partner Repositories)
+# Internal COPR staging for the OVS-DOCA partner repo. Production will be
+# packages.redhat.com with the same @partner-repos-ovs-doca/ovs-doca-3.5/custom-1-$basearch shape.
+baseurl=https://coprbe.devel.redhat.com/results/@partner-repos-ovs-doca/ovs-doca-3.5/custom-1-$basearch/
+enabled=0
+gpgcheck=1
+repo_gpgcheck=0
+gpgkey=https://coprbe.devel.redhat.com/results/@partner-repos-ovs-doca/ovs-doca-3.5/pubkey.gpg
