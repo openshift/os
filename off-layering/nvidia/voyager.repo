@@ -1,6 +1,0 @@
-[voyager]
-name=RHEL4NV RHEL 10.2 VERIOSN 26.02
-baseurl=https://download-01.beak-001.prod.iad2.dc.redhat.com/rhel-10/nightly/updates/RHEL4NV-10/latest-RHEL4NV-10.2/compose/RHEL4NV/$basearch/os/
-gpgcheck=0
-repo_gpgcheck=0
-enabled=1
