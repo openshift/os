@@ -10,7 +10,7 @@ ARG OPENSHIFT_CI=0
 ARG OPENSHIFT_VERSION=overridden
 ARG YUM_REPO_NAMES=overridden
 ARG EXTENSIONS_YUM_REPO_NAMES=overridden
-COPY off-layering/nvidia/voyager.repo /os/voyager.repo
+COPY off-layering/nvidia/nvidia.repo /os/nvidia.repo
 RUN --mount=type=secret,id=yumrepos,target=/os/secret.repo off-layering/nvidia/extensions/build.sh
 
 ## Creates the repo metadata for the extensions.
