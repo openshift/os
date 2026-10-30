@@ -1,0 +1,6 @@
+[nvidia]
+name=RHEL4NV RHEL 10.2 VERSION
+baseurl=https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel10/$basearch/nvidia/os/
+gpgcheck=0
+repo_gpgcheck=0
+enabled=1

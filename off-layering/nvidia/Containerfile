@@ -1,26 +1,39 @@
 # This builds the OCP4NV nodeimage/baseimage on top of the nodeimage/baseimage itself.
 ARG FROM
+ARG KERNEL_VERSION='6.12.0-259.26.el10nv'
 FROM ${FROM}
 
-COPY off-layering/nvidia/voyager.repo  /etc/yum.repos.d/
+ARG KERNEL_VERSION
+#TODO Move repos definitions to redhat-coreos
+COPY off-layering/nvidia/nvidia.repo  /etc/yum.repos.d/
+COPY off-layering/nvidia/doca.repo    /etc/yum.repos.d/
 
-RUN <<EOF
+# Do not use heredoc it breaks Konflux
 
-if [ -n "$VERSION" ]; then
-    OLD_VERSION=$(grep "^OSTREE_VERSION=" /usr/lib/os-release | cut -d"'" -f2)
-    [ -n "$OLD_VERSION" ] || { echo "Error: Could not extract version from os-release"; exit 1; }
-    sed -i "s|$OLD_VERSION|$VERSION|g" /usr/lib/os-release
-fi
-
-arch="$(uname -m)"
-dnf remove kernel-core --assumeyes
-
-kernel_name='kernel-core kernel-modules-extra'
-[ "$arch" = 'aarch64' ] && kernel_name='kernel-64k-core kernel-64k-modules-extra'
-
-dnf install --assumeyes --disablerepo=* --enablerepo=voyager $kernel_name
-
-kver=$(ls /usr/lib/modules)
-env DRACUT_NO_XATTR=1 dracut -vf /usr/lib/modules/$kver/initramfs.img "$kver"
-EOF
-
+RUN set -euxo pipefail; \
+    OLD_VERSION=$(grep "^OSTREE_VERSION=" /usr/lib/os-release | cut -d"'" -f2); \
+    [ -n "$OLD_VERSION" ] || { echo "Error: Could not extract version from os-release"; exit 1; }; \
+    arch="$(uname -m)"; \
+    dnf remove kernel-core --assumeyes; \
+    if [ "$arch" = 'aarch64' ]; then \
+        kernel_name="kernel-64k-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-64k-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
+        mlnx_name="mlnx-ofa_kernel-64k-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.aarch64 mlnx-ofa_kernel-modules-64k"; \
+        disable='doca-x86_64'; \
+    else \
+        kernel_name="kernel-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
+        mlnx_name="mlnx-ofa_kernel-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.x86_64 mlnx-ofa_kernel-modules"; \
+        disable='doca-aarch64'; \
+    fi; \
+    dnf install --assumeyes --disablerepo='*' --enablerepo=nvidia $kernel_name; \
+    dnf remove --assumeyes openvswitch3.5; \
+    mkdir -p /var/opt /var/usrlocal; \
+    dnf install --assumeyes \
+        --disablerepo="$disable" \
+        doca-networking-runtime \
+        openvswitch-selinux-extra-policy \
+        mft \
+        libunwind \
+        $mlnx_name; \
+    dnf clean all; \
+    kver=$(ls /usr/lib/modules); \
+    DRACUT_NO_XATTR=1 dracut -vf /usr/lib/modules/$kver/initramfs.img "$kver"
