@@ -1,0 +1,81 @@
+#!/bin/bash
+## kola:
+##   exclusive: true
+##   timeoutMin: 15
+##   description: Load the extensions container image from an OCI archive
+##     and verify all extension packages can be installed against the base
+##     OS. This catches dependency resolution issues and version mismatches
+##     between the extensions image and the base OS.
+##   tags: openshift
+
+set -xeuo pipefail
+
+# shellcheck source=../data/commonlib.sh
+. "$KOLA_EXT_DATA"/commonlib.sh
+
+EXT_REPO_DIR=/var/tmp/extensions-rpms
+EXT_REPO_FILE=/etc/yum.repos.d/test-extensions.repo
+
+cleanup() {
+    rm -f "${EXT_REPO_FILE}"
+    rm -rf "${EXT_REPO_DIR}"
+}
+trap cleanup EXIT
+
+# Load extensions image from the OCI archive exported by the pipeline.
+# cosa mounts $WORKDIR into the VM via virtfs at /mnt/workdir.
+EXTENSIONS_ARCHIVE=/mnt/workdir/tmp/extensions.ociarchive
+
+if [ ! -f "${EXTENSIONS_ARCHIVE}" ]; then
+    echo "No extensions archive found at ${EXTENSIONS_ARCHIVE}, skipping"
+    ok "extensions install (skipped)"
+    exit 0
+fi
+
+echo "Loading extensions image from ${EXTENSIONS_ARCHIVE}"
+
+# Pull from the local OCI archive — no registry auth needed.
+extensions_image=$(podman pull "oci-archive:${EXTENSIONS_ARCHIVE}")
+if [ -z "${extensions_image}" ]; then
+    fatal "Failed to load extensions image from ${EXTENSIONS_ARCHIVE}"
+fi
+
+echo "Extensions image: ${extensions_image}"
+
+# Extract RPMs and extensions.json from the container.
+mkdir -p "${EXT_REPO_DIR}"
+cid=$(podman create "${extensions_image}")
+podman cp "${cid}:/usr/share/rpm-ostree/extensions/" "${EXT_REPO_DIR}/repo"
+podman cp "${cid}:/usr/share/rpm-ostree/extensions.json" "${EXT_REPO_DIR}/extensions.json"
+podman rm "${cid}"
+
+if [ ! -f "${EXT_REPO_DIR}/extensions.json" ]; then
+    fatal "extensions.json not found in the extensions image"
+fi
+
+# Create a yum repo pointing at the extracted RPMs.
+cat > "${EXT_REPO_FILE}" <<EOF
+[test-extensions]
+name=Test Extensions
+baseurl=file://${EXT_REPO_DIR}/repo
+enabled=1
+gpgcheck=0
+EOF
+
+# Read all package names from extensions.json.
+packages=$(jq -r 'keys[]' "${EXT_REPO_DIR}/extensions.json")
+if [ -z "${packages}" ]; then
+    fatal "No packages found in extensions.json"
+fi
+
+echo "Packages to install:"
+echo "${packages}"
+
+# Verify that all extension packages can be installed against the base OS.
+# Use --idempotent to handle packages that may already exist in the base image.
+# shellcheck disable=SC2086
+if ! rpm-ostree install --idempotent ${packages}; then
+    fatal "Failed to install extension packages — dependency resolution error"
+fi
+
+ok "extensions install"
