@@ -1,13 +1,30 @@
 # This builds the final OCP/OKD node image on top of the base CoreOS image. For
 # instructions on how to build this, see `docs/building.md`.
 
-FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos as build
+ARG IMAGE_FROM=overridden
+FROM ${IMAGE_FROM} as build
 ARG OPENSHIFT_CI=0
 RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/etc/yum.repos.d/secret.repo /run/src/build-node-image.sh
 
 FROM build as metadata
+ARG IMAGE_NAME
+ARG IMAGE_CPE
+ARG TARGETARCH
 RUN --mount=type=bind,target=/run/src /run/src/scripts/generate-metadata
+RUN --mount=type=bind,target=/run/src /run/src/scripts/generate-labels
 
 FROM build
+COPY --from=metadata /usr/share/buildinfo /usr/share/buildinfo
+# Copy in the meta.json. This needs to be the last operation that
+# creates a layer in the image build so that our `oc image extract img[-1]`
+# trick works. See https://github.com/coreos/fedora-coreos-pipeline/blob/80c2625b89185f8adc5568fae112484a427c5806/utils.groovy#L1004
 COPY --from=metadata /usr/share/openshift /usr/share/openshift
+ARG IMAGE_NAME
+ARG IMAGE_CPE
+ARG TARGETARCH
+ARG STREAM_CLASS
+LABEL name=${IMAGE_NAME}
+LABEL cpe=${IMAGE_CPE}
+LABEL architecture=${TARGETARCH}
 LABEL io.openshift.metalayer=true
+LABEL io.openshift.os.streamclass=${STREAM_CLASS}
