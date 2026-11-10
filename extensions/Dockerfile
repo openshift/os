@@ -1,8 +1,6 @@
 ## Downloads the extensions given the extensions.yaml
-FROM registry.ci.openshift.org/rhcos-devel/rhel-coreos:latest as os
-# Expects os to be cloned and this build run from the top level dir like:
-# podman build -f extensions/Dockerfile .
-# also expects submodules to be initialized
+ARG IMAGE_FROM=overridden
+FROM ${IMAGE_FROM} as os
 RUN mkdir /os
 WORKDIR /os
 ADD . .
@@ -25,6 +23,10 @@ sed "$ s/,$//") && echo "}") >> /usr/share/rpm-ostree/extensions.json
 
 ## Final container that has the extensions repo dir
 FROM registry.access.redhat.com/ubi9/ubi:latest
+# Identify the stream this extensions image is related to
+ARG STREAM_CLASS
+LABEL io.openshift.os.streamclass=${STREAM_CLASS}
+# Copy in the extensions repo
 COPY --from=builder /usr/share/rpm-ostree/extensions/ /usr/share/rpm-ostree/extensions/
 # Make this the last layer, this is similar to the metalayer trick in the node
 # image, but this one is specific to rpm-ostree extensions.
