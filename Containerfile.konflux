@@ -1,0 +1,23 @@
+# This builds the OCP node image on top of the base CoreOS image using
+# Konflux. Unlike the main `Containerfile`, this does not use
+# `packages-openshift.yaml` or `rpm-ostree treefile-apply`. Instead, the
+# package list and all postprocess steps are embedded directly in the
+# `konflux-build-node-image.sh` script.
+#
+# This file intentionally does not modify any existing build path — it can
+# coexist with `Containerfile` and `build-node-image.sh` on `master`.
+#
+# See also: https://github.com/openshift/os/pull/1929
+
+# TODO: Replace this with the appropriate base image reference for Konflux.
+# For now, use the same base as the main Containerfile.
+FROM quay.io/openshift-release-dev/ocp-v4.0-art-dev:c9s-coreos as build
+RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/etc/yum.repos.d/secret.repo /run/src/konflux-build-node-image.sh
+
+FROM build as metadata
+RUN --mount=type=bind,target=/run/src /run/src/scripts/generate-metadata
+
+FROM build
+COPY --from=metadata /usr/share/openshift /usr/share/openshift
+LABEL io.openshift.metalayer=true
+LABEL ostree.linux=true
