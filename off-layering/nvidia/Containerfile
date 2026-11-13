@@ -1,9 +1,13 @@
 # This builds the OCP4NV nodeimage/baseimage on top of the nodeimage/baseimage itself.
 ARG FROM
-ARG KERNEL_VERSION='6.12.0-259.26.el10nv'
+ARG KERNEL_VERSION='6.12.0-265.31.el10nv'
 FROM ${FROM}
 
 ARG KERNEL_VERSION
+ARG DOCA_STREAM=3.5
+# MOFED build to install, and its build number (e.g. the 2 in …el10nv.2).
+ARG OFED_BUILD='26.07-OFED.26.07.0.7.7.0'
+ARG OFED_BUILD_REV='2'
 #TODO Move repos definitions to redhat-coreos
 COPY off-layering/nvidia/nvidia.repo  /etc/yum.repos.d/
 COPY off-layering/nvidia/doca.repo    /etc/yum.repos.d/
@@ -11,22 +15,26 @@ COPY off-layering/nvidia/doca.repo    /etc/yum.repos.d/
 # Do not use heredoc it breaks Konflux
 
 RUN set -euxo pipefail; \
+    sed -i "s|/ovs-doca-[0-9.]*|/ovs-doca-${DOCA_STREAM}|" /etc/yum.repos.d/doca.repo; \
     # TODO https://redhat.atlassian.net/browse/COS-4692
     # fix the Node image version by adding 0101 or using the base-image that already
     # has the version added (0101). DTK may need this fix
     #OLD_VERSION=$(grep "^OSTREE_VERSION=" /usr/lib/os-release | cut -d"'" -f2); \
     #[ -n "$OLD_VERSION" ] || { echo "Error: Could not extract version from os-release"; exit 1; }; \
     arch="$(uname -m)"; \
+    [ -n "${KERNEL_VERSION}" ] || { echo "KERNEL_VERSION is required: the MOFED kver is derived from it" >&2; exit 1; }; \
+    [ -n "${OFED_BUILD}" ] && [ -n "${OFED_BUILD_REV}" ] || { echo "OFED_BUILD and OFED_BUILD_REV are required" >&2; exit 1; }; \
+    mofed_kver="${KERNEL_VERSION//-/_}"; \
     # TODO: We need to understand how/where the mlnx-ofa_kernel modules will be placed, since it depends on the Kernel version
    # once we have the final repo for DOCA we can see the next steps.
     dnf remove kernel-core --assumeyes; \
     if [ "$arch" = 'aarch64' ]; then \
         kernel_name="kernel-64k-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-64k-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
-        mlnx_name="mlnx-ofa_kernel-64k-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.aarch64 mlnx-ofa_kernel-modules-64k"; \
+        mlnx_name="mlnx-ofa_kernel-64k-${OFED_BUILD}.kver.${mofed_kver}.${OFED_BUILD_REV}.aarch64 mlnx-ofa_kernel-modules-64k"; \
         disable='doca-x86_64'; \
     else \
         kernel_name="kernel-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
-        mlnx_name="mlnx-ofa_kernel-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.x86_64 mlnx-ofa_kernel-modules"; \
+        mlnx_name="mlnx-ofa_kernel-${OFED_BUILD}.kver.${mofed_kver}.${OFED_BUILD_REV}.x86_64 mlnx-ofa_kernel-modules"; \
         disable='doca-aarch64'; \
     fi; \
     dnf install --assumeyes --disablerepo='*' --enablerepo=nvidia $kernel_name; \
