@@ -1,14 +1,25 @@
+# RPMs are double-signed (RSA + post-quantum); RHEL 10 verifies both.
 [doca-x86_64]
 name=DOCA Online Repo x86_64
-baseurl=https://coprbe.devel.redhat.com/results/@partner-repos-ovs-doca/ovs-doca-3.5/custom-1-$basearch/
+baseurl=https://packages.redhat.com/api/pulp-content/partner-repositories/@partner-repos-nvidia-doca/ovs-doca-$doca_stream/custom-1-$basearch/
 enabled=1
-gpgcheck=0
+gpgcheck=1
+gpgkey=https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-2 https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-3pq
 
 [doca-aarch64]
 name=DOCA Online Repo 64k
-baseurl=https://coprbe.devel.redhat.com/results/@partner-repos-ovs-doca/ovs-doca-3.5/custom-1-$basearch/
+baseurl=https://packages.redhat.com/api/pulp-content/partner-repositories/@partner-repos-nvidia-doca/ovs-doca-$doca_stream/custom-1-$basearch/
 enabled=1
-gpgcheck=0
+gpgcheck=1
+gpgkey=https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-2 https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-3pq
+
+[doca-mofed]
+name=MOFED kernel modules
+baseurl=https://packages.redhat.com/api/pulp-content/partner-repositories/@partner-repos-nvidia-doca/doca-rhel-10-candidate/rhel-10-$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-2 https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-3pq
+includepkgs=mlnx-ofa_kernel*,mlnx-tools,ofed-scripts*
 
 [rhel-10.2-supp-eus]
 name=rhel-10.2-supp-eus
