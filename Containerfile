@@ -6,7 +6,7 @@ FROM ${IMAGE_FROM} as build
 ARG OPENSHIFT_CI=0
 ARG OPENSHIFT_VERSION=overridden
 ARG YUM_REPO_NAMES=overridden
-RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/run/src/secret.repo /run/src/build-node-image.sh
+RUN --mount=type=bind,target=/run/src --mount=type=secret,id=yumrepos,target=/run/yumrepos.repo /run/src/build-node-image.sh
 
 FROM build as metadata
 ARG IMAGE_NAME
