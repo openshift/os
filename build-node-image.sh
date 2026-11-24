@@ -14,9 +14,12 @@ if [ "${OPENSHIFT_CI}" != 0 ]; then
     /run/src/ci/get-ocp-repo.sh /etc/yum.repos.d/ocp.repo
 fi
 
-# add all the repos from the src repo (including mounted in secret.repo)
+# add all the repos from the src repo and the optional mounted secret
 # into `/etc/yum.repos.d` so dnf sees them
 cat /run/src/*.repo >> /etc/yum.repos.d/git.repo
+if [ -f /run/yumrepos.repo ]; then
+    cat /run/yumrepos.repo >> /etc/yum.repos.d/git.repo
+fi
 
 source /etc/os-release
 
