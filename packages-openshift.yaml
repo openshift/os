@@ -8,3 +8,5 @@ packages:
   # and depend on one or more of the above.
   - NetworkManager-ovs
   - ose-aws-ecr-image-credential-provider
+  # Pin runc to avoid 1.4.x pids.limit=0 breaking change
+  - runc-1.2.9-1.rhaos4.16.el9
