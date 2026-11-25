@@ -293,6 +293,8 @@ packages:
  #- origin-node origin-hyperkube origin-clients
  # OpenShift
  - openshift-hyperkube openshift-clients
+ # Pin runc to avoid 1.4.x pids.limit=0 breaking change
+ - runc-1.2.9-1.rhaos4.16.el9
  # Gluster - Used for Openshift e2e gluster testcases
  # Reverts https://gitlab.cee.redhat.com/coreos/redhat-coreos/merge_requests/367 and add it for all arches
  - glusterfs-fuse
