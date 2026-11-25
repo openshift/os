@@ -1,0 +1,66 @@
+# This builds the OCP4NV nodeimage/baseimage on top of the nodeimage/baseimage itself.
+ARG FROM
+ARG KERNEL_VERSION='6.12.0-259.26.el10nv'
+FROM ${FROM}
+
+ARG KERNEL_VERSION
+#TODO Move repos definitions to redhat-coreos
+COPY off-layering/nvidia/nvidia.repo  /etc/yum.repos.d/
+COPY off-layering/nvidia/doca.repo    /etc/yum.repos.d/
+
+# Do not use heredoc it breaks Konflux
+
+RUN set -euxo pipefail; \
+    # TODO https://redhat.atlassian.net/browse/COS-4692
+    # fix the Node image version by adding 0101 or using the base-image that already
+    # has the version added (0101). DTK may need this fix
+    #OLD_VERSION=$(grep "^OSTREE_VERSION=" /usr/lib/os-release | cut -d"'" -f2); \
+    #[ -n "$OLD_VERSION" ] || { echo "Error: Could not extract version from os-release"; exit 1; }; \
+    arch="$(uname -m)"; \
+    # TODO: We need to understand how/where the mlnx-ofa_kernel modules will be placed, since it depends on the Kernel version
+   # once we have the final repo for DOCA we can see the next steps.
+    dnf remove kernel-core --assumeyes; \
+    if [ "$arch" = 'aarch64' ]; then \
+        kernel_name="kernel-64k-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-64k-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
+        mlnx_name="mlnx-ofa_kernel-64k-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.aarch64 mlnx-ofa_kernel-modules-64k"; \
+        disable='doca-x86_64'; \
+    else \
+        kernel_name="kernel-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
+        mlnx_name="mlnx-ofa_kernel-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.x86_64 mlnx-ofa_kernel-modules"; \
+        disable='doca-aarch64'; \
+    fi; \
+    dnf install --assumeyes --disablerepo='*' --enablerepo=nvidia $kernel_name; \
+    dnf remove --assumeyes openvswitch3.5; \
+    # Mellanox packages are installed under /opt, which is not directly writable
+    # in RHCOS. Create the required directories under /usr/lib and /var to
+    # support the symlink layout expected by the Mellanox packages.
+    # See https://developers.redhat.com/articles/2025/09/23/customize-rhel-coreos-on-cluster-image-mode
+    mkdir -p /usr/lib/opt/mellanox /var/opt /var/usrlocal; \
+
+    dnf install --assumeyes \
+        --disablerepo="$disable" \
+        doca-networking-runtime \
+        openvswitch-selinux-extra-policy \
+        mft \
+        libunwind \
+        $mlnx_name; \
+    dnf clean all; \
+
+    # Part of the fix for https://developers.redhat.com/articles/2025/09/23/customize-rhel-coreos-on-cluster-image-mode
+    # RHCOS does not preserve /var across boots. Move Mellanox files
+    mv /var/opt/mellanox /usr/lib/opt; \
+    printf '%s\n' 'L+ /opt/mellanox - - - - /usr/lib/opt/mellanox' > /usr/lib/tmpfiles.d/nvidia-doca.conf; \
+
+    # TODO: Check whether we can drop this configuration in build-node-image.sh
+    # and rely on the RPMs to create these directories with the correct ownership
+    # and permissions.
+    # See https://github.com/openshift/os/blob/master/build-node-image.sh#L125-L136
+    printf '%s\n' \
+        'd /var/lib/openvswitch 0750 openvswitch hugetlbfs - -' \
+        'd /var/lib/openvswitch/pki 0750 openvswitch hugetlbfs - -' \
+        'd /run/openvswitch 0755 root root - -' \
+        > /usr/lib/tmpfiles.d/00-nvidia-ovs.conf; \
+
+    kver=$(ls /usr/lib/modules); \
+    DRACUT_NO_XATTR=1 dracut -vf /usr/lib/modules/$kver/initramfs.img "$kver"; \
+    bootc container lint;
