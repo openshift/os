@@ -1,14 +1,27 @@
+# DOCA from the Red Hat-hosted Partner Ecosystem Repository (PER), namespace
+# @partner-repos-nvidia-doca, instead of the internal partner COPR.
+# Packages and keys verified 2026-11-25: doca-openvswitch-3.5.0052-1.el10 and
+# doca-openvswitch-ipsec-3.5.0052-1.el10 for both arches.
+#
+# The stanzas stay enabled=0 on purpose. This repository also carries
+# libibverbs, rdma-core, opensm and mft, which would shadow the RHEL
+# BaseOS/AppStream versions if it were enabled during an unrelated transaction.
+# subscription-manager ignores repo priority, so isolation is explicit
+# enablement per transaction (see the Containerfile).
+
 [doca-x86_64]
-name=DOCA Online Repo x86_64
-baseurl=https://coprbe.devel.redhat.com/results/@partner-repos-ovs-doca/ovs-doca-3.5/custom-1-$basearch/
-enabled=1
-gpgcheck=0
+name=NVIDIA DOCA (PER, x86_64)
+baseurl=https://packages.redhat.com/api/pulp-content/partner-repositories/@partner-repos-nvidia-doca/ovs-doca-3.5/custom-1-$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-2 https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-3pq
 
 [doca-aarch64]
-name=DOCA Online Repo 64k
-baseurl=https://coprbe.devel.redhat.com/results/@partner-repos-ovs-doca/ovs-doca-3.5/custom-1-$basearch/
-enabled=1
-gpgcheck=0
+name=NVIDIA DOCA (PER, aarch64 / 64k)
+baseurl=https://packages.redhat.com/api/pulp-content/partner-repositories/@partner-repos-nvidia-doca/ovs-doca-3.5/custom-1-$basearch/
+enabled=0
+gpgcheck=1
+gpgkey=https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-2 https://partner-repositories.redhat.com/keys/RPM-GPG-KEY-redhat-partner-nvidia-doca-3pq
 
 [rhel-10.2-supp-eus]
 name=rhel-10.2-supp-eus

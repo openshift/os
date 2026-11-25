@@ -11,9 +11,9 @@ extensions:
     packages:
       - libreswan
       - NetworkManager-libreswan
-      # The DOCA variant needs doca-openvswitch-ipsec
-      # which the partner repository does not carry yet
-      # - doca-openvswitch-ipsec
+      # The DOCA variant needs doca-openvswitch-ipsec, published in the
+      # Partner Ecosystem Repository (ovs-doca-3.5) since 2026-11-09.
+      - doca-openvswitch-ipsec
   # https://github.com/coreos/fedora-coreos-tracker/issues/326
   usbguard:
     packages:

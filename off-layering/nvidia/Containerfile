@@ -17,16 +17,19 @@ RUN set -euxo pipefail; \
     #OLD_VERSION=$(grep "^OSTREE_VERSION=" /usr/lib/os-release | cut -d"'" -f2); \
     #[ -n "$OLD_VERSION" ] || { echo "Error: Could not extract version from os-release"; exit 1; }; \
     arch="$(uname -m)"; \
-    # TODO: We need to understand how/where the mlnx-ofa_kernel modules will be placed, since it depends on the Kernel version
-   # once we have the final repo for DOCA we can see the next steps.
+    # TODO: We need to understand how/where the mlnx-ofa_kernel modules will be placed, since it depends on the Kernel version.
+    # DOCA now comes from the Partner Ecosystem Repository; MOFED still comes from
+    # the RHEL supplementary stanzas in doca.repo (see the pull request notes).
     dnf remove kernel-core --assumeyes; \
     if [ "$arch" = 'aarch64' ]; then \
         kernel_name="kernel-64k-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-64k-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
         mlnx_name="mlnx-ofa_kernel-64k-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.aarch64 mlnx-ofa_kernel-modules-64k"; \
+        doca_repo='doca-aarch64'; \
         disable='doca-x86_64'; \
     else \
         kernel_name="kernel-core${KERNEL_VERSION:+-}${KERNEL_VERSION} kernel-modules-extra${KERNEL_VERSION:+-}${KERNEL_VERSION}"; \
         mlnx_name="mlnx-ofa_kernel-26.07-OFED.26.07.0.7.7.0.kver.6.12.0_259.26.el10nv.2.x86_64 mlnx-ofa_kernel-modules"; \
+        doca_repo='doca-x86_64'; \
         disable='doca-aarch64'; \
     fi; \
     dnf install --assumeyes --disablerepo='*' --enablerepo=nvidia $kernel_name; \
@@ -39,6 +42,7 @@ RUN set -euxo pipefail; \
 
     dnf install --assumeyes \
         --disablerepo="$disable" \
+        --enablerepo="$doca_repo" \
         doca-networking-runtime \
         openvswitch-selinux-extra-policy \
         mft \
