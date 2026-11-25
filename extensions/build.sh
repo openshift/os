@@ -109,6 +109,8 @@ echo "Downloading all extension packages (${#all_packages[@]} packages)..."
 #
 # Leverage skip_if_unavailable=True for cases where repos exist for
 # only specific architectures.
+dnf versionlock list
+dnf list available --repo="${repo_list}" kernel\*
 for subcommand in 'install' 'reinstall'; do
     dnf --repo="${repo_list}" "${subcommand}" \
         --assumeyes                           \
