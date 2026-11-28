@@ -6,6 +6,10 @@ if [ "${OPENSHIFT_CI}" != 0 ]; then
     ci/get-ocp-repo.sh ocp.repo
 fi
 
+# doca.repo resolves the stream from this variable; default matches the node image.
+mkdir -p /etc/dnf/vars
+printf '%s\n' "${DOCA_STREAM:-3.5}" > /etc/dnf/vars/doca_stream
+
 # add all the repos from the src dir (including mounted secret.repo)
 # into /etc/yum.repos.d so dnf sees them
 cat /os/*.repo >> /etc/yum.repos.d/git.repo
